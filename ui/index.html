@@ -55,6 +55,12 @@
       font-family: var(--font-sans);
     }
 
+    /* Enable text selection & editing inside inputs & textareas */
+    input, textarea, select {
+      user-select: text !important;
+      -webkit-user-select: text !important;
+    }
+
     body {
       background: var(--bg-window);
       color: var(--text-main);
@@ -338,7 +344,7 @@
     }
 
     /* ========================================================= */
-    /* 2. SLASHNOTE STICKY NOTE VIEW                             */
+    /* 2. SLASHNOTE STICKY NOTE VIEW (REFINED TYPOGRAPHY)        */
     /* ========================================================= */
     .slashnote-card {
       background: var(--bg-card);
@@ -356,7 +362,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .pill-cluster {
@@ -399,18 +405,26 @@
       font-weight: 700;
     }
 
+    /* Native, Clean, Polished Note Textarea */
     .note-editor {
       flex: 1;
       background: transparent;
       border: none;
       outline: none;
       resize: none;
-      font-size: 14px;
-      line-height: 1.6;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif;
+      font-size: 13.5px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.62;
       color: var(--text-main);
       padding: 6px 2px;
+      caret-color: var(--accent-blue);
     }
-    .note-editor::placeholder { color: var(--text-dim); }
+    .note-editor::placeholder {
+      color: var(--text-dim);
+      font-weight: 400;
+    }
 
     .slashnote-bottom-strip {
       display: flex;
@@ -1002,7 +1016,7 @@
           </div>
         </div>
 
-        <!-- Note Textarea -->
+        <!-- Clean, Fluent Note Textarea -->
         <textarea class="note-editor" id="note-editor" placeholder="Type your note..." oninput="handleNoteChange()"></textarea>
 
         <!-- Bottom SlashNote Pill -->
@@ -1099,9 +1113,22 @@
         </div>
       </div>
 
-      <!-- Startup Setting -->
+      <!-- Sound & Startup Preferences -->
       <div class="settings-group" style="border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+        <!-- Mute Sound Switch -->
         <div class="settings-row">
+          <div>
+            <div>Mute Sound Effects</div>
+            <div class="settings-row-subtext">Silence clicks, snaps, and focus chimes</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="mute-sound-chk" onchange="toggleMuteSound(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <!-- Startup Setting -->
+        <div class="settings-row" style="margin-top: 6px;">
           <div>
             <div>Launch at Mac Startup</div>
             <div class="settings-row-subtext">Auto-run in Menu Bar on boot</div>
@@ -1141,9 +1168,10 @@
     let notesHistory = [];
     let currentNoteId = null;
     let isPinned = false;
+    let isMuted = false;
 
     /* ========================================================= */
-    /* 1. SYNTHESIZED SOUND ENGINE                               */
+    /* 1. SYNTHESIZED SOUND ENGINE (WITH MUTE SUPPORT)           */
     /* ========================================================= */
     let audioCtx = null;
     let rainNode = null;
@@ -1157,7 +1185,18 @@
       return audioCtx;
     }
 
+    function toggleMuteSound(muted) {
+      isMuted = muted;
+      localStorage.setItem('tickr_sound_muted', muted ? 'true' : 'false');
+      if (isMuted && isAmbientPlaying) {
+        stopAmbientNoise();
+        document.getElementById('ambient-sound-btn').classList.remove('active');
+      }
+      showToast(isMuted ? '🔇 Audio Muted' : '🔊 Audio Enabled');
+    }
+
     function playCrownTick() {
+      if (isMuted) return;
       try {
         const ctx = getAudioContext();
         const osc = ctx.createOscillator();
@@ -1175,6 +1214,7 @@
     }
 
     function playTaskSnap() {
+      if (isMuted) return;
       try {
         const ctx = getAudioContext();
         const osc = ctx.createOscillator();
@@ -1197,6 +1237,7 @@
         stopAmbientNoise();
         btn.classList.remove('active');
       } else {
+        if (isMuted) toggleMuteSound(false);
         startAmbientNoise();
         btn.classList.add('active');
       }
@@ -1800,6 +1841,11 @@
           else pinBtn.classList.remove('pinned');
         }
       }
+
+      // Check Mute Preference
+      isMuted = (localStorage.getItem('tickr_sound_muted') === 'true');
+      const muteChk = document.getElementById('mute-sound-chk');
+      if (muteChk) muteChk.checked = isMuted;
 
       const savedMode = localStorage.getItem('tickr_theme_mode') || 'system';
       setThemeMode(savedMode);
