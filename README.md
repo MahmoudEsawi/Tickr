@@ -56,20 +56,24 @@ Tickr/
 
 ---
 
-## Quick Start
+## Installation
 
-### Prerequisites
-* macOS 13 (Ventura) or later
-* Python 3.10+
-* `pip3 install pyobjc-framework-Cocoa pyobjc-framework-WebKit`
+### Option 1: Direct Download (DMG)
 
-### Running Locally
+1. Download [**Tickr-v1.0.0.dmg**](https://github.com/MahmoudEsawi/Tickr/releases/latest/download/Tickr-v1.0.0.dmg) or [**Tickr-v1.0.0-macOS.zip**](https://github.com/MahmoudEsawi/Tickr/releases/latest/download/Tickr-v1.0.0-macOS.zip).
+2. Open the disk image and drag **Tickr** into your `Applications` folder.
+3. Launch **Tickr** — it will appear instantly in your top macOS menu bar.
+
+---
+
+### Option 2: Clone & Run via Terminal
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/MahmoudEsawi/Tickr.git
 cd Tickr
 
-# 2. Start the menu bar application
+# 2. Run the application
 python3 tickr_app.py
 ```
 
