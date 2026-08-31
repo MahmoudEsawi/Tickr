@@ -13,6 +13,7 @@ DIARY_PATH = os.path.join(DIARY_DIR, "src/data/diary.json")
 BACKUP_DIR = os.path.expanduser("~/Library/Application Support/Tickr")
 BACKUP_FILE = os.path.join(BACKUP_DIR, "tasks.json")
 TAGS_FILE = os.path.join(BACKUP_DIR, "tags.json")
+NOTE_FILE = os.path.join(BACKUP_DIR, "scratchpad.md")
 LAUNCH_AGENT_PATH = os.path.expanduser("~/Library/LaunchAgents/com.mahmoudesawi.tickr.plist")
 ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 ICON_PATH = os.path.join(ASSETS_DIR, "menu_icon.png")
@@ -20,7 +21,6 @@ UI_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "i
 
 def send_native_notification(title, message):
     try:
-        # Sanitize quotes
         clean_title = title.replace('"', '\\"')
         clean_msg = message.replace('"', '\\"')
         cmd = f'osascript -e \'display notification "{clean_msg}" with title "⚡ Tickr" subtitle "{clean_title}" sound name "Glass"\''
@@ -79,6 +79,24 @@ def save_tags(tags):
             json.dump(tags, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print("Save tags error:", e)
+
+def load_note():
+    if os.path.exists(NOTE_FILE):
+        try:
+            with open(NOTE_FILE, "r", encoding="utf-8") as f:
+                return f.read()
+        except Exception:
+            pass
+    return ""
+
+def save_note(text):
+    try:
+        if not os.path.exists(BACKUP_DIR):
+            os.makedirs(BACKUP_DIR, exist_ok=True)
+        with open(NOTE_FILE, "w", encoding="utf-8") as f:
+            f.write(text)
+    except Exception as e:
+        print("Save note error:", e)
 
 def load_tasks_from_disk():
     if os.path.exists(DIARY_PATH):
@@ -189,6 +207,10 @@ class ScriptHandler(Cocoa.NSObject):
             if app_delegate:
                 app_delegate.update_badge_count(tasks_list)
 
+        elif action == "save_note":
+            note_text = body.get("text", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
+            save_note(note_text)
+
         elif action == "timer_update":
             time_text = body.get("text", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
             if app_delegate:
@@ -250,7 +272,7 @@ class AppDelegate(Cocoa.NSObject):
         config = WebKit.WKWebViewConfiguration.alloc().init()
         config.setUserContentController_(contentController)
 
-        frame = Cocoa.NSMakeRect(0, 0, 370, 480)
+        frame = Cocoa.NSMakeRect(0, 0, 360, 420)
         self.webView = WebKit.WKWebView.alloc().initWithFrame_configuration_(frame, config)
         self.webView.setValue_forKey_(False, "drawsBackground")
 
@@ -260,15 +282,17 @@ class AppDelegate(Cocoa.NSObject):
         tasks = load_tasks_from_disk()
         tags = load_tags()
         autostart = is_launch_at_login()
+        note = load_note()
         self.update_badge_count(tasks)
         
         tasks_json = json.dumps(tasks)
         tags_json = json.dumps(tags)
-        js_code = f"setTimeout(function() {{ if(window.initTasks) initTasks({tasks_json}, {tags_json}, {json.dumps(autostart)}); }}, 350);"
+        note_json = json.dumps(note)
+        js_code = f"setTimeout(function() {{ if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {note_json}); }}, 350);"
         self.webView.evaluateJavaScript_completionHandler_(js_code, None)
 
         self.popover = Cocoa.NSPopover.alloc().init()
-        self.popover.setContentSize_(Cocoa.NSMakeSize(370, 480))
+        self.popover.setContentSize_(Cocoa.NSMakeSize(360, 420))
         self.popover.setBehavior_(Cocoa.NSPopoverBehaviorTransient)
         self.popover.setAnimates_(True)
 
@@ -276,7 +300,6 @@ class AppDelegate(Cocoa.NSObject):
         viewController.setView_(self.webView)
         self.popover.setContentViewController_(viewController)
 
-        # Global Hotkey Setup (Command + Shift + T or Option + Space)
         self.setup_global_hotkeys()
 
     def setup_global_hotkeys(self):
@@ -284,7 +307,6 @@ class AppDelegate(Cocoa.NSObject):
             flags = event.modifierFlags()
             chars = event.charactersIgnoringModifiers()
             
-            # Match ⌘ + Shift + T (Command + Shift + T)
             is_cmd = bool(flags & Cocoa.NSEventModifierFlagCommand)
             is_shift = bool(flags & Cocoa.NSEventModifierFlagShift)
             is_opt = bool(flags & Cocoa.NSEventModifierFlagOption)
@@ -294,7 +316,6 @@ class AppDelegate(Cocoa.NSObject):
             elif is_opt and (chars and chars == ' '):
                 self.togglePopover_(None)
 
-        # Register global and local event monitors
         Cocoa.NSEvent.addGlobalMonitorForEventsMatchingMask_handler_(Cocoa.NSEventMaskKeyDown, handle_global_event)
         Cocoa.NSEvent.addLocalMonitorForEventsMatchingMask_handler_(Cocoa.NSEventMaskKeyDown, lambda event: (handle_global_event(event), event)[1])
 
@@ -309,7 +330,7 @@ class AppDelegate(Cocoa.NSObject):
             return
         
         if self.active_timer_text:
-            button.setTitle_(f" ⏱️ {self.active_timer_text}")
+            button.setTitle_(f" {self.active_timer_text}")
         else:
             active = sum(1 for t in tasks if not t.get("done", False))
             if active > 0:
@@ -325,9 +346,11 @@ class AppDelegate(Cocoa.NSObject):
             tasks = load_tasks_from_disk()
             tags = load_tags()
             autostart = is_launch_at_login()
+            note = load_note()
             tasks_json = json.dumps(tasks)
             tags_json = json.dumps(tags)
-            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initTasks) initTasks({tasks_json}, {tags_json}, {json.dumps(autostart)});", None)
+            note_json = json.dumps(note)
+            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {note_json});", None)
             self.popover.showRelativeToRect_ofView_preferredEdge_(button.bounds(), button, Cocoa.NSMinYEdge)
             Cocoa.NSApp().activateIgnoringOtherApps_(True)
 

@@ -6,20 +6,31 @@
   <title>Tickr</title>
   <style>
     :root {
-      --bg: #0C0D11;
-      --bg-surface: #14151B;
-      --bg-surface-hover: #1B1C24;
-      --bg-subtle: rgba(255, 255, 255, 0.04);
-      --border-primary: rgba(255, 255, 255, 0.1);
-      --border-subtle: rgba(255, 255, 255, 0.06);
-      --border-hover: rgba(255, 255, 255, 0.2);
-      --fg-primary: #EDEDED;
-      --fg-secondary: #9496A1;
-      --fg-dim: #60626D;
-      --emerald-dot: #10B981;
-      --accent-pomodoro: #F59E0B;
-      --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Display", sans-serif;
+      --bg: #F9F9FB;
+      --bg-card: #FFFFFF;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --border-subtle: rgba(0, 0, 0, 0.04);
+      --text-main: #1D1D1F;
+      --text-secondary: #6E6E73;
+      --text-dim: #A1A1A6;
+      --accent: #111111;
+      --active-pill: #E5E5EA;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
       --font-mono: "SF Mono", Menlo, Monaco, "Courier New", monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141416;
+        --bg-card: #1D1E22;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --border-subtle: rgba(255, 255, 255, 0.05);
+        --text-main: #F5F5F7;
+        --text-secondary: #98989D;
+        --text-dim: #636366;
+        --accent: #FFFFFF;
+        --active-pill: #2C2C2E;
+      }
     }
 
     * {
@@ -33,136 +44,72 @@
 
     body {
       background: var(--bg);
-      color: var(--fg-primary);
+      color: var(--text-main);
       width: 100vw;
       height: 100vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      border: 1px solid var(--border-primary);
-      border-radius: 14px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      border-radius: 18px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
       position: relative;
     }
 
-    /* Top Navigation / Brand Header */
-    .header {
-      padding: 12px 16px 10px;
+    /* Top Navigation Tab Bar */
+    .nav-bar {
+      padding: 10px 14px;
       display: flex;
-      flex-direction: column;
-      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
       border-bottom: 1px solid var(--border-subtle);
       background: var(--bg);
     }
 
-    .brand-row {
+    .nav-tabs {
+      display: flex;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 9px;
+      padding: 2.5px;
+      gap: 2px;
+    }
+
+    .nav-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 4px 11px;
+      border-radius: 7px;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 5px;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .brand-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .nav-tab.active {
+      background: var(--active-pill);
+      color: var(--text-main);
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
-    .brand-avatar {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 1px solid var(--border-primary);
-      background: #000;
-      padding: 1px;
-    }
-
-    .brand-title {
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--fg-primary);
-    }
-
-    .brand-mono {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: var(--fg-dim);
-      font-weight: 400;
-    }
-
-    .header-actions {
+    .nav-actions {
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    /* Pomodoro Mini Bar */
-    .pomo-widget {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: var(--fg-secondary);
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .pomo-widget.active {
-      background: rgba(245, 158, 11, 0.12);
-      border-color: rgba(245, 158, 11, 0.35);
-      color: var(--accent-pomodoro);
-    }
-
-    .pomo-btn {
-      background: transparent;
-      border: none;
-      color: inherit;
-      cursor: pointer;
-      font-size: 10px;
-    }
-
-    .status-live {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 7px;
-      border-radius: 20px;
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      font-family: var(--font-mono);
-      font-size: 9.5px;
-      font-weight: 600;
-      color: var(--emerald-dot);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .status-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--emerald-dot);
-      box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
-      animation: pulse 2s infinite ease-in-out;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-
     .btn-icon {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      color: var(--fg-secondary);
-      width: 22px;
-      height: 22px;
-      border-radius: 5px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -172,126 +119,324 @@
     }
 
     .btn-icon:hover {
-      border-color: var(--border-hover);
-      color: var(--fg-primary);
-      background: var(--bg-surface-hover);
+      color: var(--text-main);
+      border-color: var(--text-dim);
     }
 
-    /* Category & Filter Tabs */
-    .controls-row {
+    /* Main Tab Content View Area */
+    .tab-content {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========================================================= */
+    /* 1. ONIGIRI STYLE: MINIMALIST POMODORO TIMER VIEW          */
+    /* ========================================================= */
+    .pomo-view {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    /* Ruler / Scrubber Bar */
+    .ruler-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ruler-track {
+      width: 100%;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
+      position: relative;
+      cursor: pointer;
+      padding: 0 4px;
     }
 
-    .seg-group {
+    .ruler-ticks {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
       display: flex;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 2px;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
     }
 
-    .seg-item {
+    .tick {
+      width: 1px;
+      height: 8px;
+      background: var(--text-dim);
+      opacity: 0.35;
+    }
+
+    .tick.major {
+      height: 16px;
+      opacity: 0.7;
+      background: var(--text-secondary);
+    }
+
+    .ruler-cursor {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2.5px;
+      background: var(--text-main);
+      border-radius: 2px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+      transition: left 0.15s ease;
+    }
+
+    .pomo-presets {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .preset-btn {
       background: transparent;
       border: none;
-      color: var(--fg-secondary);
-      font-size: 10.5px;
+      color: var(--text-secondary);
+      font-size: 12px;
       font-weight: 500;
-      padding: 2px 7px;
-      border-radius: 4px;
       cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 5px;
       transition: all 0.15s ease;
     }
 
-    .seg-item.active {
-      background: var(--bg-subtle);
-      color: var(--fg-primary);
-      border: 1px solid var(--border-primary);
+    .preset-btn.active {
+      color: var(--text-main);
+      font-weight: 700;
+      background: var(--active-pill);
     }
 
-    .cat-bar {
+    /* Giant Time Readout & Bottom Controls */
+    .pomo-bottom {
       display: flex;
-      gap: 4px;
-      overflow-x: auto;
-      align-items: center;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 10px 4px 6px;
     }
-    .cat-bar::-webkit-scrollbar { display: none; }
 
-    .cat-pill {
-      font-family: var(--font-mono);
-      font-size: 9.5px;
+    .pomo-start-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: lowercase;
+      letter-spacing: -0.01em;
+      transition: color 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 0;
+    }
+
+    .pomo-start-btn:hover {
+      color: var(--text-main);
+    }
+
+    .pomo-start-btn.running {
+      color: #EF4444;
+    }
+
+    .pomo-digits {
+      font-size: 48px;
+      font-weight: 300;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+    }
+
+    /* ========================================================= */
+    /* 2. SLASHNOTE STYLE: MODERN MINIMAL STICKY NOTE VIEW       */
+    /* ========================================================= */
+    .note-view {
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      gap: 8px;
+    }
+
+    .note-toolstrip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px;
+    }
+
+    .note-tools-left, .note-tools-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .note-tool-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
       padding: 3px 6px;
-      border-radius: 4px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      color: var(--fg-secondary);
+      border-radius: 5px;
+      transition: all 0.15s ease;
+    }
+
+    .note-tool-btn:hover {
+      color: var(--text-main);
+      background: var(--bg-card);
+    }
+
+    .note-canvas {
+      flex: 1;
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text-main);
+      padding: 4px 0;
+    }
+
+    .note-canvas::placeholder {
+      color: var(--text-dim);
+    }
+
+    .note-bottom-pill {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-top: 4px;
+    }
+
+    .pill-cluster {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      gap: 8px;
+    }
+
+    /* ========================================================= */
+    /* 3. TICKR TO-DO & DEVELOPER DIARY VIEW                     */
+    /* ========================================================= */
+    .todo-view {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    /* Filter & Category Pills */
+    .filter-bar {
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+
+    .tag-pill {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2.5px 7px;
+      border-radius: 5px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
       cursor: pointer;
       transition: all 0.15s ease;
       white-space: nowrap;
     }
 
-    .cat-pill:hover {
-      border-color: var(--border-hover);
-      color: var(--fg-primary);
-    }
-
-    .cat-pill.active {
-      background: var(--fg-primary);
+    .tag-pill:hover { color: var(--text-main); }
+    .tag-pill.active {
+      background: var(--text-main);
       color: var(--bg);
+      border-color: var(--text-main);
       font-weight: 600;
-      border-color: var(--fg-primary);
     }
 
-    /* Input Section */
-    .input-box {
-      padding: 9px 14px;
-      background: var(--bg-surface);
-      border-bottom: 1px solid var(--border-subtle);
+    /* Task Quick Input */
+    .input-section {
+      padding: 8px 14px;
       display: flex;
       align-items: center;
       gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-card);
     }
 
-    .cat-select {
+    .cat-selector {
       font-family: var(--font-mono);
       font-size: 10px;
       background: var(--bg);
-      border: 1px solid var(--border-primary);
-      color: var(--fg-primary);
-      padding: 4px 6px;
-      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 3px 6px;
+      border-radius: 5px;
       outline: none;
       cursor: pointer;
-      max-width: 105px;
     }
 
-    .task-field {
+    .task-input {
       flex: 1;
       background: transparent;
       border: none;
-      color: var(--fg-primary);
-      font-size: 12px;
       outline: none;
+      font-size: 12.5px;
+      color: var(--text-main);
     }
 
-    .task-field::placeholder {
-      color: var(--fg-dim);
-    }
+    .task-input::placeholder { color: var(--text-dim); }
 
-    .enter-badge {
+    .return-badge {
       font-family: var(--font-mono);
       font-size: 9.5px;
-      color: var(--fg-dim);
-      border: 1px solid var(--border-subtle);
-      padding: 2px 4px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-color);
+      padding: 1.5px 4px;
       border-radius: 3px;
-      background: var(--bg);
     }
 
-    /* Tasks Container */
-    .task-list {
+    /* Task Rows */
+    .task-container {
       flex: 1;
       overflow-y: auto;
       padding: 8px 12px;
@@ -299,270 +444,217 @@
       flex-direction: column;
       gap: 5px;
     }
-
-    .task-list::-webkit-scrollbar {
-      width: 4px;
-    }
-    .task-list::-webkit-scrollbar-thumb {
-      background: var(--border-primary);
+    .task-container::-webkit-scrollbar { width: 4px; }
+    .task-container::-webkit-scrollbar-thumb {
+      background: var(--border-color);
       border-radius: 4px;
     }
 
-    /* Task Card */
-    .task-item {
+    .task-row {
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 7px 10px;
-      background: var(--bg-surface);
+      background: var(--bg-card);
       border: 1px solid var(--border-subtle);
-      border-radius: 7px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
 
-    .task-item:hover {
-      background: var(--bg-surface-hover);
-      border-color: var(--border-hover);
+    .task-row:hover {
+      border-color: var(--border-color);
+      background: var(--bg);
     }
 
-    .check-box {
+    .checkbox {
       width: 15px;
       height: 15px;
-      border-radius: 3.5px;
-      border: 1.5px solid var(--border-primary);
+      border-radius: 4px;
+      border: 1.5px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.15s ease;
       flex-shrink: 0;
+      transition: all 0.15s ease;
     }
 
-    .task-item:hover .check-box {
-      border-color: var(--fg-secondary);
+    .task-row.completed .checkbox {
+      background: #10B981;
+      border-color: #10B981;
     }
 
-    .task-item.completed .check-box {
-      background: var(--emerald-dot);
-      border-color: var(--emerald-dot);
-    }
-
-    .check-box svg {
+    .checkbox svg {
       display: none;
       width: 9px;
       height: 9px;
-      stroke: #000;
+      stroke: #FFFFFF;
       stroke-width: 2.5;
     }
 
-    .task-item.completed .check-box svg {
-      display: block;
-    }
+    .task-row.completed .checkbox svg { display: block; }
 
-    .task-body {
+    .task-title {
       flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
-
-    .task-name {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--fg-primary);
-      transition: all 0.15s ease;
+      font-size: 12.5px;
+      color: var(--text-main);
       word-break: break-word;
     }
 
-    .task-item.completed .task-name {
-      color: var(--fg-dim);
+    .task-row.completed .task-title {
+      color: var(--text-dim);
       text-decoration: line-through;
     }
 
-    .task-badge {
+    .task-tag-badge {
       font-family: var(--font-mono);
       font-size: 8.5px;
-      color: var(--fg-dim);
-      border: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+      border: 1px solid var(--border-color);
       padding: 1px 4px;
       border-radius: 3px;
-      background: var(--bg);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
     .del-btn {
       opacity: 0;
       background: transparent;
       border: none;
-      color: var(--fg-dim);
+      color: var(--text-dim);
       cursor: pointer;
-      font-size: 12px;
+      font-size: 11px;
       padding: 2px;
-      transition: all 0.15s ease;
     }
 
-    .task-item:hover .del-btn {
-      opacity: 1;
-    }
+    .task-row:hover .del-btn { opacity: 1; }
+    .del-btn:hover { color: #EF4444; }
 
-    .del-btn:hover {
-      color: #EF4444;
-    }
-
-    /* Empty State */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 36px 20px;
-      text-align: center;
-      gap: 6px;
-    }
-
-    .empty-title {
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--fg-primary);
-    }
-
-    .empty-desc {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: var(--fg-dim);
-    }
-
-    /* Settings & Tag Manager Modal Overlay */
-    .modal-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(12, 13, 17, 0.96);
-      backdrop-filter: blur(10px);
-      display: none;
-      flex-direction: column;
-      z-index: 50;
-      padding: 16px;
-      animation: fadeIn 0.15s ease;
-    }
-
-    .modal-overlay.open {
-      display: flex;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.98); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .modal-header {
+    /* Footer Toolbar */
+    .footer {
+      padding: 8px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 10px;
-      margin-bottom: 12px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg);
     }
 
-    .modal-title {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: var(--fg-primary);
+    .footer-mono {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .footer-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
-    .settings-section {
-      margin-bottom: 14px;
-      padding-bottom: 12px;
+    .btn-live-deploy {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--text-main);
+      color: var(--bg);
+      border: none;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3.5px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .btn-live-deploy:hover { opacity: 0.9; }
+
+    /* Modal Sheet for Tag Manager & Settings */
+    .modal-sheet {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      display: none;
+      flex-direction: column;
+      z-index: 100;
+      padding: 14px;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .modal-sheet.open { display: flex; }
+
+    .modal-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
       border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 10px;
     }
 
-    .setting-row {
+    .modal-header-title {
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .settings-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 11.5px;
-      color: var(--fg-primary);
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .setting-desc {
-      font-size: 10px;
-      color: var(--fg-dim);
-      margin-top: 2px;
-    }
-
-    /* Switch */
+    /* Toggle Switch */
     .switch {
-      position: relative;
-      display: inline-block;
-      width: 32px;
-      height: 18px;
+      position: relative; display: inline-block; width: 30px; height: 16px;
     }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider {
       position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: var(--border-primary);
-      transition: .2s; border-radius: 18px;
+      background-color: var(--text-dim); transition: .2s; border-radius: 16px;
     }
     .slider:before {
-      position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px;
+      position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px;
       background-color: white; transition: .2s; border-radius: 50%;
     }
-    input:checked + .slider { background-color: var(--emerald-dot); }
+    input:checked + .slider { background-color: #10B981; }
     input:checked + .slider:before { transform: translateX(14px); }
 
-    .tag-grid {
+    .tag-manage-list {
+      flex: 1;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 5px;
-      flex: 1;
-      overflow-y: auto;
     }
 
-    .tag-row {
+    .tag-manage-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 5px 8px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: 5px;
-    }
-
-    .tag-label {
       font-family: var(--font-mono);
       font-size: 10.5px;
-      color: var(--fg-primary);
     }
 
-    .tag-del-btn {
-      background: transparent;
-      border: none;
-      color: var(--fg-dim);
-      cursor: pointer;
-      font-size: 11px;
-    }
-    .tag-del-btn:hover { color: #EF4444; }
-
-    .add-tag-box {
+    .tag-add-container {
       display: flex;
       gap: 6px;
-      margin-top: 10px;
       padding-top: 10px;
       border-top: 1px solid var(--border-subtle);
     }
 
-    .tag-input {
+    .tag-add-input {
       flex: 1;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-primary);
-      color: var(--fg-primary);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
       font-family: var(--font-mono);
       font-size: 10.5px;
       padding: 5px 7px;
@@ -571,8 +663,8 @@
       text-transform: uppercase;
     }
 
-    .btn-add-tag {
-      background: var(--fg-primary);
+    .tag-add-btn {
+      background: var(--text-main);
       color: var(--bg);
       border: none;
       font-family: var(--font-mono);
@@ -582,195 +674,396 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
-    /* Footer Toolbar */
-    .footer {
-      padding: 9px 14px;
-      background: var(--bg);
-      border-top: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .footer-mono {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--fg-dim);
-    }
-
-    .footer-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-publish {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: #EDEDED;
-      color: #0C0D11;
-      border: none;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 600;
-      padding: 3.5px 8px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .btn-publish:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
-
-    .btn-publish.deploying {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .action-link {
-      background: transparent;
-      border: none;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--fg-dim);
-      cursor: pointer;
-      transition: color 0.15s ease;
-    }
-
-    .action-link:hover { color: var(--fg-primary); }
   </style>
 </head>
 <body>
 
-  <!-- Top Header -->
-  <div class="header">
-    <div class="brand-row">
-      <div class="brand-left">
-        <img src="assets/avatar.svg" alt="Mahmoud" class="brand-avatar">
-        <span class="brand-title">Tickr</span>
-        <span class="brand-mono">// ⌘⇧T</span>
-      </div>
-      <div class="header-actions">
-        <!-- Pomodoro Focus Widget -->
-        <div class="pomo-widget" id="pomo-widget" onclick="togglePomodoro()">
-          <span>⏱️</span>
-          <span id="pomo-time">25:00</span>
-          <button class="pomo-btn" id="pomo-ctrl">▶</button>
-        </div>
-
-        <button class="btn-icon" title="Settings & Tags" onclick="openSettingsModal()">⚙️</button>
-        
-        <div class="status-live">
-          <span class="status-dot"></span>
-          <span id="active-counter">0 Active</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filter & Category Row -->
-    <div class="controls-row">
-      <div class="seg-group">
-        <button class="seg-item active" onclick="setFilter('all', this)">All</button>
-        <button class="seg-item" onclick="setFilter('active', this)">Active</button>
-        <button class="seg-item" onclick="setFilter('done', this)">Done</button>
-      </div>
-
-      <div class="cat-bar" id="cat-bar">
-        <!-- Rendered dynamically -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Input Section -->
-  <div class="input-box">
-    <select id="cat-input" class="cat-select">
-      <!-- Rendered dynamically -->
-    </select>
-    <input type="text" id="task-field" class="task-field" placeholder="Add task to esawi.dev..." onkeydown="handleKey(event)" autofocus>
-    <span class="enter-badge">↵</span>
-  </div>
-
-  <!-- Task List -->
-  <div class="task-list" id="task-container">
-    <!-- Rendered via JS -->
-  </div>
-
-  <!-- Bottom Footer -->
-  <div class="footer">
-    <div class="footer-mono" id="footer-summary">0 pending</div>
-    <div class="footer-actions">
-      <button class="btn-publish" id="publish-btn" onclick="publishToLive()">
-        <span>🚀 Push to Live</span>
+  <!-- Top Navigation & Tab Controls -->
+  <div class="nav-bar">
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('pomo', this)">
+        <span>⏱️</span>
+        <span>Timer</span>
       </button>
-      <button class="action-link" onclick="quitApp()">Quit</button>
+      <button class="nav-tab" onclick="switchTab('todo', this)">
+        <span>☑️</span>
+        <span>To-Do</span>
+      </button>
+      <button class="nav-tab" onclick="switchTab('note', this)">
+        <span>📝</span>
+        <span>Note</span>
+      </button>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn-icon" title="Settings & Tags" onclick="openSettingsModal()">⚙️</button>
     </div>
   </div>
 
-  <!-- Settings & Custom Tags Modal -->
-  <div class="modal-overlay" id="settings-modal">
-    <div class="modal-header">
-      <div class="modal-title">⚙️ Settings & Tags</div>
+  <!-- TAB 1: ONIGIRI STYLE MINIMALIST POMODORO TIMER -->
+  <div class="tab-content active" id="tab-pomo">
+    <div class="pomo-view">
+      <!-- Ruler Scrubber Track -->
+      <div class="ruler-container">
+        <div class="ruler-track" id="ruler-track" onclick="handleRulerClick(event)">
+          <div class="ruler-ticks" id="ruler-ticks">
+            <!-- 30 tick marks -->
+          </div>
+          <div class="ruler-cursor" id="ruler-cursor" style="left: 50%;"></div>
+        </div>
+
+        <div class="pomo-presets">
+          <button class="preset-btn" onclick="selectDuration(5, this)">5m</button>
+          <button class="preset-btn" onclick="selectDuration(10, this)">10m</button>
+          <button class="preset-btn" onclick="selectDuration(15, this)">15m</button>
+          <button class="preset-btn active" onclick="selectDuration(25, this)">25m</button>
+          <button class="preset-btn" onclick="selectDuration(50, this)">50m</button>
+        </div>
+      </div>
+
+      <!-- Giant Digital Readout & Bottom Start Action -->
+      <div class="pomo-bottom">
+        <button class="pomo-start-btn" id="pomo-toggle-btn" onclick="toggleTimer()">
+          <span id="pomo-btn-label">start</span>
+        </button>
+        <div class="pomo-digits" id="pomo-display">25:00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: TICKR TO-DO LIST (SYNCED WITH ESAWI.DEV DIARY) -->
+  <div class="tab-content" id="tab-todo">
+    <div class="todo-view">
+      <!-- Category Filter Pills -->
+      <div class="filter-bar" id="tag-filter-bar">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Quick Add Input -->
+      <div class="input-section">
+        <select id="cat-selector" class="cat-selector">
+          <!-- Rendered via JS -->
+        </select>
+        <input type="text" id="task-input-field" class="task-input" placeholder="Add a task..." onkeydown="handleTaskInputKey(event)">
+        <span class="return-badge">↵</span>
+      </div>
+
+      <!-- Task Items List -->
+      <div class="task-container" id="tasks-list">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Bottom Status & Push to Live -->
+      <div class="footer">
+        <div class="footer-mono" id="todo-summary">0 pending</div>
+        <div class="footer-actions">
+          <button class="btn-live-deploy" id="live-deploy-btn" onclick="deployToDiaryLive()">
+            <span>🚀 Push to Live</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: SLASHNOTE STYLE MODERN STICKY NOTE -->
+  <div class="tab-content" id="tab-note">
+    <div class="note-view">
+      <div class="note-toolstrip">
+        <div class="note-tools-left">
+          <button class="note-tool-btn" title="Add Bullet" onclick="insertNoteText('- [ ] ')">☑️ List</button>
+          <button class="note-tool-btn" title="Heading" onclick="insertNoteText('### ')"># Title</button>
+        </div>
+        <div class="note-tools-right">
+          <button class="note-tool-btn" title="Clear Note" onclick="clearNote()">Clear</button>
+        </div>
+      </div>
+
+      <textarea class="note-canvas" id="scratchpad-area" placeholder="Type your note..." oninput="handleNoteInput()"></textarea>
+
+      <div class="note-bottom-pill">
+        <div class="pill-cluster">
+          <span>Format</span>
+          <span>•</span>
+          <span>Auto-saved</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings & Custom Tag Manager Modal -->
+  <div class="modal-sheet" id="settings-sheet">
+    <div class="modal-top">
+      <span class="modal-header-title">⚙️ Settings & Tags</span>
       <button class="btn-icon" onclick="closeSettingsModal()">✕</button>
     </div>
 
-    <!-- Launch at Login Toggle -->
-    <div class="settings-section">
-      <div class="setting-row">
-        <div>
-          <div>Launch at Mac Startup</div>
-          <div class="setting-desc">Auto-start Tickr quietly in menu bar on boot</div>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="autostart-toggle" onchange="toggleAutostart(this.checked)">
-          <span class="slider"></span>
-        </label>
+    <div class="settings-item">
+      <div>
+        <div>Launch at Mac Startup</div>
+        <div style="font-size: 10px; color: var(--text-dim);">Auto-run in Menu Bar on boot</div>
       </div>
+      <label class="switch">
+        <input type="checkbox" id="autostart-chk" onchange="handleAutostartChange(this.checked)">
+        <span class="slider"></span>
+      </label>
     </div>
 
-    <!-- Tag Manager -->
-    <div class="modal-title" style="margin-bottom: 8px; font-size: 11.5px;">🏷️ Custom Category Tags</div>
-    <div class="tag-grid" id="tag-list-manager">
-      <!-- Rendered dynamically -->
+    <div style="font-size: 11px; font-weight: 600; margin-bottom: 6px;">🏷️ Custom Category Tags</div>
+    <div class="tag-manage-list" id="tag-manage-list">
+      <!-- Rendered via JS -->
     </div>
 
-    <div class="add-tag-box">
-      <input type="text" id="new-tag-input" class="tag-input" placeholder="NEW TAG NAME..." onkeydown="handleTagKey(event)">
-      <button class="btn-add-tag" onclick="addNewTag()">+ Add</button>
+    <div class="tag-add-container">
+      <input type="text" id="new-tag-field" class="tag-add-input" placeholder="NEW TAG..." onkeydown="handleNewTagKey(event)">
+      <button class="tag-add-btn" onclick="addNewCustomTag()">+ Add</button>
     </div>
   </div>
 
   <script>
+    let currentTab = 'pomo';
     let tasks = [];
     let tags = ["PROJECT", "CODE", "HACKATHON", "DAILY", "IDEAS"];
-    let currentFilter = 'all';
-    let currentCategory = null;
-    let autostart = false;
+    let currentCategoryFilter = null;
+    let autostartEnabled = false;
 
-    /* Pomodoro Timer State */
-    let pomoSeconds = 25 * 60;
-    let pomoInterval = null;
-    let pomoRunning = false;
+    /* ========================================================= */
+    /* 1. ONIGIRI POMODORO ENGINE                                */
+    /* ========================================================= */
+    let selectedMinutes = 25;
+    let totalSeconds = 25 * 60;
+    let remainingSeconds = 25 * 60;
+    let timerRunning = false;
+    let timerInterval = null;
 
-    function initTasks(initialTasks, customTags, isAutostart) {
-      tasks = initialTasks || [];
-      if (customTags && Array.isArray(customTags) && customTags.length > 0) {
-        tags = customTags;
+    function buildRulerTicks() {
+      const container = document.getElementById('ruler-ticks');
+      let html = '';
+      for (let i = 0; i <= 30; i++) {
+        const isMajor = i % 5 === 0;
+        html += `<div class="tick ${isMajor ? 'major' : ''}"></div>`;
       }
-      if (typeof isAutostart === 'boolean') {
-        autostart = isAutostart;
-        const toggle = document.getElementById('autostart-toggle');
-        if (toggle) toggle.checked = autostart;
-      }
-      renderTagPills();
-      render();
+      container.innerHTML = html;
     }
 
-    function saveTasksToNative() {
+    function selectDuration(mins, btnEl) {
+      if (timerRunning) pauseTimer();
+      selectedMinutes = mins;
+      totalSeconds = mins * 60;
+      remainingSeconds = mins * 60;
+      
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      
+      updateRulerPosition(mins / 60);
+      updateDisplay();
+    }
+
+    function handleRulerClick(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const ratio = Math.max(0.05, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const mins = Math.round(ratio * 60);
+      selectDuration(mins, null);
+    }
+
+    function updateRulerPosition(ratio) {
+      const cursor = document.getElementById('ruler-cursor');
+      cursor.style.left = `${Math.min(98, Math.max(2, ratio * 100))}%`;
+    }
+
+    function toggleTimer() {
+      if (timerRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    }
+
+    function startTimer() {
+      timerRunning = true;
+      document.getElementById('pomo-btn-label').textContent = 'pause';
+      document.getElementById('pomo-toggle-btn').classList.add('running');
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (remainingSeconds > 0) {
+          remainingSeconds--;
+          updateDisplay();
+          updateRulerPosition(remainingSeconds / totalSeconds);
+        } else {
+          finishTimer();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      timerRunning = false;
+      document.getElementById('pomo-btn-label').textContent = 'start';
+      document.getElementById('pomo-toggle-btn').classList.remove('running');
+      clearInterval(timerInterval);
+      syncMenuBarTimer("");
+    }
+
+    function updateDisplay() {
+      const m = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+      const s = String(remainingSeconds % 60).padStart(2, '0');
+      const timeStr = `${m}:${s}`;
+      document.getElementById('pomo-display').textContent = timeStr;
+      if (timerRunning) {
+        syncMenuBarTimer(timeStr);
+      }
+    }
+
+    function finishTimer() {
+      pauseTimer();
+      remainingSeconds = selectedMinutes * 60;
+      updateDisplay();
+      updateRulerPosition(1);
+
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "notify",
+          title: "🎉 Focus Session Finished!",
+          message: `${selectedMinutes} minutes of focused work completed. Time for a break!`
+        });
+      }
+    }
+
+    function syncMenuBarTimer(text) {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "timer_update",
+          text: text
+        });
+      }
+    }
+
+    /* ========================================================= */
+    /* 2. SLASHNOTE SCRATCHPAD                                   */
+    /* ========================================================= */
+    let noteSaveTimeout = null;
+
+    function handleNoteInput() {
+      clearTimeout(noteSaveTimeout);
+      noteSaveTimeout = setTimeout(() => {
+        const text = document.getElementById('scratchpad-area').value;
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+          window.webkit.messageHandlers.tickr.postMessage({
+            action: "save_note",
+            text: text
+          });
+        }
+      }, 400);
+    }
+
+    function insertNoteText(snippet) {
+      const area = document.getElementById('scratchpad-area');
+      const start = area.selectionStart;
+      const end = area.selectionEnd;
+      area.value = area.value.substring(0, start) + snippet + area.value.substring(end);
+      area.selectionStart = area.selectionEnd = start + snippet.length;
+      area.focus();
+      handleNoteInput();
+    }
+
+    function clearNote() {
+      document.getElementById('scratchpad-area').value = '';
+      handleNoteInput();
+    }
+
+    /* ========================================================= */
+    /* 3. TO-DO & DIARY ENGINE                                   */
+    /* ========================================================= */
+    function renderTasks() {
+      const list = document.getElementById('tasks-list');
+      const pendingCount = tasks.filter(t => !t.done).length;
+      const doneCount = tasks.filter(t => t.done).length;
+      document.getElementById('todo-summary').textContent = `${pendingCount} pending // ${doneCount} done`;
+
+      const filtered = tasks.filter(t => {
+        if (currentCategoryFilter && t.category.toUpperCase() !== currentCategoryFilter.toUpperCase()) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-title">All tasks cleared</div>
+            <div class="empty-desc">// zero active issues</div>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = filtered.map(t => `
+        <div class="task-row ${t.done ? 'completed' : ''}" onclick="toggleTask(${t.id})">
+          <div class="checkbox">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M5 13l4 4L19 7" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="task-title">${t.title}</div>
+          <span class="task-tag-badge">${t.category || 'TASK'}</span>
+          <button class="del-btn" onclick="deleteTask(${t.id}, event)">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function renderTagSelectors() {
+      const filterBar = document.getElementById('tag-filter-bar');
+      const select = document.getElementById('cat-selector');
+
+      filterBar.innerHTML = `
+        <div class="tag-pill ${currentCategoryFilter === null ? 'active' : ''}" onclick="setCategoryFilter(null, this)">ALL</div>
+        ${tags.map(t => `
+          <div class="tag-pill ${currentCategoryFilter === t ? 'active' : ''}" onclick="setCategoryFilter('${t}', this)">${t}</div>
+        `).join('')}
+      `;
+
+      select.innerHTML = tags.map(t => `<option value="${t}">${t}</option>`).join('');
+    }
+
+    function setCategoryFilter(tag, el) {
+      currentCategoryFilter = tag;
+      renderTagSelectors();
+      renderTasks();
+    }
+
+    function handleTaskInputKey(e) {
+      if (e.key === 'Enter') {
+        const input = document.getElementById('task-input-field');
+        const val = input.value.trim();
+        if (!val) return;
+        const category = document.getElementById('cat-selector').value;
+        tasks.unshift({
+          id: Date.now(),
+          title: val,
+          category: category,
+          done: false,
+          created: new Date().toISOString()
+        });
+        input.value = '';
+        saveTasksNative();
+        renderTasks();
+      }
+    }
+
+    function toggleTask(id) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task.done = !task.done;
+        saveTasksNative();
+        renderTasks();
+      }
+    }
+
+    function deleteTask(id, e) {
+      e.stopPropagation();
+      tasks = tasks.filter(t => t.id !== id);
+      saveTasksNative();
+      renderTasks();
+    }
+
+    function saveTasksNative() {
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
         window.webkit.messageHandlers.tickr.postMessage({
           action: "save",
@@ -780,20 +1073,9 @@
       }
     }
 
-    function toggleAutostart(enabled) {
-      autostart = enabled;
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "set_autostart",
-          enabled: enabled
-        });
-      }
-    }
-
-    function publishToLive() {
-      const btn = document.getElementById('publish-btn');
+    function deployToDiaryLive() {
+      const btn = document.getElementById('live-deploy-btn');
       btn.innerHTML = '<span>⏳ Pushing...</span>';
-      btn.classList.add('deploying');
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
         window.webkit.messageHandlers.tickr.postMessage({
           action: "publish",
@@ -804,240 +1086,95 @@
     }
 
     window.onPublishSuccess = function() {
-      const btn = document.getElementById('publish-btn');
+      const btn = document.getElementById('live-deploy-btn');
       btn.innerHTML = '<span>✓ Live! 🚀</span>';
-      btn.classList.remove('deploying');
       setTimeout(() => {
         btn.innerHTML = '<span>🚀 Push to Live</span>';
-      }, 3000);
+      }, 2500);
     };
 
-    function quitApp() {
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({ action: "quit" });
-      }
+    /* ========================================================= */
+    /* 4. SETTINGS & APP INITIALIZATION                          */
+    /* ========================================================= */
+    function switchTab(tabId, el) {
+      currentTab = tabId;
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById(`tab-${tabId}`).classList.add('active');
     }
 
-    /* Pomodoro Timer Engine */
-    function togglePomodoro() {
-      if (pomoRunning) {
-        pausePomodoro();
-      } else {
-        startPomodoro();
-      }
-    }
-
-    function startPomodoro() {
-      pomoRunning = true;
-      document.getElementById('pomo-widget').classList.add('active');
-      document.getElementById('pomo-ctrl').textContent = '⏸';
-      clearInterval(pomoInterval);
-      pomoInterval = setInterval(() => {
-        if (pomoSeconds > 0) {
-          pomoSeconds--;
-          updatePomoDisplay();
-        } else {
-          finishPomodoro();
-        }
-      }, 1000);
-    }
-
-    function pausePomodoro() {
-      pomoRunning = false;
-      document.getElementById('pomo-ctrl').textContent = '▶';
-      clearInterval(pomoInterval);
-      updateTimerInMenuBar("");
-    }
-
-    function updatePomoDisplay() {
-      const m = String(Math.floor(pomoSeconds / 60)).padStart(2, '0');
-      const s = String(pomoSeconds % 60).padStart(2, '0');
-      const timeStr = `${m}:${s}`;
-      document.getElementById('pomo-time').textContent = timeStr;
-      updateTimerInMenuBar(timeStr);
-    }
-
-    function finishPomodoro() {
-      pausePomodoro();
-      pomoSeconds = 25 * 60;
-      document.getElementById('pomo-time').textContent = '25:00';
-      document.getElementById('pomo-widget').classList.remove('active');
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "notify",
-          title: "🎉 Focus Session Finished!",
-          message: "25 minutes of deep work completed. Take a 5-minute break!"
-        });
-      }
-    }
-
-    function updateTimerInMenuBar(text) {
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "timer_update",
-          text: text
-        });
-      }
-    }
-
-    /* Settings & Tag Manager */
     function openSettingsModal() {
-      document.getElementById('settings-modal').classList.add('open');
+      document.getElementById('settings-sheet').classList.add('open');
       renderTagManager();
     }
 
     function closeSettingsModal() {
-      document.getElementById('settings-modal').classList.remove('open');
-      renderTagPills();
-      render();
+      document.getElementById('settings-sheet').classList.remove('open');
+      renderTagSelectors();
+      renderTasks();
     }
 
     function renderTagManager() {
-      const container = document.getElementById('tag-list-manager');
+      const container = document.getElementById('tag-manage-list');
       container.innerHTML = tags.map((t, idx) => `
-        <div class="tag-row">
-          <span class="tag-label">[${t}]</span>
-          ${tags.length > 1 ? `<button class="tag-del-btn" onclick="removeTag(${idx})">✕</button>` : ''}
+        <div class="tag-manage-row">
+          <span>[${t}]</span>
+          ${tags.length > 1 ? `<button class="del-btn" style="opacity:1" onclick="removeTag(${idx})">✕</button>` : ''}
         </div>
       `).join('');
     }
 
-    function handleTagKey(e) {
-      if (e.key === 'Enter') {
-        addNewTag();
-      }
+    function handleNewTagKey(e) {
+      if (e.key === 'Enter') addNewCustomTag();
     }
 
-    function addNewTag() {
-      const input = document.getElementById('new-tag-input');
+    function addNewCustomTag() {
+      const input = document.getElementById('new-tag-field');
       const val = input.value.trim().toUpperCase();
       if (val && !tags.includes(val)) {
         tags.push(val);
         input.value = '';
         renderTagManager();
-        renderTagPills();
-        saveTasksToNative();
+        renderTagSelectors();
+        saveTasksNative();
       }
     }
 
-    function removeTag(index) {
+    function removeTag(idx) {
       if (tags.length > 1) {
-        tags.splice(index, 1);
+        tags.splice(idx, 1);
         renderTagManager();
-        renderTagPills();
-        saveTasksToNative();
+        renderTagSelectors();
+        saveTasksNative();
       }
     }
 
-    function renderTagPills() {
-      const bar = document.getElementById('cat-bar');
-      const select = document.getElementById('cat-input');
-
-      bar.innerHTML = `
-        <div class="cat-pill ${currentCategory === null ? 'active' : ''}" onclick="setCategory(null, this)">ALL</div>
-        ${tags.map(t => `
-          <div class="cat-pill ${currentCategory === t ? 'active' : ''}" onclick="setCategory('${t}', this)">${t}</div>
-        `).join('')}
-      `;
-
-      select.innerHTML = tags.map(t => `
-        <option value="${t}">${t}</option>
-      `).join('');
-    }
-
-    function handleKey(e) {
-      if (e.key === 'Enter') {
-        const input = document.getElementById('task-field');
-        const text = input.value.trim();
-        if (!text) return;
-        const category = document.getElementById('cat-input').value;
-        tasks.unshift({
-          id: Date.now(),
-          title: text,
-          category: category,
-          done: false,
-          created: new Date().toISOString()
+    function handleAutostartChange(checked) {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "set_autostart",
+          enabled: checked
         });
-        input.value = '';
-        saveTasksToNative();
-        render();
       }
     }
 
-    function toggleTask(id) {
-      const task = tasks.find(t => t.id === id);
-      if (task) {
-        task.done = !task.done;
-        saveTasksToNative();
-        render();
+    function initAppState(initialTasks, customTags, isAutostart, noteContent) {
+      tasks = initialTasks || [];
+      if (customTags && Array.isArray(customTags)) tags = customTags;
+      if (typeof isAutostart === 'boolean') {
+        document.getElementById('autostart-chk').checked = isAutostart;
       }
-    }
-
-    function deleteTask(id, event) {
-      event.stopPropagation();
-      tasks = tasks.filter(t => t.id !== id);
-      saveTasksToNative();
-      render();
-    }
-
-    function setFilter(filter, el) {
-      currentFilter = filter;
-      document.querySelectorAll('.seg-item').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
-      render();
-    }
-
-    function setCategory(cat, el) {
-      currentCategory = cat;
-      document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
-      render();
-    }
-
-    function render() {
-      const container = document.getElementById('task-container');
-      const activeCount = tasks.filter(t => !t.done).length;
-      const doneCount = tasks.filter(t => t.done).length;
-
-      document.getElementById('active-counter').textContent = `${activeCount} Active`;
-      document.getElementById('footer-summary').textContent = `${activeCount} pending // ${doneCount} done`;
-
-      const filtered = tasks.filter(task => {
-        if (currentFilter === 'active' && task.done) return false;
-        if (currentFilter === 'done' && !task.done) return false;
-        if (currentCategory && task.category.toUpperCase() !== currentCategory.toUpperCase()) return false;
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-title">All tasks completed</div>
-            <div class="empty-desc">// zero active issues</div>
-          </div>
-        `;
-        return;
+      if (typeof noteContent === 'string') {
+        document.getElementById('scratchpad-area').value = noteContent;
       }
-
-      container.innerHTML = filtered.map(t => {
-        return `
-          <div class="task-item ${t.done ? 'completed' : ''}" onclick="toggleTask(${t.id})">
-            <div class="check-box">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M5 13l4 4L19 7" stroke="#0C0D11" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="task-body">
-              <div class="task-name">${t.title}</div>
-              <span class="task-badge">${t.category || 'TASK'}</span>
-            </div>
-            <button class="del-btn" onclick="deleteTask(${t.id}, event)">✕</button>
-          </div>
-        `;
-      }).join('');
+      buildRulerTicks();
+      renderTagSelectors();
+      renderTasks();
+      updateDisplay();
     }
 
-    renderTagPills();
+    buildRulerTicks();
   </script>
 </body>
 </html>
