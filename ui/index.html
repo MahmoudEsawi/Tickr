@@ -41,6 +41,7 @@
       border: 1px solid var(--border-primary);
       border-radius: 14px;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      position: relative;
     }
 
     /* Top Navigation / Brand Header */
@@ -88,6 +89,12 @@
       font-weight: 400;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .status-live {
       display: inline-flex;
       align-items: center;
@@ -116,6 +123,27 @@
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .btn-icon {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--fg-secondary);
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-icon:hover {
+      border-color: var(--border-hover);
+      color: var(--fg-primary);
+      background: var(--bg-surface-hover);
     }
 
     /* Category & Filter Tabs */
@@ -157,6 +185,7 @@
       display: flex;
       gap: 4px;
       overflow-x: auto;
+      align-items: center;
     }
     .cat-bar::-webkit-scrollbar { display: none; }
 
@@ -205,6 +234,7 @@
       border-radius: 5px;
       outline: none;
       cursor: pointer;
+      max-width: 110px;
     }
 
     .task-field {
@@ -374,6 +404,119 @@
       color: var(--fg-dim);
     }
 
+    /* Tag Manager Modal Overlay */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(12, 13, 17, 0.94);
+      backdrop-filter: blur(8px);
+      display: none;
+      flex-direction: column;
+      z-index: 50;
+      padding: 16px;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--fg-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tag-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .tag-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+    }
+
+    .tag-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg-primary);
+    }
+
+    .tag-del-btn {
+      background: transparent;
+      border: none;
+      color: var(--fg-dim);
+      cursor: pointer;
+      font-size: 12px;
+      transition: color 0.15s ease;
+    }
+
+    .tag-del-btn:hover {
+      color: #EF4444;
+    }
+
+    .add-tag-box {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .tag-input {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-primary);
+      color: var(--fg-primary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      outline: none;
+      text-transform: uppercase;
+    }
+
+    .btn-add-tag {
+      background: var(--fg-primary);
+      color: var(--bg);
+      border: none;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
     /* Footer Toolbar */
     .footer {
       padding: 10px 16px;
@@ -448,9 +591,12 @@
         <span class="brand-title">Tickr</span>
         <span class="brand-mono">// esawi.dev diary</span>
       </div>
-      <div class="status-live">
-        <span class="status-dot"></span>
-        <span id="active-counter">0 Active</span>
+      <div class="header-actions">
+        <button class="btn-icon" title="Customize Tags" onclick="openTagModal()">🏷️</button>
+        <div class="status-live">
+          <span class="status-dot"></span>
+          <span id="active-counter">0 Active</span>
+        </div>
       </div>
     </div>
 
@@ -462,12 +608,8 @@
         <button class="seg-item" onclick="setFilter('done', this)">Done</button>
       </div>
 
-      <div class="cat-bar">
-        <div class="cat-pill active" onclick="setCategory(null, this)">ALL</div>
-        <div class="cat-pill" onclick="setCategory('Project', this)">PROJECT</div>
-        <div class="cat-pill" onclick="setCategory('Code', this)">CODE</div>
-        <div class="cat-pill" onclick="setCategory('Hackathon', this)">HACKATHON</div>
-        <div class="cat-pill" onclick="setCategory('Daily', this)">DAILY</div>
+      <div class="cat-bar" id="cat-bar">
+        <!-- Rendered dynamically -->
       </div>
     </div>
   </div>
@@ -475,10 +617,7 @@
   <!-- Input Section -->
   <div class="input-box">
     <select id="cat-input" class="cat-select">
-      <option value="Project">PROJECT</option>
-      <option value="Code">CODE</option>
-      <option value="Hackathon">HACKATHON</option>
-      <option value="Daily">DAILY</option>
+      <!-- Rendered dynamically -->
     </select>
     <input type="text" id="task-field" class="task-field" placeholder="Add task to esawi.dev..." onkeydown="handleKey(event)" autofocus>
     <span class="enter-badge">↵</span>
@@ -500,19 +639,45 @@
     </div>
   </div>
 
+  <!-- Custom Tags Manager Modal -->
+  <div class="modal-overlay" id="tag-modal">
+    <div class="modal-header">
+      <div class="modal-title">🏷️ Manage Custom Tags</div>
+      <button class="btn-icon" onclick="closeTagModal()">✕</button>
+    </div>
+
+    <div class="tag-grid" id="tag-list-manager">
+      <!-- Rendered dynamically -->
+    </div>
+
+    <div class="add-tag-box">
+      <input type="text" id="new-tag-input" class="tag-input" placeholder="NEW TAG NAME..." onkeydown="handleTagKey(event)">
+      <button class="btn-add-tag" onclick="addNewTag()">+ Add</button>
+    </div>
+  </div>
+
   <script>
     let tasks = [];
+    let tags = ["PROJECT", "CODE", "HACKATHON", "DAILY", "IDEAS"];
     let currentFilter = 'all';
     let currentCategory = null;
 
-    function initTasks(initialTasks) {
+    function initTasks(initialTasks, customTags) {
       tasks = initialTasks || [];
+      if (customTags && Array.isArray(customTags) && customTags.length > 0) {
+        tags = customTags;
+      }
+      renderTagPills();
       render();
     }
 
     function saveTasksToNative() {
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({ action: "save", data: JSON.stringify(tasks) });
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "save",
+          data: JSON.stringify(tasks),
+          tags: JSON.stringify(tags)
+        });
       }
     }
 
@@ -521,7 +686,11 @@
       btn.innerHTML = '<span>⏳ Pushing...</span>';
       btn.classList.add('deploying');
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({ action: "publish", data: JSON.stringify(tasks) });
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "publish",
+          data: JSON.stringify(tasks),
+          tags: JSON.stringify(tags)
+        });
       }
     }
 
@@ -538,6 +707,73 @@
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
         window.webkit.messageHandlers.tickr.postMessage({ action: "quit" });
       }
+    }
+
+    /* Tag Customization Functions */
+    function openTagModal() {
+      document.getElementById('tag-modal').classList.add('open');
+      renderTagManager();
+    }
+
+    function closeTagModal() {
+      document.getElementById('tag-modal').classList.remove('open');
+      renderTagPills();
+      render();
+    }
+
+    function renderTagManager() {
+      const container = document.getElementById('tag-list-manager');
+      container.innerHTML = tags.map((t, idx) => `
+        <div class="tag-row">
+          <span class="tag-label">[${t}]</span>
+          ${tags.length > 1 ? `<button class="tag-del-btn" onclick="removeTag(${idx})">✕</button>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function handleTagKey(e) {
+      if (e.key === 'Enter') {
+        addNewTag();
+      }
+    }
+
+    function addNewTag() {
+      const input = document.getElementById('new-tag-input');
+      const val = input.value.trim().toUpperCase();
+      if (val && !tags.includes(val)) {
+        tags.push(val);
+        input.value = '';
+        renderTagManager();
+        renderTagPills();
+        saveTasksToNative();
+      }
+    }
+
+    function removeTag(index) {
+      if (tags.length > 1) {
+        tags.splice(index, 1);
+        renderTagManager();
+        renderTagPills();
+        saveTasksToNative();
+      }
+    }
+
+    function renderTagPills() {
+      const bar = document.getElementById('cat-bar');
+      const select = document.getElementById('cat-input');
+
+      // Top Filter Pills
+      bar.innerHTML = `
+        <div class="cat-pill ${currentCategory === null ? 'active' : ''}" onclick="setCategory(null, this)">ALL</div>
+        ${tags.map(t => `
+          <div class="cat-pill ${currentCategory === t ? 'active' : ''}" onclick="setCategory('${t}', this)">${t}</div>
+        `).join('')}
+      `;
+
+      // Quick Input Dropdown
+      select.innerHTML = tags.map(t => `
+        <option value="${t}">${t}</option>
+      `).join('');
     }
 
     function handleKey(e) {
@@ -600,7 +836,7 @@
       const filtered = tasks.filter(task => {
         if (currentFilter === 'active' && task.done) return false;
         if (currentFilter === 'done' && !task.done) return false;
-        if (currentCategory && task.category.toLowerCase() !== currentCategory.toLowerCase()) return false;
+        if (currentCategory && task.category.toUpperCase() !== currentCategory.toUpperCase()) return false;
         return true;
       });
 
@@ -631,6 +867,9 @@
         `;
       }).join('');
     }
+
+    // Default load
+    renderTagPills();
   </script>
 </body>
 </html>

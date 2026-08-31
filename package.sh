@@ -33,6 +33,11 @@ EOF
 
 chmod +x "${MACOS_DIR}/${APP_NAME}"
 
+# Copy icon to Resources
+if [ -f "assets/AppIcon.icns" ]; then
+    cp assets/AppIcon.icns "${RESOURCES_DIR}/"
+fi
+
 # Create Info.plist
 cat <<EOF > "${APP_BUNDLE}/Contents/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -41,6 +46,8 @@ cat <<EOF > "${APP_BUNDLE}/Contents/Info.plist"
 <dict>
     <key>CFBundleExecutable</key>
     <string>${APP_NAME}</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
     <string>com.mahmoudesawi.${APP_NAME}</string>
     <key>CFBundleName</key>

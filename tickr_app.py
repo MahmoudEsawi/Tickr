@@ -12,9 +12,28 @@ DIARY_DIR = os.path.expanduser("~/Projects/esawi.dev")
 DIARY_PATH = os.path.join(DIARY_DIR, "src/data/diary.json")
 BACKUP_DIR = os.path.expanduser("~/Library/Application Support/Tickr")
 BACKUP_FILE = os.path.join(BACKUP_DIR, "tasks.json")
+TAGS_FILE = os.path.join(BACKUP_DIR, "tags.json")
 ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 ICON_PATH = os.path.join(ASSETS_DIR, "menu_icon.png")
 UI_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "index.html")
+
+def load_tags():
+    if os.path.exists(TAGS_FILE):
+        try:
+            with open(TAGS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return ["PROJECT", "CODE", "HACKATHON", "DAILY", "IDEAS"]
+
+def save_tags(tags):
+    try:
+        if not os.path.exists(BACKUP_DIR):
+            os.makedirs(BACKUP_DIR, exist_ok=True)
+        with open(TAGS_FILE, "w", encoding="utf-8") as f:
+            json.dump(tags, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print("Save tags error:", e)
 
 def load_tasks_from_disk():
     if os.path.exists(DIARY_PATH):
@@ -25,19 +44,17 @@ def load_tasks_from_disk():
             tasks = []
             id_counter = 1
             
-            # Pending tasks
             for item in diary.get("log", {}).get("pending", []):
                 tasks.append({
                     "id": id_counter,
                     "title": item,
-                    "category": "Project",
+                    "category": "PROJECT",
                     "done": False
                 })
                 id_counter += 1
             
-            # Completed tasks (most recent first)
             for item in reversed(diary.get("log", {}).get("completed", [])):
-                cat = item.get("type", "Project").capitalize()
+                cat = item.get("type", "PROJECT").upper()
                 tasks.append({
                     "id": id_counter,
                     "title": item.get("description", ""),
@@ -55,7 +72,6 @@ def load_tasks_from_disk():
     return []
 
 def save_tasks_to_disk(tasks):
-    # 1. Save backup to local App Support
     try:
         if not os.path.exists(BACKUP_DIR):
             os.makedirs(BACKUP_DIR, exist_ok=True)
@@ -64,7 +80,6 @@ def save_tasks_to_disk(tasks):
     except Exception as e:
         print("Backup save error:", e)
 
-    # 2. Synchronize with esawi.dev diary.json
     if os.path.exists(DIARY_PATH):
         try:
             with open(DIARY_PATH, "r", encoding="utf-8") as f:
@@ -73,12 +88,10 @@ def save_tasks_to_disk(tasks):
             if "log" not in diary:
                 diary["log"] = {"completed": [], "pending": []}
 
-            # Update pending array
             diary["log"]["pending"] = [
                 t["title"] for t in tasks if not t.get("done", False)
             ]
 
-            # Update completed array
             today_str = datetime.date.today().isoformat()
             completed_items = []
             
@@ -106,27 +119,27 @@ class ScriptHandler(Cocoa.NSObject):
         body = message.body()
         action = None
         data = None
+        tags = None
 
         if isinstance(body, (dict, Cocoa.NSDictionary)):
             action = body.get("action")
             data = body.get("data")
+            tags = body.get("tags")
         elif isinstance(body, str):
             try:
                 parsed = json.loads(body)
                 action = parsed.get("action")
                 data = parsed.get("data")
+                tags = parsed.get("tags")
             except Exception:
                 pass
 
+        if tags:
+            tags_list = json.loads(tags) if isinstance(tags, str) else list(tags)
+            save_tags(tags_list)
+
         if action == "save" and data is not None:
-            if isinstance(data, str):
-                try:
-                    tasks_list = json.loads(data)
-                except Exception:
-                    tasks_list = []
-            else:
-                tasks_list = list(data)
-            
+            tasks_list = json.loads(data) if isinstance(data, str) else list(data)
             save_tasks_to_disk(tasks_list)
             
             app_delegate = Cocoa.NSApp().delegate()
@@ -161,7 +174,6 @@ class AppDelegate(Cocoa.NSObject):
         self.statusItem = Cocoa.NSStatusBar.systemStatusBar().statusItemWithLength_(Cocoa.NSVariableStatusItemLength)
         button = self.statusItem.button()
 
-        # Set your face avatar logo as the Menu Bar icon
         if os.path.exists(ICON_PATH):
             icon_img = Cocoa.NSImage.alloc().initWithContentsOfFile_(ICON_PATH)
             if icon_img:
@@ -180,23 +192,21 @@ class AppDelegate(Cocoa.NSObject):
         config = WebKit.WKWebViewConfiguration.alloc().init()
         config.setUserContentController_(contentController)
 
-        # Create WKWebView
         frame = Cocoa.NSMakeRect(0, 0, 370, 480)
         self.webView = WebKit.WKWebView.alloc().initWithFrame_configuration_(frame, config)
         self.webView.setValue_forKey_(False, "drawsBackground")
 
-        # Load HTML
         file_url = Cocoa.NSURL.fileURLWithPath_(UI_HTML_PATH)
         self.webView.loadFileURL_allowingReadAccessToURL_(file_url, file_url.URLByDeletingLastPathComponent())
 
-        # Load initial tasks from diary.json
         tasks = load_tasks_from_disk()
+        tags = load_tags()
         self.update_badge_count(tasks)
         tasks_json = json.dumps(tasks)
-        js_code = f"setTimeout(function() {{ if(window.initTasks) initTasks({tasks_json}); }}, 350);"
+        tags_json = json.dumps(tags)
+        js_code = f"setTimeout(function() {{ if(window.initTasks) initTasks({tasks_json}, {tags_json}); }}, 350);"
         self.webView.evaluateJavaScript_completionHandler_(js_code, None)
 
-        # Popover
         self.popover = Cocoa.NSPopover.alloc().init()
         self.popover.setContentSize_(Cocoa.NSMakeSize(370, 480))
         self.popover.setBehavior_(Cocoa.NSPopoverBehaviorTransient)
@@ -221,8 +231,10 @@ class AppDelegate(Cocoa.NSObject):
             self.popover.performClose_(sender)
         else:
             tasks = load_tasks_from_disk()
+            tags = load_tags()
             tasks_json = json.dumps(tasks)
-            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initTasks) initTasks({tasks_json});", None)
+            tags_json = json.dumps(tags)
+            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initTasks) initTasks({tasks_json}, {tags_json});", None)
             self.popover.showRelativeToRect_ofView_preferredEdge_(button.bounds(), button, Cocoa.NSMinYEdge)
             Cocoa.NSApp().activateIgnoringOtherApps_(True)
 
