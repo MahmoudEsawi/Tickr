@@ -124,7 +124,7 @@
       gap: 6px;
     }
 
-    .theme-mode-btn {
+    .theme-mode-btn, .header-icon-btn {
       background: var(--bg-capsule);
       border: none;
       color: var(--text-muted);
@@ -140,7 +140,7 @@
       transition: all 0.15s ease;
     }
 
-    .theme-mode-btn svg {
+    .theme-mode-btn svg, .header-icon-btn svg {
       width: 12px;
       height: 12px;
       stroke: currentColor;
@@ -148,7 +148,7 @@
       stroke-width: 2;
     }
 
-    .theme-mode-btn:hover {
+    .theme-mode-btn:hover, .header-icon-btn:hover {
       color: var(--text-main);
       background: var(--bg-capsule-hover);
     }
@@ -198,13 +198,16 @@
       height: 38px;
       width: 100%;
       position: relative;
-      cursor: pointer;
+      cursor: grab;
       display: flex;
       align-items: center;
       padding: 0 8px;
       overflow: hidden;
       box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+      touch-action: none;
     }
+
+    .scrubber-capsule:active { cursor: grabbing; }
 
     .scrubber-ticks {
       position: absolute;
@@ -225,11 +228,10 @@
       position: absolute;
       top: 4px;
       bottom: 4px;
-      width: 3px;
+      width: 3.5px;
       background: var(--ruler-cursor);
       border-radius: 2px;
       pointer-events: none;
-      transition: left 0.12s linear;
       box-shadow: 0 0 5px rgba(0,0,0,0.3);
     }
 
@@ -243,7 +245,7 @@
     .preset-items {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .preset-link {
@@ -262,6 +264,19 @@
       color: var(--text-main);
       font-weight: 600;
       background: var(--bg-capsule);
+    }
+
+    .custom-mins-input {
+      width: 44px;
+      background: var(--bg-capsule);
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-main);
+      text-align: center;
+      padding: 2px 0;
+      outline: none;
     }
 
     .sound-toggle-btn {
@@ -312,6 +327,14 @@
       line-height: 1;
       color: var(--text-main);
       font-family: var(--font-sans);
+      cursor: pointer;
+      border-radius: 6px;
+      padding: 0 4px;
+      transition: background 0.15s ease;
+    }
+
+    .onigiri-clock:hover {
+      background: var(--bg-capsule);
     }
 
     /* ========================================================= */
@@ -430,7 +453,7 @@
     .floating-action-link:hover { color: var(--text-main); }
     .pill-divider { opacity: 0.3; }
 
-    /* Notes History Drawer / Modal */
+    /* Notes History Drawer */
     .history-drawer {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -494,15 +517,9 @@
       gap: 8px;
     }
     .history-item:hover { background: var(--bg-capsule-hover); }
-    .history-item.active-note {
-      border-left: 3px solid var(--accent-green);
-    }
+    .history-item.active-note { border-left: 3px solid var(--accent-green); }
 
-    .history-item-body {
-      flex: 1;
-      overflow: hidden;
-    }
-
+    .history-item-body { flex: 1; overflow: hidden; }
     .history-item-title {
       font-size: 12px;
       font-weight: 600;
@@ -511,7 +528,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
     .history-item-date {
       font-family: var(--font-mono);
       font-size: 9.5px;
@@ -721,6 +737,136 @@
     }
     .btn-push-live:hover { opacity: 0.9; }
 
+    /* ========================================================= */
+    /* 4. DEDICATED SETTINGS & CREATOR MODAL                     */
+    /* ========================================================= */
+    .settings-modal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      animation: tabFadeIn 0.15s ease;
+    }
+    .settings-modal-overlay.open { display: flex; }
+
+    .settings-modal-card {
+      background: var(--bg-card);
+      width: 100%;
+      max-height: 100%;
+      border-radius: 18px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      padding: 14px 16px;
+      overflow-y: auto;
+    }
+
+    .settings-header-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 10px;
+    }
+
+    .settings-main-title {
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .settings-group {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-main);
+    }
+
+    .settings-row-subtext {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* Switch */
+    .switch {
+      position: relative; display: inline-block; width: 30px; height: 16px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--text-dim); transition: .2s; border-radius: 16px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px;
+      background-color: white; transition: .2s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--accent-green); }
+    input:checked + .slider:before { transform: translateX(14px); }
+
+    .creator-box {
+      background: var(--bg-window);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+
+    .creator-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .creator-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #000;
+      border: 1px solid var(--border-color);
+    }
+
+    .creator-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .creator-link {
+      font-size: 10px;
+      color: var(--accent-blue);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .creator-link:hover { text-decoration: underline; }
+
+    .version-badge {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-dim);
+      background: var(--bg-capsule);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
     /* Toast Notification Overlay */
     .toast-pill {
       position: absolute;
@@ -737,7 +883,7 @@
       pointer-events: none;
       opacity: 0;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 100;
+      z-index: 150;
     }
     .toast-pill.show {
       transform: translateX(-50%) translateY(0);
@@ -770,13 +916,17 @@
       </button>
     </div>
 
-    <!-- Consolidated Theme Mode Button -->
+    <!-- Header Actions (Theme + Settings Modal) -->
     <div class="header-actions">
       <button class="theme-mode-btn" id="theme-btn" title="Cycle Theme (Auto / Light / Dark)" onclick="cycleTheme()">
         <svg id="theme-icon-svg" viewBox="0 0 24 24">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
         </svg>
         <span id="theme-label">Auto</span>
+      </button>
+
+      <button class="header-icon-btn" title="Settings & About Creator" onclick="openSettingsModal()">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
     </div>
   </div>
@@ -787,30 +937,34 @@
     <!-- 1. ONIGIRI POMODORO VIEW -->
     <div class="tab-view active" id="view-timer">
       <div class="onigiri-card">
-        <!-- Mechanical Scrubber Bar -->
-        <div class="scrubber-capsule" id="scrubber-track" onclick="handleScrubberClick(event)">
+        <!-- Smooth Draggable / Clickable Scrubber Bar -->
+        <div class="scrubber-capsule" id="scrubber-track">
           <div class="scrubber-ticks" id="scrubber-ticks"></div>
           <div class="scrubber-cursor" id="scrubber-cursor" style="left: 41.6%;"></div>
         </div>
 
-        <!-- Presets Row with Ambient Sound Switch -->
+        <!-- Presets Row with Custom Number Picker -->
         <div class="onigiri-presets-row">
           <div class="preset-items">
             <button class="preset-link" onclick="setTimerMins(5, this)">5m</button>
             <button class="preset-link" onclick="setTimerMins(10, this)">10m</button>
             <button class="preset-link active" onclick="setTimerMins(25, this)">25m</button>
             <button class="preset-link" onclick="setTimerMins(50, this)">50m</button>
+            
+            <!-- Custom duration picker -->
+            <input type="number" min="1" max="120" class="custom-mins-input" id="custom-mins-input" placeholder="mins" title="Type custom minutes & press Enter" onkeydown="handleCustomMinsKey(event)">
           </div>
+
           <button class="sound-toggle-btn" id="ambient-sound-btn" onclick="toggleAmbientNoise()">
             <span>🌧️</span>
             <span>Rain</span>
           </button>
         </div>
 
-        <!-- Bottom Giant Display -->
+        <!-- Bottom Giant Display (Clickable to edit) -->
         <div class="onigiri-bottom-row">
           <button class="start-text-btn" id="start-btn" onclick="toggleTimer()">start</button>
-          <div class="onigiri-clock" id="timer-clock">25:00</div>
+          <div class="onigiri-clock" id="timer-clock" title="Click to enter custom time" onclick="promptCustomMins()">25:00</div>
         </div>
       </div>
     </div>
@@ -907,10 +1061,6 @@
               <span>📋</span>
               <span>Standup</span>
             </button>
-            <button class="btn-action-pill" title="Check GitHub Updates" onclick="checkForUpdates()">
-              <span>🔄</span>
-              <span>Updates</span>
-            </button>
           </div>
 
           <button class="btn-push-live" id="push-live-btn" onclick="triggerPushToLive()">
@@ -920,6 +1070,67 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Dedicated Settings & Creator Modal -->
+  <div class="settings-modal-overlay" id="settings-modal">
+    <div class="settings-modal-card">
+      <div class="settings-header-strip">
+        <div class="settings-main-title">
+          <span>⚙️ Settings & Info</span>
+        </div>
+        <button class="cluster-item-btn" onclick="closeSettingsModal()">✕</button>
+      </div>
+
+      <!-- App & Updates Section -->
+      <div class="settings-group">
+        <div class="settings-row">
+          <div>
+            <div>Tickr for macOS</div>
+            <div class="settings-row-subtext">Minimalist Menu Bar Task Engine</div>
+          </div>
+          <span class="version-badge">v1.0.0</span>
+        </div>
+
+        <div class="settings-row" style="margin-top: 4px;">
+          <button class="btn-action-pill" style="width:100%; justify-content:center; padding: 6px;" onclick="checkForUpdates()">
+            <span>🔄 Check for Latest Release</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Startup Setting -->
+      <div class="settings-group" style="border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+        <div class="settings-row">
+          <div>
+            <div>Launch at Mac Startup</div>
+            <div class="settings-row-subtext">Auto-run in Menu Bar on boot</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="autostart-chk" onchange="toggleAutostart(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Creator Information -->
+      <div class="settings-group" style="border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+        <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">CREATED BY</div>
+        <div class="creator-box">
+          <div class="creator-left">
+            <img src="assets/avatar.svg" class="creator-avatar" alt="Mahmoud Al-Esawi">
+            <div>
+              <div class="creator-name">Mahmoud Al-Esawi</div>
+              <a class="creator-link" onclick="openCreatorURL('https://esawi.dev')">esawi.dev ↗</a>
+            </div>
+          </div>
+          <button class="btn-action-pill" onclick="openCreatorURL('https://github.com/MahmoudEsawi/Tickr')">
+            <span>GitHub</span>
+            <span>↗</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1039,7 +1250,207 @@
     }
 
     /* ========================================================= */
-    /* 2. PIN TOGGLE HANDLER                                     */
+    /* 2. SETTINGS & CREATOR LINK HANDLER                        */
+    /* ========================================================= */
+    function openSettingsModal() {
+      document.getElementById('settings-modal').classList.add('open');
+      playTaskSnap();
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.remove('open');
+    }
+
+    function openCreatorURL(url) {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "open_url",
+          url: url
+        });
+      }
+    }
+
+    function toggleAutostart(enabled) {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "set_autostart",
+          enabled: enabled
+        });
+      }
+    }
+
+    function checkForUpdates() {
+      showToast('Checking updates...');
+      fetch('https://api.github.com/repos/MahmoudEsawi/Tickr/releases/latest')
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.tag_name) {
+            showToast(`✓ Up to date (${data.tag_name})`);
+          } else {
+            showToast('✓ Latest version v1.0.0');
+          }
+        })
+        .catch(() => {
+          showToast('✓ Tickr v1.0.0');
+        });
+    }
+
+    /* ========================================================= */
+    /* 3. SMOOTH DRAGGABLE RULER SCRUBBER                        */
+    /* ========================================================= */
+    let selectedMins = 25;
+    let timerSeconds = 25 * 60;
+    let timerTotal = 25 * 60;
+    let isRunning = false;
+    let intervalId = null;
+    let isScrubberDragging = false;
+
+    function buildFineTicks() {
+      const container = document.getElementById('scrubber-ticks');
+      let html = '';
+      for (let i = 0; i <= 60; i++) {
+        const isMajor = i % 5 === 0;
+        html += `<div class="tick ${isMajor ? 'major' : ''}"></div>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function initScrubberDrag() {
+      const track = document.getElementById('scrubber-track');
+
+      function updateScrubFromClientX(clientX) {
+        const rect = track.getBoundingClientRect();
+        const ratio = Math.max(0.016, Math.min(1, (clientX - rect.left) / rect.width));
+        const mins = Math.max(1, Math.round(ratio * 60));
+        if (mins !== selectedMins) {
+          setTimerMins(mins, null);
+        }
+      }
+
+      track.addEventListener('pointerdown', (e) => {
+        isScrubberDragging = true;
+        track.setPointerCapture(e.pointerId);
+        updateScrubFromClientX(e.clientX);
+      });
+
+      track.addEventListener('pointermove', (e) => {
+        if (isScrubberDragging) {
+          updateScrubFromClientX(e.clientX);
+        }
+      });
+
+      track.addEventListener('pointerup', (e) => {
+        if (isScrubberDragging) {
+          isScrubberDragging = false;
+          try { track.releasePointerCapture(e.pointerId); } catch (err) {}
+        }
+      });
+    }
+
+    function setTimerMins(mins, btnEl) {
+      if (isRunning) pauseTimer();
+      selectedMins = mins;
+      timerTotal = mins * 60;
+      timerSeconds = mins * 60;
+      playCrownTick();
+
+      document.querySelectorAll('.preset-link').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+
+      updateScrubberPosition(mins / 60);
+      updateClockDisplay();
+    }
+
+    function handleCustomMinsKey(e) {
+      if (e.key === 'Enter') {
+        const val = parseInt(e.target.value);
+        if (val && val > 0 && val <= 180) {
+          setTimerMins(val, null);
+          e.target.blur();
+        }
+      }
+    }
+
+    function promptCustomMins() {
+      const input = document.getElementById('custom-mins-input');
+      input.focus();
+      input.select();
+      showToast('Type minutes & press Enter');
+    }
+
+    function updateScrubberPosition(ratio) {
+      const cursor = document.getElementById('scrubber-cursor');
+      cursor.style.left = `${Math.min(98, Math.max(2, ratio * 100))}%`;
+    }
+
+    function toggleTimer() {
+      if (isRunning) pauseTimer(); else startTimer();
+    }
+
+    function startTimer() {
+      isRunning = true;
+      const btn = document.getElementById('start-btn');
+      btn.textContent = 'pause';
+      btn.classList.add('running');
+      playCrownTick();
+
+      clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        if (timerSeconds > 0) {
+          timerSeconds--;
+          updateClockDisplay();
+          updateScrubberPosition(timerSeconds / timerTotal);
+        } else {
+          finishTimer();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      isRunning = false;
+      const btn = document.getElementById('start-btn');
+      btn.textContent = 'start';
+      btn.classList.remove('running');
+      clearInterval(intervalId);
+      syncNativeTimer("");
+    }
+
+    function updateClockDisplay() {
+      const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+      const s = String(timerSeconds % 60).padStart(2, '0');
+      const timeStr = `${m}:${s}`;
+      document.getElementById('timer-clock').textContent = timeStr;
+      if (isRunning) syncNativeTimer(timeStr);
+    }
+
+    function finishTimer() {
+      pauseTimer();
+      timerSeconds = selectedMins * 60;
+      updateClockDisplay();
+      updateScrubberPosition(1);
+      stopAmbientNoise();
+      document.getElementById('ambient-sound-btn').classList.remove('active');
+
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "notify",
+          title: "🎉 Focus Complete!",
+          message: `${selectedMins} minutes done. Take a quick break!`
+        });
+      }
+    }
+
+    function syncNativeTimer(timeStr) {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "timer_update",
+          text: timeStr
+        });
+      }
+    }
+
+    /* ========================================================= */
+    /* 4. PIN & NOTES HISTORY                                    */
     /* ========================================================= */
     function toggleFloatingPill() {
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
@@ -1060,9 +1471,6 @@
       playTaskSnap();
     };
 
-    /* ========================================================= */
-    /* 3. MULTI-NOTE HISTORY ENGINE                              */
-    /* ========================================================= */
     let noteSaveTimer = null;
 
     function handleNoteChange() {
@@ -1076,10 +1484,7 @@
     }
 
     function saveActiveNote(text) {
-      if (!currentNoteId) {
-        currentNoteId = String(Date.now());
-      }
-      
+      if (!currentNoteId) currentNoteId = String(Date.now());
       const firstLine = text.trim().split('\n')[0].replace(/^[#\-*\s]+/, '').trim();
       const title = firstLine || 'Untitled Note';
       const now = new Date().toISOString();
@@ -1090,16 +1495,9 @@
         note.title = title;
         note.updatedAt = now;
       } else {
-        note = {
-          id: currentNoteId,
-          title: title,
-          content: text,
-          updatedAt: now
-        };
+        note = { id: currentNoteId, title: title, content: text, updatedAt: now };
         notesHistory.unshift(note);
       }
-
-      // Keep most recently updated at the top
       notesHistory.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
@@ -1124,11 +1522,9 @@
         return;
       }
       notesHistory = notesHistory.filter(n => n.id !== currentNoteId);
-      if (notesHistory.length > 0) {
-        loadNoteIntoEditor(notesHistory[0]);
-      } else {
-        createNewNote();
-      }
+      if (notesHistory.length > 0) loadNoteIntoEditor(notesHistory[0]);
+      else createNewNote();
+
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
         window.webkit.messageHandlers.tickr.postMessage({
           action: "save_notes_history",
@@ -1218,118 +1614,7 @@
     }
 
     /* ========================================================= */
-    /* 4. ONIGIRI POMODORO ENGINE                                */
-    /* ========================================================= */
-    let selectedMins = 25;
-    let timerSeconds = 25 * 60;
-    let timerTotal = 25 * 60;
-    let isRunning = false;
-    let intervalId = null;
-
-    function buildFineTicks() {
-      const container = document.getElementById('scrubber-ticks');
-      let html = '';
-      for (let i = 0; i <= 60; i++) {
-        const isMajor = i % 5 === 0;
-        html += `<div class="tick ${isMajor ? 'major' : ''}"></div>`;
-      }
-      container.innerHTML = html;
-    }
-
-    function setTimerMins(mins, btnEl) {
-      if (isRunning) pauseTimer();
-      selectedMins = mins;
-      timerTotal = mins * 60;
-      timerSeconds = mins * 60;
-      playCrownTick();
-
-      document.querySelectorAll('.preset-link').forEach(b => b.classList.remove('active'));
-      if (btnEl) btnEl.classList.add('active');
-
-      updateScrubberPosition(mins / 60);
-      updateClockDisplay();
-    }
-
-    function handleScrubberClick(e) {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const ratio = Math.max(0.02, Math.min(1, (e.clientX - rect.left) / rect.width));
-      const mins = Math.max(1, Math.round(ratio * 60));
-      setTimerMins(mins, null);
-    }
-
-    function updateScrubberPosition(ratio) {
-      const cursor = document.getElementById('scrubber-cursor');
-      cursor.style.left = `${Math.min(98, Math.max(2, ratio * 100))}%`;
-    }
-
-    function toggleTimer() {
-      if (isRunning) pauseTimer(); else startTimer();
-    }
-
-    function startTimer() {
-      isRunning = true;
-      const btn = document.getElementById('start-btn');
-      btn.textContent = 'pause';
-      btn.classList.add('running');
-      playCrownTick();
-
-      clearInterval(intervalId);
-      intervalId = setInterval(() => {
-        if (timerSeconds > 0) {
-          timerSeconds--;
-          updateClockDisplay();
-          updateScrubberPosition(timerSeconds / timerTotal);
-        } else {
-          finishTimer();
-        }
-      }, 1000);
-    }
-
-    function pauseTimer() {
-      isRunning = false;
-      const btn = document.getElementById('start-btn');
-      btn.textContent = 'start';
-      btn.classList.remove('running');
-      clearInterval(intervalId);
-      syncNativeTimer("");
-    }
-
-    function updateClockDisplay() {
-      const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
-      const s = String(timerSeconds % 60).padStart(2, '0');
-      const timeStr = `${m}:${s}`;
-      document.getElementById('timer-clock').textContent = timeStr;
-      if (isRunning) syncNativeTimer(timeStr);
-    }
-
-    function finishTimer() {
-      pauseTimer();
-      timerSeconds = selectedMins * 60;
-      updateClockDisplay();
-      updateScrubberPosition(1);
-      stopAmbientNoise();
-      document.getElementById('ambient-sound-btn').classList.remove('active');
-
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "notify",
-          title: "🎉 Focus Complete!",
-          message: `${selectedMins} minutes done. Take a quick break!`
-        });
-      }
-    }
-
-    function syncNativeTimer(timeStr) {
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "timer_update",
-          text: timeStr
-        });
-      }
-    }
-
-    /* ========================================================= */
-    /* 5. STANDUP, UPDATE & DIARY ENGINE                         */
+    /* 5. STANDUP & TASKS ENGINE                                 */
     /* ========================================================= */
     function copyDailyStandup() {
       const today = new Date().toISOString().split('T')[0];
@@ -1337,102 +1622,19 @@
       const pendingTasks = tasks.filter(t => !t.done);
 
       let report = `### 🚀 Daily Standup (${today})\n\n**Completed:**\n`;
-      if (completedToday.length > 0) {
-        report += completedToday.map(t => `- [x] ${t.title}`).join('\n');
-      } else {
-        report += `- (No tasks completed yet)`;
-      }
+      if (completedToday.length > 0) report += completedToday.map(t => `- [x] ${t.title}`).join('\n');
+      else report += `- (No tasks completed yet)`;
 
       report += `\n\n**In Progress:**\n`;
-      if (pendingTasks.length > 0) {
-        report += pendingTasks.slice(0, 5).map(t => `- [ ] ${t.title}`).join('\n');
-      } else {
-        report += `- (All tasks cleared!)`;
-      }
+      if (pendingTasks.length > 0) report += pendingTasks.slice(0, 5).map(t => `- [ ] ${t.title}`).join('\n');
+      else report += `- (All tasks cleared!)`;
 
       navigator.clipboard.writeText(report).then(() => {
         showToast('📋 Standup Copied!');
         playTaskSnap();
-        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-          window.webkit.messageHandlers.tickr.postMessage({
-            action: "notify",
-            title: "📋 Daily Standup Copied",
-            message: "Formatted markdown summary copied to your clipboard."
-          });
-        }
       });
     }
 
-    function checkForUpdates() {
-      showToast('Checking updates...');
-      fetch('https://api.github.com/repos/MahmoudEsawi/Tickr/releases/latest')
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.tag_name) {
-            showToast(`✓ Up to date (${data.tag_name})`);
-          } else {
-            showToast('✓ Latest version v1.0.0');
-          }
-        })
-        .catch(() => {
-          showToast('✓ Tickr v1.0.0');
-        });
-    }
-
-    /* System Theme Sync */
-    const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    function cycleTheme() {
-      if (themeMode === 'system') setThemeMode('light');
-      else if (themeMode === 'light') setThemeMode('dark');
-      else setThemeMode('system');
-    }
-
-    function setThemeMode(mode) {
-      themeMode = mode;
-      localStorage.setItem('tickr_theme_mode', mode);
-      applyTheme();
-    }
-
-    function applyTheme() {
-      let isDark = (themeMode === 'system') ? systemDarkQuery.matches : (themeMode === 'dark');
-      document.body.classList.toggle('theme-dark', isDark);
-      document.body.classList.toggle('theme-light', !isDark);
-
-      const label = document.getElementById('theme-label');
-      const iconSvg = document.getElementById('theme-icon-svg');
-
-      if (themeMode === 'system') {
-        label.textContent = 'Auto';
-        iconSvg.innerHTML = isDark ? 
-          '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' :
-          '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-      } else if (themeMode === 'light') {
-        label.textContent = 'Light';
-        iconSvg.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-      } else {
-        label.textContent = 'Dark';
-        iconSvg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-      }
-    }
-
-    systemDarkQuery.addEventListener('change', () => {
-      if (themeMode === 'system') applyTheme();
-    });
-
-    function switchView(viewName, btnEl) {
-      activeView = viewName;
-      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
-
-      const btn = btnEl || document.querySelector(`.view-btn[onclick*="${viewName}"]`);
-      if (btn) btn.classList.add('active');
-
-      const viewEl = document.getElementById(`view-${viewName}`);
-      if (viewEl) viewEl.classList.add('active');
-    }
-
-    /* Tasks Logic */
     function renderTasks() {
       const list = document.getElementById('todo-task-list');
       if (tasks.length === 0) {
@@ -1521,6 +1723,59 @@
       setTimeout(() => { btn.innerHTML = '<span>🚀 Push to Live</span>'; }, 2500);
     };
 
+    /* System Theme Sync */
+    const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function cycleTheme() {
+      if (themeMode === 'system') setThemeMode('light');
+      else if (themeMode === 'light') setThemeMode('dark');
+      else setThemeMode('system');
+    }
+
+    function setThemeMode(mode) {
+      themeMode = mode;
+      localStorage.setItem('tickr_theme_mode', mode);
+      applyTheme();
+    }
+
+    function applyTheme() {
+      let isDark = (themeMode === 'system') ? systemDarkQuery.matches : (themeMode === 'dark');
+      document.body.classList.toggle('theme-dark', isDark);
+      document.body.classList.toggle('theme-light', !isDark);
+
+      const label = document.getElementById('theme-label');
+      const iconSvg = document.getElementById('theme-icon-svg');
+
+      if (themeMode === 'system') {
+        label.textContent = 'Auto';
+        iconSvg.innerHTML = isDark ? 
+          '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' :
+          '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+      } else if (themeMode === 'light') {
+        label.textContent = 'Light';
+        iconSvg.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+      } else {
+        label.textContent = 'Dark';
+        iconSvg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+      }
+    }
+
+    systemDarkQuery.addEventListener('change', () => {
+      if (themeMode === 'system') applyTheme();
+    });
+
+    function switchView(viewName, btnEl) {
+      activeView = viewName;
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+
+      const btn = btnEl || document.querySelector(`.view-btn[onclick*="${viewName}"]`);
+      if (btn) btn.classList.add('active');
+
+      const viewEl = document.getElementById(`view-${viewName}`);
+      if (viewEl) viewEl.classList.add('active');
+    }
+
     function initAppState(initialTasks, customTags, isAutostart, notesHistoryList, pinState) {
       tasks = initialTasks || [];
       if (customTags && Array.isArray(customTags)) tags = customTags;
@@ -1530,6 +1785,11 @@
         loadNoteIntoEditor(notesHistory[0]);
       } else {
         createNewNote();
+      }
+
+      if (typeof isAutostart === 'boolean') {
+        const chk = document.getElementById('autostart-chk');
+        if (chk) chk.checked = isAutostart;
       }
 
       if (typeof pinState === 'boolean') {
@@ -1545,11 +1805,13 @@
       setThemeMode(savedMode);
 
       buildFineTicks();
+      initScrubberDrag();
       renderTasks();
       updateClockDisplay();
     }
 
     buildFineTicks();
+    initScrubberDrag();
     applyTheme();
   </script>
 </body>

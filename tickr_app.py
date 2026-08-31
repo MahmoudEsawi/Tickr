@@ -245,6 +245,12 @@ class ScriptHandler(Cocoa.NSObject):
             except Exception as e:
                 print("Publish error:", e)
 
+        elif action == "open_url":
+            url_str = body.get("url", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
+            if url_str:
+                url_obj = Cocoa.NSURL.URLWithString_(url_str)
+                Cocoa.NSWorkspace.sharedWorkspace().openURL_(url_obj)
+
         elif action == "toggle_pin":
             if app_delegate:
                 app_delegate.toggle_pin()
