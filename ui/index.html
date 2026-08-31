@@ -17,6 +17,7 @@
       --fg-secondary: #9496A1;
       --fg-dim: #60626D;
       --emerald-dot: #10B981;
+      --accent-pomodoro: #F59E0B;
       --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Display", sans-serif;
       --font-mono: "SF Mono", Menlo, Monaco, "Courier New", monospace;
     }
@@ -46,10 +47,10 @@
 
     /* Top Navigation / Brand Header */
     .header {
-      padding: 14px 18px 12px;
+      padding: 12px 16px 10px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       border-bottom: 1px solid var(--border-subtle);
       background: var(--bg);
     }
@@ -84,7 +85,7 @@
 
     .brand-mono {
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--fg-dim);
       font-weight: 400;
     }
@@ -92,19 +93,49 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+    }
+
+    /* Pomodoro Mini Bar */
+    .pomo-widget {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--fg-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .pomo-widget.active {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.35);
+      color: var(--accent-pomodoro);
+    }
+
+    .pomo-btn {
+      background: transparent;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      font-size: 10px;
     }
 
     .status-live {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 3px 8px;
+      gap: 5px;
+      padding: 3px 7px;
       border-radius: 20px;
       background: rgba(16, 185, 129, 0.08);
       border: 1px solid rgba(16, 185, 129, 0.25);
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 600;
       color: var(--emerald-dot);
       letter-spacing: 0.05em;
@@ -129,14 +160,14 @@
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       color: var(--fg-secondary);
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 11px;
       transition: all 0.15s ease;
     }
 
@@ -151,14 +182,14 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
     }
 
     .seg-group {
       display: flex;
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-radius: 7px;
+      border-radius: 6px;
       padding: 2px;
     }
 
@@ -166,10 +197,10 @@
       background: transparent;
       border: none;
       color: var(--fg-secondary);
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 500;
-      padding: 3px 8px;
-      border-radius: 5px;
+      padding: 2px 7px;
+      border-radius: 4px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
@@ -178,7 +209,6 @@
       background: var(--bg-subtle);
       color: var(--fg-primary);
       border: 1px solid var(--border-primary);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
 
     .cat-bar {
@@ -191,9 +221,9 @@
 
     .cat-pill {
       font-family: var(--font-mono);
-      font-size: 10px;
-      padding: 3px 7px;
-      border-radius: 5px;
+      font-size: 9.5px;
+      padding: 3px 6px;
+      border-radius: 4px;
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       color: var(--fg-secondary);
@@ -216,7 +246,7 @@
 
     /* Input Section */
     .input-box {
-      padding: 10px 16px;
+      padding: 9px 14px;
       background: var(--bg-surface);
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
@@ -226,15 +256,15 @@
 
     .cat-select {
       font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-size: 10px;
       background: var(--bg);
       border: 1px solid var(--border-primary);
       color: var(--fg-primary);
       padding: 4px 6px;
-      border-radius: 5px;
+      border-radius: 4px;
       outline: none;
       cursor: pointer;
-      max-width: 110px;
+      max-width: 105px;
     }
 
     .task-field {
@@ -242,7 +272,7 @@
       background: transparent;
       border: none;
       color: var(--fg-primary);
-      font-size: 12.5px;
+      font-size: 12px;
       outline: none;
     }
 
@@ -252,11 +282,11 @@
 
     .enter-badge {
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 9.5px;
       color: var(--fg-dim);
       border: 1px solid var(--border-subtle);
-      padding: 2px 5px;
-      border-radius: 4px;
+      padding: 2px 4px;
+      border-radius: 3px;
       background: var(--bg);
     }
 
@@ -264,10 +294,10 @@
     .task-list {
       flex: 1;
       overflow-y: auto;
-      padding: 10px 14px;
+      padding: 8px 12px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
     .task-list::-webkit-scrollbar {
@@ -282,11 +312,11 @@
     .task-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
+      gap: 8px;
+      padding: 7px 10px;
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-radius: 8px;
+      border-radius: 7px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
@@ -297,9 +327,9 @@
     }
 
     .check-box {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
+      width: 15px;
+      height: 15px;
+      border-radius: 3.5px;
       border: 1.5px solid var(--border-primary);
       display: flex;
       align-items: center;
@@ -319,8 +349,8 @@
 
     .check-box svg {
       display: none;
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       stroke: #000;
       stroke-width: 2.5;
     }
@@ -334,11 +364,11 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
     }
 
     .task-name {
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 500;
       color: var(--fg-primary);
       transition: all 0.15s ease;
@@ -352,11 +382,11 @@
 
     .task-badge {
       font-family: var(--font-mono);
-      font-size: 9px;
+      font-size: 8.5px;
       color: var(--fg-dim);
       border: 1px solid var(--border-subtle);
-      padding: 1px 5px;
-      border-radius: 4px;
+      padding: 1px 4px;
+      border-radius: 3px;
       background: var(--bg);
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -368,8 +398,8 @@
       border: none;
       color: var(--fg-dim);
       cursor: pointer;
-      font-size: 13px;
-      padding: 2px 4px;
+      font-size: 12px;
+      padding: 2px;
       transition: all 0.15s ease;
     }
 
@@ -387,32 +417,32 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 40px 20px;
+      padding: 36px 20px;
       text-align: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .empty-title {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       color: var(--fg-primary);
     }
 
     .empty-desc {
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--fg-dim);
     }
 
-    /* Tag Manager Modal Overlay */
+    /* Settings & Tag Manager Modal Overlay */
     .modal-overlay {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(12, 13, 17, 0.94);
-      backdrop-filter: blur(8px);
+      background: rgba(12, 13, 17, 0.96);
+      backdrop-filter: blur(10px);
       display: none;
       flex-direction: column;
       z-index: 50;
@@ -434,12 +464,12 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 12px;
-      margin-bottom: 14px;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .modal-title {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       color: var(--fg-primary);
       display: flex;
@@ -447,10 +477,50 @@
       gap: 6px;
     }
 
+    .settings-section {
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--fg-primary);
+    }
+
+    .setting-desc {
+      font-size: 10px;
+      color: var(--fg-dim);
+      margin-top: 2px;
+    }
+
+    /* Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 32px;
+      height: 18px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--border-primary);
+      transition: .2s; border-radius: 18px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px;
+      background-color: white; transition: .2s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--emerald-dot); }
+    input:checked + .slider:before { transform: translateX(14px); }
+
     .tag-grid {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       flex: 1;
       overflow-y: auto;
     }
@@ -459,15 +529,15 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 10px;
+      padding: 5px 8px;
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-radius: 6px;
+      border-radius: 5px;
     }
 
     .tag-label {
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--fg-primary);
     }
 
@@ -476,19 +546,15 @@
       border: none;
       color: var(--fg-dim);
       cursor: pointer;
-      font-size: 12px;
-      transition: color 0.15s ease;
+      font-size: 11px;
     }
-
-    .tag-del-btn:hover {
-      color: #EF4444;
-    }
+    .tag-del-btn:hover { color: #EF4444; }
 
     .add-tag-box {
       display: flex;
-      gap: 8px;
-      margin-top: 12px;
-      padding-top: 12px;
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 10px;
       border-top: 1px solid var(--border-subtle);
     }
 
@@ -498,9 +564,9 @@
       border: 1px solid var(--border-primary);
       color: var(--fg-primary);
       font-family: var(--font-mono);
-      font-size: 11px;
-      padding: 6px 8px;
-      border-radius: 6px;
+      font-size: 10.5px;
+      padding: 5px 7px;
+      border-radius: 5px;
       outline: none;
       text-transform: uppercase;
     }
@@ -510,16 +576,16 @@
       color: var(--bg);
       border: none;
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 6px;
+      padding: 5px 10px;
+      border-radius: 5px;
       cursor: pointer;
     }
 
     /* Footer Toolbar */
     .footer {
-      padding: 10px 16px;
+      padding: 9px 14px;
       background: var(--bg);
       border-top: 1px solid var(--border-subtle);
       display: flex;
@@ -530,7 +596,7 @@
 
     .footer-mono {
       font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-size: 10px;
       color: var(--fg-dim);
     }
 
@@ -543,15 +609,15 @@
     .btn-publish {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       background: #EDEDED;
       color: #0C0D11;
       border: none;
       font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 600;
-      padding: 4px 9px;
-      border-radius: 6px;
+      padding: 3.5px 8px;
+      border-radius: 5px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
@@ -570,15 +636,13 @@
       background: transparent;
       border: none;
       font-family: var(--font-mono);
-      font-size: 10.5px;
+      font-size: 10px;
       color: var(--fg-dim);
       cursor: pointer;
       transition: color 0.15s ease;
     }
 
-    .action-link:hover {
-      color: var(--fg-primary);
-    }
+    .action-link:hover { color: var(--fg-primary); }
   </style>
 </head>
 <body>
@@ -589,10 +653,18 @@
       <div class="brand-left">
         <img src="assets/avatar.svg" alt="Mahmoud" class="brand-avatar">
         <span class="brand-title">Tickr</span>
-        <span class="brand-mono">// esawi.dev diary</span>
+        <span class="brand-mono">// ⌘⇧T</span>
       </div>
       <div class="header-actions">
-        <button class="btn-icon" title="Customize Tags" onclick="openTagModal()">🏷️</button>
+        <!-- Pomodoro Focus Widget -->
+        <div class="pomo-widget" id="pomo-widget" onclick="togglePomodoro()">
+          <span>⏱️</span>
+          <span id="pomo-time">25:00</span>
+          <button class="pomo-btn" id="pomo-ctrl">▶</button>
+        </div>
+
+        <button class="btn-icon" title="Settings & Tags" onclick="openSettingsModal()">⚙️</button>
+        
         <div class="status-live">
           <span class="status-dot"></span>
           <span id="active-counter">0 Active</span>
@@ -639,13 +711,29 @@
     </div>
   </div>
 
-  <!-- Custom Tags Manager Modal -->
-  <div class="modal-overlay" id="tag-modal">
+  <!-- Settings & Custom Tags Modal -->
+  <div class="modal-overlay" id="settings-modal">
     <div class="modal-header">
-      <div class="modal-title">🏷️ Manage Custom Tags</div>
-      <button class="btn-icon" onclick="closeTagModal()">✕</button>
+      <div class="modal-title">⚙️ Settings & Tags</div>
+      <button class="btn-icon" onclick="closeSettingsModal()">✕</button>
     </div>
 
+    <!-- Launch at Login Toggle -->
+    <div class="settings-section">
+      <div class="setting-row">
+        <div>
+          <div>Launch at Mac Startup</div>
+          <div class="setting-desc">Auto-start Tickr quietly in menu bar on boot</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="autostart-toggle" onchange="toggleAutostart(this.checked)">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Tag Manager -->
+    <div class="modal-title" style="margin-bottom: 8px; font-size: 11.5px;">🏷️ Custom Category Tags</div>
     <div class="tag-grid" id="tag-list-manager">
       <!-- Rendered dynamically -->
     </div>
@@ -661,11 +749,22 @@
     let tags = ["PROJECT", "CODE", "HACKATHON", "DAILY", "IDEAS"];
     let currentFilter = 'all';
     let currentCategory = null;
+    let autostart = false;
 
-    function initTasks(initialTasks, customTags) {
+    /* Pomodoro Timer State */
+    let pomoSeconds = 25 * 60;
+    let pomoInterval = null;
+    let pomoRunning = false;
+
+    function initTasks(initialTasks, customTags, isAutostart) {
       tasks = initialTasks || [];
       if (customTags && Array.isArray(customTags) && customTags.length > 0) {
         tags = customTags;
+      }
+      if (typeof isAutostart === 'boolean') {
+        autostart = isAutostart;
+        const toggle = document.getElementById('autostart-toggle');
+        if (toggle) toggle.checked = autostart;
       }
       renderTagPills();
       render();
@@ -677,6 +776,16 @@
           action: "save",
           data: JSON.stringify(tasks),
           tags: JSON.stringify(tags)
+        });
+      }
+    }
+
+    function toggleAutostart(enabled) {
+      autostart = enabled;
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "set_autostart",
+          enabled: enabled
         });
       }
     }
@@ -709,14 +818,76 @@
       }
     }
 
-    /* Tag Customization Functions */
-    function openTagModal() {
-      document.getElementById('tag-modal').classList.add('open');
+    /* Pomodoro Timer Engine */
+    function togglePomodoro() {
+      if (pomoRunning) {
+        pausePomodoro();
+      } else {
+        startPomodoro();
+      }
+    }
+
+    function startPomodoro() {
+      pomoRunning = true;
+      document.getElementById('pomo-widget').classList.add('active');
+      document.getElementById('pomo-ctrl').textContent = '⏸';
+      clearInterval(pomoInterval);
+      pomoInterval = setInterval(() => {
+        if (pomoSeconds > 0) {
+          pomoSeconds--;
+          updatePomoDisplay();
+        } else {
+          finishPomodoro();
+        }
+      }, 1000);
+    }
+
+    function pausePomodoro() {
+      pomoRunning = false;
+      document.getElementById('pomo-ctrl').textContent = '▶';
+      clearInterval(pomoInterval);
+      updateTimerInMenuBar("");
+    }
+
+    function updatePomoDisplay() {
+      const m = String(Math.floor(pomoSeconds / 60)).padStart(2, '0');
+      const s = String(pomoSeconds % 60).padStart(2, '0');
+      const timeStr = `${m}:${s}`;
+      document.getElementById('pomo-time').textContent = timeStr;
+      updateTimerInMenuBar(timeStr);
+    }
+
+    function finishPomodoro() {
+      pausePomodoro();
+      pomoSeconds = 25 * 60;
+      document.getElementById('pomo-time').textContent = '25:00';
+      document.getElementById('pomo-widget').classList.remove('active');
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "notify",
+          title: "🎉 Focus Session Finished!",
+          message: "25 minutes of deep work completed. Take a 5-minute break!"
+        });
+      }
+    }
+
+    function updateTimerInMenuBar(text) {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "timer_update",
+          text: text
+        });
+      }
+    }
+
+    /* Settings & Tag Manager */
+    function openSettingsModal() {
+      document.getElementById('settings-modal').classList.add('open');
       renderTagManager();
     }
 
-    function closeTagModal() {
-      document.getElementById('tag-modal').classList.remove('open');
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.remove('open');
       renderTagPills();
       render();
     }
@@ -762,7 +933,6 @@
       const bar = document.getElementById('cat-bar');
       const select = document.getElementById('cat-input');
 
-      // Top Filter Pills
       bar.innerHTML = `
         <div class="cat-pill ${currentCategory === null ? 'active' : ''}" onclick="setCategory(null, this)">ALL</div>
         ${tags.map(t => `
@@ -770,7 +940,6 @@
         `).join('')}
       `;
 
-      // Quick Input Dropdown
       select.innerHTML = tags.map(t => `
         <option value="${t}">${t}</option>
       `).join('');
@@ -868,7 +1037,6 @@
       }).join('');
     }
 
-    // Default load
     renderTagPills();
   </script>
 </body>

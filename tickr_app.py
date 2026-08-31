@@ -13,9 +13,54 @@ DIARY_PATH = os.path.join(DIARY_DIR, "src/data/diary.json")
 BACKUP_DIR = os.path.expanduser("~/Library/Application Support/Tickr")
 BACKUP_FILE = os.path.join(BACKUP_DIR, "tasks.json")
 TAGS_FILE = os.path.join(BACKUP_DIR, "tags.json")
+LAUNCH_AGENT_PATH = os.path.expanduser("~/Library/LaunchAgents/com.mahmoudesawi.tickr.plist")
 ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 ICON_PATH = os.path.join(ASSETS_DIR, "menu_icon.png")
 UI_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "index.html")
+
+def send_native_notification(title, message):
+    try:
+        # Sanitize quotes
+        clean_title = title.replace('"', '\\"')
+        clean_msg = message.replace('"', '\\"')
+        cmd = f'osascript -e \'display notification "{clean_msg}" with title "⚡ Tickr" subtitle "{clean_title}" sound name "Glass"\''
+        subprocess.Popen(cmd, shell=True)
+    except Exception as e:
+        print("Notification error:", e)
+
+def is_launch_at_login():
+    return os.path.exists(LAUNCH_AGENT_PATH)
+
+def set_launch_at_login(enable):
+    try:
+        if enable:
+            os.makedirs(os.path.dirname(LAUNCH_AGENT_PATH), exist_ok=True)
+            app_target = "/Applications/Tickr.app" if os.path.exists("/Applications/Tickr.app") else sys.executable
+            plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.mahmoudesawi.tickr</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/open</string>
+        <string>{app_target}</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <false/>
+</dict>
+</plist>"""
+            with open(LAUNCH_AGENT_PATH, "w", encoding="utf-8") as f:
+                f.write(plist_content)
+            send_native_notification("Autostart Enabled", "Tickr will start automatically when your Mac boots.")
+        else:
+            if os.path.exists(LAUNCH_AGENT_PATH):
+                os.remove(LAUNCH_AGENT_PATH)
+    except Exception as e:
+        print("Autostart setting error:", e)
 
 def load_tags():
     if os.path.exists(TAGS_FILE):
@@ -109,8 +154,6 @@ def save_tasks_to_disk(tasks):
 
             with open(DIARY_PATH, "w", encoding="utf-8") as f:
                 json.dump(diary, f, indent=2, ensure_ascii=False)
-            
-            print(f"✓ Synchronized {len(tasks)} tasks with esawi.dev diary.json")
         except Exception as e:
             print("Error syncing diary.json:", e)
 
@@ -134,6 +177,8 @@ class ScriptHandler(Cocoa.NSObject):
             except Exception:
                 pass
 
+        app_delegate = Cocoa.NSApp().delegate()
+
         if tags:
             tags_list = json.loads(tags) if isinstance(tags, str) else list(tags)
             save_tags(tags_list)
@@ -141,10 +186,22 @@ class ScriptHandler(Cocoa.NSObject):
         if action == "save" and data is not None:
             tasks_list = json.loads(data) if isinstance(data, str) else list(data)
             save_tasks_to_disk(tasks_list)
-            
-            app_delegate = Cocoa.NSApp().delegate()
             if app_delegate:
                 app_delegate.update_badge_count(tasks_list)
+
+        elif action == "timer_update":
+            time_text = body.get("text", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
+            if app_delegate:
+                app_delegate.update_timer_display(time_text)
+
+        elif action == "set_autostart":
+            enable = body.get("enabled", False) if isinstance(body, (dict, Cocoa.NSDictionary)) else False
+            set_launch_at_login(enable)
+
+        elif action == "notify":
+            title = body.get("title", "Tickr") if isinstance(body, (dict, Cocoa.NSDictionary)) else "Tickr"
+            msg = body.get("message", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
+            send_native_notification(title, msg)
 
         elif action == "publish":
             if data is not None:
@@ -155,9 +212,9 @@ class ScriptHandler(Cocoa.NSObject):
                 cmd = f"cd {DIARY_DIR} && git add src/data/diary.json && git commit -m 'chore(diary): sync completed tasks from Tickr ⚡' && git push origin main"
                 proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                 stdout, stderr = proc.communicate()
-                print("Git publish output:", stdout, stderr)
                 
-                app_delegate = Cocoa.NSApp().delegate()
+                send_native_notification("🚀 Live Deployed", "Your completed tasks are now live on esawi.dev/diary")
+                
                 if app_delegate and app_delegate.webView:
                     app_delegate.webView.evaluateJavaScript_completionHandler_("if(window.onPublishSuccess) onPublishSuccess();", None)
             except Exception as e:
@@ -169,6 +226,7 @@ class ScriptHandler(Cocoa.NSObject):
 class AppDelegate(Cocoa.NSObject):
     def applicationDidFinishLaunching_(self, notification):
         Cocoa.NSApp().setActivationPolicy_(Cocoa.NSApplicationActivationPolicyAccessory)
+        self.active_timer_text = ""
 
         # Status Bar Item in Menu Bar
         self.statusItem = Cocoa.NSStatusBar.systemStatusBar().statusItemWithLength_(Cocoa.NSVariableStatusItemLength)
@@ -201,10 +259,12 @@ class AppDelegate(Cocoa.NSObject):
 
         tasks = load_tasks_from_disk()
         tags = load_tags()
+        autostart = is_launch_at_login()
         self.update_badge_count(tasks)
+        
         tasks_json = json.dumps(tasks)
         tags_json = json.dumps(tags)
-        js_code = f"setTimeout(function() {{ if(window.initTasks) initTasks({tasks_json}, {tags_json}); }}, 350);"
+        js_code = f"setTimeout(function() {{ if(window.initTasks) initTasks({tasks_json}, {tags_json}, {json.dumps(autostart)}); }}, 350);"
         self.webView.evaluateJavaScript_completionHandler_(js_code, None)
 
         self.popover = Cocoa.NSPopover.alloc().init()
@@ -216,10 +276,42 @@ class AppDelegate(Cocoa.NSObject):
         viewController.setView_(self.webView)
         self.popover.setContentViewController_(viewController)
 
+        # Global Hotkey Setup (Command + Shift + T or Option + Space)
+        self.setup_global_hotkeys()
+
+    def setup_global_hotkeys(self):
+        def handle_global_event(event):
+            flags = event.modifierFlags()
+            chars = event.charactersIgnoringModifiers()
+            
+            # Match ⌘ + Shift + T (Command + Shift + T)
+            is_cmd = bool(flags & Cocoa.NSEventModifierFlagCommand)
+            is_shift = bool(flags & Cocoa.NSEventModifierFlagShift)
+            is_opt = bool(flags & Cocoa.NSEventModifierFlagOption)
+            
+            if is_cmd and is_shift and (chars and chars.lower() == 't'):
+                self.togglePopover_(None)
+            elif is_opt and (chars and chars == ' '):
+                self.togglePopover_(None)
+
+        # Register global and local event monitors
+        Cocoa.NSEvent.addGlobalMonitorForEventsMatchingMask_handler_(Cocoa.NSEventMaskKeyDown, handle_global_event)
+        Cocoa.NSEvent.addLocalMonitorForEventsMatchingMask_handler_(Cocoa.NSEventMaskKeyDown, lambda event: (handle_global_event(event), event)[1])
+
+    def update_timer_display(self, time_text):
+        self.active_timer_text = time_text
+        tasks = load_tasks_from_disk()
+        self.update_badge_count(tasks)
+
     def update_badge_count(self, tasks):
-        active = sum(1 for t in tasks if not t.get("done", False))
         button = self.statusItem.button()
-        if button:
+        if not button:
+            return
+        
+        if self.active_timer_text:
+            button.setTitle_(f" ⏱️ {self.active_timer_text}")
+        else:
+            active = sum(1 for t in tasks if not t.get("done", False))
             if active > 0:
                 button.setTitle_(f" {active}")
             else:
@@ -232,9 +324,10 @@ class AppDelegate(Cocoa.NSObject):
         else:
             tasks = load_tasks_from_disk()
             tags = load_tags()
+            autostart = is_launch_at_login()
             tasks_json = json.dumps(tasks)
             tags_json = json.dumps(tags)
-            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initTasks) initTasks({tasks_json}, {tags_json});", None)
+            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initTasks) initTasks({tasks_json}, {tags_json}, {json.dumps(autostart)});", None)
             self.popover.showRelativeToRect_ofView_preferredEdge_(button.bounds(), button, Cocoa.NSMinYEdge)
             Cocoa.NSApp().activateIgnoringOtherApps_(True)
 
