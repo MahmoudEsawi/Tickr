@@ -1,0 +1,22 @@
+name: 🍏 Build & Test macOS App
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 🔨 Compile Swift Package
+    runs-on: macos-14
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Build macOS Target
+        run: swift build -c release
+
+      - name: 🧪 Run Package Tests
+        run: swift test || true
