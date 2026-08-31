@@ -2,35 +2,115 @@
 import sys
 import os
 import json
+import datetime
 import Cocoa
 import WebKit
 import objc
 
-STORAGE_DIR = os.path.expanduser("~/Library/Application Support/Tickr")
-STORAGE_FILE = os.path.join(STORAGE_DIR, "tasks.json")
+DIARY_PATH = os.path.expanduser("~/Projects/esawi.dev/src/data/diary.json")
+BACKUP_DIR = os.path.expanduser("~/Library/Application Support/Tickr")
+BACKUP_FILE = os.path.join(BACKUP_DIR, "tasks.json")
 UI_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "index.html")
 
 def load_tasks_from_disk():
-    if not os.path.exists(STORAGE_DIR):
-        os.makedirs(STORAGE_DIR, exist_ok=True)
-    if os.path.exists(STORAGE_FILE):
+    # 1. Try loading directly from Developer Diary (diary.json)
+    if os.path.exists(DIARY_PATH):
         try:
-            with open(STORAGE_FILE, "r", encoding="utf-8") as f:
+            with open(DIARY_PATH, "r", encoding="utf-8") as f:
+                diary = json.load(f)
+            
+            tasks = []
+            id_counter = 1
+            
+            # Pending tasks
+            for item in diary.get("log", {}).get("pending", []):
+                tasks.append({
+                    "id": id_counter,
+                    "title": item,
+                    "category": "Project",
+                    "done": False
+                })
+                id_counter += 1
+            
+            # Completed tasks (most recent first)
+            for item in reversed(diary.get("log", {}).get("completed", [])):
+                cat = item.get("type", "Project").capitalize()
+                tasks.append({
+                    "id": id_counter,
+                    "title": item.get("description", ""),
+                    "category": cat,
+                    "done": True,
+                    "date": item.get("date", "")
+                })
+                id_counter += 1
+            
+            if tasks:
+                return tasks
+        except Exception as e:
+            print("Error reading diary.json:", e)
+
+    # 2. Fallback to local storage
+    if os.path.exists(BACKUP_FILE):
+        try:
+            with open(BACKUP_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             pass
+
     return [
-        {"id": 1, "title": "Review pull requests & CI workflows", "category": "Code", "done": False},
-        {"id": 2, "title": "Build clean architecture services", "category": "Project", "done": False},
-        {"id": 3, "title": "Deploy production release", "category": "Daily", "done": True}
+        {"id": 1, "title": "working on Indexi SaaS platform", "category": "Project", "done": False},
+        {"id": 2, "title": "YOweMe app development & feature updates", "category": "Project", "done": False},
+        {"id": 3, "title": "built and launched esawi.dev portfolio", "category": "Project", "done": True, "date": "2026-06-17"}
     ]
 
 def save_tasks_to_disk(tasks):
+    # 1. Save backup to local App Support
     try:
-        with open(STORAGE_FILE, "w", encoding="utf-8") as f:
+        if not os.path.exists(BACKUP_DIR):
+            os.makedirs(BACKUP_DIR, exist_ok=True)
+        with open(BACKUP_FILE, "w", encoding="utf-8") as f:
             json.dump(tasks, f, indent=2, ensure_ascii=False)
     except Exception as e:
-        print("Save error:", e)
+        print("Backup save error:", e)
+
+    # 2. Synchronize with esawi.dev diary.json
+    if os.path.exists(DIARY_PATH):
+        try:
+            with open(DIARY_PATH, "r", encoding="utf-8") as f:
+                diary = json.load(f)
+
+            if "log" not in diary:
+                diary["log"] = {"completed": [], "pending": []}
+
+            # Update pending array
+            diary["log"]["pending"] = [
+                t["title"] for t in tasks if not t.get("done", False)
+            ]
+
+            # Update completed array (preserve dates or set today)
+            today_str = datetime.date.today().isoformat()
+            completed_items = []
+            
+            # Keep existing completed order / append
+            for t in tasks:
+                if t.get("done", False):
+                    cat = t.get("category", "project").lower()
+                    date_val = t.get("date") or today_str
+                    completed_items.append({
+                        "type": cat,
+                        "description": t["title"],
+                        "date": date_val
+                    })
+
+            # Store chronologically in diary.json
+            diary["log"]["completed"] = list(reversed(completed_items))
+
+            with open(DIARY_PATH, "w", encoding="utf-8") as f:
+                json.dump(diary, f, indent=2, ensure_ascii=False)
+            
+            print(f"✓ Synchronized {len(tasks)} tasks with esawi.dev diary.json")
+        except Exception as e:
+            print("Error syncing diary.json:", e)
 
 class ScriptHandler(Cocoa.NSObject):
     def userContentController_didReceiveScriptMessage_(self, userContentController, message):
@@ -57,6 +137,7 @@ class ScriptHandler(Cocoa.NSObject):
                     tasks_list = []
             else:
                 tasks_list = list(data)
+            
             save_tasks_to_disk(tasks_list)
             
             app_delegate = Cocoa.NSApp().delegate()
@@ -86,7 +167,7 @@ class AppDelegate(Cocoa.NSObject):
         config.setUserContentController_(contentController)
 
         # Create WKWebView
-        frame = Cocoa.NSMakeRect(0, 0, 360, 470)
+        frame = Cocoa.NSMakeRect(0, 0, 370, 480)
         self.webView = WebKit.WKWebView.alloc().initWithFrame_configuration_(frame, config)
         self.webView.setValue_forKey_(False, "drawsBackground")
 
@@ -94,7 +175,7 @@ class AppDelegate(Cocoa.NSObject):
         file_url = Cocoa.NSURL.fileURLWithPath_(UI_HTML_PATH)
         self.webView.loadFileURL_allowingReadAccessToURL_(file_url, file_url.URLByDeletingLastPathComponent())
 
-        # Load initial tasks on finish
+        # Load initial tasks from diary.json
         tasks = load_tasks_from_disk()
         self.update_badge_count(tasks)
         tasks_json = json.dumps(tasks)
@@ -103,7 +184,7 @@ class AppDelegate(Cocoa.NSObject):
 
         # Popover
         self.popover = Cocoa.NSPopover.alloc().init()
-        self.popover.setContentSize_(Cocoa.NSMakeSize(360, 470))
+        self.popover.setContentSize_(Cocoa.NSMakeSize(370, 480))
         self.popover.setBehavior_(Cocoa.NSPopoverBehaviorTransient)
         self.popover.setAnimates_(True)
 
@@ -125,7 +206,7 @@ class AppDelegate(Cocoa.NSObject):
         if self.popover.isShown():
             self.popover.performClose_(sender)
         else:
-            # Refresh data from disk
+            # Reload fresh data directly from diary.json each time popover opens
             tasks = load_tasks_from_disk()
             tasks_json = json.dumps(tasks)
             self.webView.evaluateJavaScript_completionHandler_(f"if(window.initTasks) initTasks({tasks_json});", None)
