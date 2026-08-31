@@ -14,6 +14,7 @@ BACKUP_DIR = os.path.expanduser("~/Library/Application Support/Tickr")
 BACKUP_FILE = os.path.join(BACKUP_DIR, "tasks.json")
 TAGS_FILE = os.path.join(BACKUP_DIR, "tags.json")
 NOTES_HISTORY_FILE = os.path.join(BACKUP_DIR, "notes_history.json")
+STATS_FILE = os.path.join(BACKUP_DIR, "stats.json")
 LAUNCH_AGENT_PATH = os.path.expanduser("~/Library/LaunchAgents/com.mahmoudesawi.tickr.plist")
 ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 ICON_PATH = os.path.join(ASSETS_DIR, "menu_icon.png")
@@ -97,6 +98,24 @@ def save_notes_history(notes):
             json.dump(notes, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print("Save notes error:", e)
+
+def load_stats():
+    if os.path.exists(STATS_FILE):
+        try:
+            with open(STATS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return None
+
+def save_stats(stats):
+    try:
+        if not os.path.exists(BACKUP_DIR):
+            os.makedirs(BACKUP_DIR, exist_ok=True)
+        with open(STATS_FILE, "w", encoding="utf-8") as f:
+            json.dump(stats, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print("Save stats error:", e)
 
 def load_tasks_from_disk():
     if os.path.exists(DIARY_PATH):
@@ -182,12 +201,14 @@ class ScriptHandler(Cocoa.NSObject):
         data = None
         tags = None
         notes = None
+        stats = None
 
         if isinstance(body, (dict, Cocoa.NSDictionary)):
             action = body.get("action")
             data = body.get("data")
             tags = body.get("tags")
             notes = body.get("notes")
+            stats = body.get("stats")
         elif isinstance(body, str):
             try:
                 parsed = json.loads(body)
@@ -195,6 +216,7 @@ class ScriptHandler(Cocoa.NSObject):
                 data = parsed.get("data")
                 tags = parsed.get("tags")
                 notes = parsed.get("notes")
+                stats = parsed.get("stats")
             except Exception:
                 pass
 
@@ -214,6 +236,10 @@ class ScriptHandler(Cocoa.NSObject):
             notes_list = json.loads(notes) if isinstance(notes, str) else list(notes)
             save_notes_history(notes_list)
 
+        elif action == "save_stats" and stats is not None:
+            stats_dict = json.loads(stats) if isinstance(stats, str) else dict(stats)
+            save_stats(stats_dict)
+
         elif action == "timer_update":
             time_text = body.get("text", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
             if app_delegate:
@@ -227,6 +253,16 @@ class ScriptHandler(Cocoa.NSObject):
             title = body.get("title", "Tickr") if isinstance(body, (dict, Cocoa.NSDictionary)) else "Tickr"
             msg = body.get("message", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
             send_native_notification(title, msg)
+
+        elif action == "open_url":
+            url_str = body.get("url", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
+            if url_str:
+                url_obj = Cocoa.NSURL.URLWithString_(url_str)
+                Cocoa.NSWorkspace.sharedWorkspace().openURL_(url_obj)
+
+        elif action == "toggle_pin":
+            if app_delegate:
+                app_delegate.toggle_pin()
 
         elif action == "publish":
             if data is not None:
@@ -244,16 +280,6 @@ class ScriptHandler(Cocoa.NSObject):
                     app_delegate.webView.evaluateJavaScript_completionHandler_("if(window.onPublishSuccess) onPublishSuccess();", None)
             except Exception as e:
                 print("Publish error:", e)
-
-        elif action == "open_url":
-            url_str = body.get("url", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
-            if url_str:
-                url_obj = Cocoa.NSURL.URLWithString_(url_str)
-                Cocoa.NSWorkspace.sharedWorkspace().openURL_(url_obj)
-
-        elif action == "toggle_pin":
-            if app_delegate:
-                app_delegate.toggle_pin()
 
         elif action == "quit":
             Cocoa.NSApplication.sharedApplication().terminate_(None)
@@ -296,13 +322,15 @@ class AppDelegate(Cocoa.NSObject):
         tasks = load_tasks_from_disk()
         tags = load_tags()
         notes_history = load_notes_history()
+        stats = load_stats()
         autostart = is_launch_at_login()
         self.update_badge_count(tasks)
         
         tasks_json = json.dumps(tasks)
         tags_json = json.dumps(tags)
         notes_json = json.dumps(notes_history)
-        js_code = f"setTimeout(function() {{ if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {json.dumps(self.is_pinned)}); }}, 350);"
+        stats_json = json.dumps(stats) if stats else "null"
+        js_code = f"setTimeout(function() {{ if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {json.dumps(self.is_pinned)}, {stats_json}); }}, 350);"
         self.webView.evaluateJavaScript_completionHandler_(js_code, None)
 
         self.popover = Cocoa.NSPopover.alloc().init()
@@ -321,7 +349,6 @@ class AppDelegate(Cocoa.NSObject):
         win = self.webView.window()
 
         if self.is_pinned:
-            # Change popover behavior to non-transient so outside clicks do NOT dismiss it
             self.popover.setBehavior_(Cocoa.NSPopoverBehaviorApplicationDefined)
             if win:
                 win.setLevel_(Cocoa.NSFloatingWindowLevel)
@@ -382,11 +409,13 @@ class AppDelegate(Cocoa.NSObject):
             tasks = load_tasks_from_disk()
             tags = load_tags()
             notes_history = load_notes_history()
+            stats = load_stats()
             autostart = is_launch_at_login()
             tasks_json = json.dumps(tasks)
             tags_json = json.dumps(tags)
             notes_json = json.dumps(notes_history)
-            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {json.dumps(self.is_pinned)});", None)
+            stats_json = json.dumps(stats) if stats else "null"
+            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {json.dumps(self.is_pinned)}, {stats_json});", None)
             self.popover.showRelativeToRect_ofView_preferredEdge_(button.bounds(), button, Cocoa.NSMinYEdge)
             
             win = self.webView.window()

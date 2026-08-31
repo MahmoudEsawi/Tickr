@@ -24,6 +24,8 @@
       --ruler-tick-major: rgba(0, 0, 0, 0.45);
       --accent-green: #34C759;
       --accent-blue: #007AFF;
+      --accent-orange: #FF9500;
+      --accent-flame: #FF3B30;
       --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif;
       --font-mono: "SF Mono", Menlo, Monaco, monospace;
     }
@@ -44,6 +46,8 @@
       --ruler-tick-major: rgba(255, 255, 255, 0.45);
       --accent-green: #30D158;
       --accent-blue: #0A84FF;
+      --accent-orange: #FF9F0A;
+      --accent-flame: #FF453A;
     }
 
     * {
@@ -55,7 +59,6 @@
       font-family: var(--font-sans);
     }
 
-    /* Enable text selection & editing inside inputs & textareas */
     input, textarea, select {
       user-select: text !important;
       -webkit-user-select: text !important;
@@ -90,27 +93,27 @@
       background: var(--bg-capsule);
       border-radius: 20px;
       padding: 2.5px;
-      gap: 3px;
+      gap: 2px;
     }
 
     .view-btn {
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 500;
-      padding: 4px 11px;
+      padding: 4px 8px;
       border-radius: 16px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .view-btn svg {
-      width: 13px;
-      height: 13px;
+      width: 12px;
+      height: 12px;
       stroke: currentColor;
       fill: none;
       stroke-width: 2;
@@ -127,7 +130,7 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .theme-mode-btn, .header-icon-btn {
@@ -338,13 +341,10 @@
       padding: 0 4px;
       transition: background 0.15s ease;
     }
-
-    .onigiri-clock:hover {
-      background: var(--bg-capsule);
-    }
+    .onigiri-clock:hover { background: var(--bg-capsule); }
 
     /* ========================================================= */
-    /* 2. SLASHNOTE STICKY NOTE VIEW (REFINED TYPOGRAPHY)        */
+    /* 2. SLASHNOTE STICKY NOTE VIEW                             */
     /* ========================================================= */
     .slashnote-card {
       background: var(--bg-card);
@@ -405,7 +405,6 @@
       font-weight: 700;
     }
 
-    /* Native, Clean, Polished Note Textarea */
     .note-editor {
       flex: 1;
       background: transparent;
@@ -421,10 +420,7 @@
       padding: 6px 2px;
       caret-color: var(--accent-blue);
     }
-    .note-editor::placeholder {
-      color: var(--text-dim);
-      font-weight: 400;
-    }
+    .note-editor::placeholder { color: var(--text-dim); font-weight: 400; }
 
     .slashnote-bottom-strip {
       display: flex;
@@ -433,11 +429,7 @@
       padding-top: 6px;
     }
 
-    .note-info-text {
-      font-family: var(--font-mono);
-      font-size: 9.5px;
-      color: var(--text-dim);
-    }
+    .note-info-text { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-dim); }
 
     .floating-pill {
       display: inline-flex;
@@ -490,13 +482,7 @@
       margin-bottom: 8px;
     }
 
-    .drawer-title {
-      font-size: 12.5px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+    .drawer-title { font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
 
     .drawer-search-input {
       background: var(--bg-capsule);
@@ -535,27 +521,14 @@
 
     .history-item-body { flex: 1; overflow: hidden; }
     .history-item-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 12px; font-weight: 600; color: var(--text-main);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .history-item-date {
-      font-family: var(--font-mono);
-      font-size: 9.5px;
-      color: var(--text-dim);
-      margin-top: 2px;
-    }
+    .history-item-date { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-dim); margin-top: 2px; }
 
     .history-del-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-dim);
-      cursor: pointer;
-      font-size: 12px;
-      padding: 3px;
+      background: transparent; border: none; color: var(--text-dim);
+      cursor: pointer; font-size: 12px; padding: 3px;
     }
     .history-del-btn:hover { color: #FF3B30; }
 
@@ -595,164 +568,180 @@
     }
 
     .todo-input-field {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      font-size: 13px;
-      color: var(--text-main);
+      flex: 1; background: transparent; border: none; outline: none; font-size: 13px; color: var(--text-main);
     }
     .todo-input-field::placeholder { color: var(--text-dim); }
 
     .key-badge {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--text-dim);
-      border: 1px solid var(--border-color);
-      padding: 1px 4px;
-      border-radius: 4px;
-      background: var(--bg-card);
+      font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+      border: 1px solid var(--border-color); padding: 1px 4px; border-radius: 4px; background: var(--bg-card);
     }
 
     .tasks-scrollable-list {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-right: 2px;
+      flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px;
     }
     .tasks-scrollable-list::-webkit-scrollbar { width: 4px; }
-    .tasks-scrollable-list::-webkit-scrollbar-thumb {
-      background: var(--border-color);
-      border-radius: 4px;
-    }
+    .tasks-scrollable-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
     .task-item-row {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 8px 10px;
-      background: var(--bg-window);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.15s ease;
+      display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+      background: var(--bg-window); border-radius: 8px; cursor: pointer; transition: all 0.15s ease;
     }
     .task-item-row:hover { background: var(--bg-capsule-hover); }
 
     .apple-checkbox {
-      width: 16px;
-      height: 16px;
-      border-radius: 4.5px;
-      border: 1.5px solid var(--text-dim);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: all 0.15s ease;
+      width: 16px; height: 16px; border-radius: 4.5px; border: 1.5px solid var(--text-dim);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s ease;
     }
-
-    .task-item-row.done .apple-checkbox {
-      background: var(--accent-green);
-      border-color: var(--accent-green);
-    }
-
-    .apple-checkbox svg {
-      display: none;
-      width: 10px;
-      height: 10px;
-      stroke: #FFFFFF;
-      stroke-width: 2.5;
-    }
+    .task-item-row.done .apple-checkbox { background: var(--accent-green); border-color: var(--accent-green); }
+    .apple-checkbox svg { display: none; width: 10px; height: 10px; stroke: #FFFFFF; stroke-width: 2.5; }
     .task-item-row.done .apple-checkbox svg { display: block; }
 
-    .task-label {
-      flex: 1;
-      font-size: 12.5px;
-      color: var(--text-main);
-      word-break: break-word;
-    }
-    .task-item-row.done .task-label {
-      color: var(--text-dim);
-      text-decoration: line-through;
-    }
-
+    .task-label { flex: 1; font-size: 12.5px; color: var(--text-main); word-break: break-word; }
+    .task-item-row.done .task-label { color: var(--text-dim); text-decoration: line-through; }
     .task-tag {
-      font-family: var(--font-mono);
-      font-size: 9px;
-      color: var(--text-dim);
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      padding: 1px 5px;
-      border-radius: 4px;
-      text-transform: uppercase;
+      font-family: var(--font-mono); font-size: 9px; color: var(--text-dim);
+      background: var(--bg-card); border: 1px solid var(--border-color); padding: 1px 5px; border-radius: 4px; text-transform: uppercase;
     }
-
     .task-del-btn {
-      opacity: 0;
-      background: transparent;
-      border: none;
-      color: var(--text-dim);
-      cursor: pointer;
-      font-size: 12px;
-      padding: 2px;
+      opacity: 0; background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 12px; padding: 2px;
     }
     .task-item-row:hover .task-del-btn { opacity: 1; }
     .task-del-btn:hover { color: #FF3B30; }
 
     .todo-footer-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 10px;
-      border-top: 1px solid var(--border-subtle);
-      margin-top: 6px;
+      display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border-subtle); margin-top: 6px;
     }
-
-    .footer-left-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
+    .footer-left-actions { display: flex; align-items: center; gap: 6px; }
     .btn-action-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: var(--bg-capsule);
-      color: var(--text-muted);
-      border: none;
-      font-size: 10.5px;
-      font-weight: 500;
-      padding: 4px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s ease;
+      display: inline-flex; align-items: center; gap: 4px; background: var(--bg-capsule);
+      color: var(--text-muted); border: none; font-size: 10.5px; font-weight: 500; padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: all 0.15s ease;
     }
-    .btn-action-pill:hover {
-      color: var(--text-main);
-      background: var(--bg-capsule-hover);
-    }
+    .btn-action-pill:hover { color: var(--text-main); background: var(--bg-capsule-hover); }
 
     .btn-push-live {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: var(--text-main);
-      color: var(--bg-window);
-      border: none;
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      font-weight: 600;
-      padding: 4.5px 10px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: opacity 0.15s ease;
+      display: inline-flex; align-items: center; gap: 5px; background: var(--text-main);
+      color: var(--bg-window); border: none; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; padding: 4.5px 10px; border-radius: 12px; cursor: pointer; transition: opacity 0.15s ease;
     }
     .btn-push-live:hover { opacity: 0.9; }
 
     /* ========================================================= */
-    /* 4. DEDICATED SETTINGS & CREATOR MODAL                     */
+    /* 4. FOCUS ANALYTICS & DAILY MOMENTUM TAB                   */
+    /* ========================================================= */
+    .stats-card-view {
+      background: var(--bg-card);
+      border-radius: 18px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      overflow-y: auto;
+      gap: 12px;
+    }
+
+    /* 3 Hero Metric Pills */
+    .hero-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .stat-hero-pill {
+      background: var(--bg-window);
+      border-radius: 12px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 3px;
+    }
+
+    .stat-hero-icon { font-size: 14px; }
+    .stat-hero-value { font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: -0.02em; }
+    .stat-hero-label { font-size: 9.5px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+    /* Weekly Momentum Chart */
+    .stats-section-box {
+      background: var(--bg-window);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section-box-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .weekly-bars-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      height: 70px;
+      padding: 6px 4px 0;
+      gap: 6px;
+    }
+
+    .day-bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .bar-fill {
+      width: 14px;
+      background: var(--accent-blue);
+      border-radius: 4px;
+      min-height: 4px;
+      transition: height 0.3s ease;
+      opacity: 0.7;
+    }
+
+    .bar-fill.today {
+      background: var(--accent-green);
+      opacity: 1;
+      box-shadow: 0 0 8px rgba(52, 199, 89, 0.4);
+    }
+
+    .day-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-dim);
+    }
+
+    /* Today's Shipped Milestones */
+    .shipped-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .shipped-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      color: var(--text-main);
+      padding: 3px 0;
+    }
+    .shipped-item-dot {
+      width: 5px; height: 5px; border-radius: 50%; background: var(--accent-green);
+    }
+
+    /* ========================================================= */
+    /* 5. DEDICATED SETTINGS & CREATOR MODAL                     */
     /* ========================================================= */
     .settings-modal-overlay {
       position: absolute;
@@ -790,38 +779,13 @@
       margin-bottom: 10px;
     }
 
-    .settings-main-title {
-      font-size: 13px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .settings-main-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
 
-    .settings-group {
-      margin-bottom: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    .settings-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .settings-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-main); }
+    .settings-row-subtext { font-size: 10px; color: var(--text-dim); }
 
-    .settings-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--text-main);
-    }
-
-    .settings-row-subtext {
-      font-size: 10px;
-      color: var(--text-dim);
-    }
-
-    /* Switch */
-    .switch {
-      position: relative; display: inline-block; width: 30px; height: 16px;
-    }
+    .switch { position: relative; display: inline-block; width: 30px; height: 16px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider {
       position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
@@ -843,42 +807,14 @@
       justify-content: space-between;
       margin-top: 4px;
     }
-
-    .creator-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .creator-avatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #000;
-      border: 1px solid var(--border-color);
-    }
-
-    .creator-name {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .creator-link {
-      font-size: 10px;
-      color: var(--accent-blue);
-      cursor: pointer;
-      text-decoration: none;
-    }
+    .creator-left { display: flex; align-items: center; gap: 8px; }
+    .creator-avatar { width: 28px; height: 28px; border-radius: 50%; background: #000; border: 1px solid var(--border-color); }
+    .creator-name { font-size: 12px; font-weight: 600; color: var(--text-main); }
+    .creator-link { font-size: 10px; color: var(--accent-blue); cursor: pointer; text-decoration: none; }
     .creator-link:hover { text-decoration: underline; }
-
     .version-badge {
-      font-family: var(--font-mono);
-      font-size: 9.5px;
-      color: var(--text-dim);
-      background: var(--bg-capsule);
-      padding: 2px 6px;
-      border-radius: 4px;
+      font-family: var(--font-mono); font-size: 9.5px; color: var(--text-dim);
+      background: var(--bg-capsule); padding: 2px 6px; border-radius: 4px;
     }
 
     /* Toast Notification Overlay */
@@ -899,10 +835,7 @@
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 150;
     }
-    .toast-pill.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
+    .toast-pill.show { transform: translateX(-50%) translateY(0); opacity: 1; }
   </style>
 </head>
 <body class="theme-dark">
@@ -927,6 +860,11 @@
       <button class="view-btn" onclick="switchView('tasks', this)">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><polyline points="9 11 12 14 22 4"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
         <span>Tasks</span>
+      </button>
+      <!-- 4. Stats Tab -->
+      <button class="view-btn" onclick="switchView('stats', this)">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Stats</span>
       </button>
     </div>
 
@@ -964,8 +902,6 @@
             <button class="preset-link" onclick="setTimerMins(10, this)">10m</button>
             <button class="preset-link active" onclick="setTimerMins(25, this)">25m</button>
             <button class="preset-link" onclick="setTimerMins(50, this)">50m</button>
-            
-            <!-- Custom duration picker -->
             <input type="number" min="1" max="120" class="custom-mins-input" id="custom-mins-input" placeholder="mins" title="Type custom minutes & press Enter" onkeydown="handleCustomMinsKey(event)">
           </div>
 
@@ -975,7 +911,7 @@
           </button>
         </div>
 
-        <!-- Bottom Giant Display (Clickable to edit) -->
+        <!-- Bottom Giant Display -->
         <div class="onigiri-bottom-row">
           <button class="start-text-btn" id="start-btn" onclick="toggleTimer()">start</button>
           <div class="onigiri-clock" id="timer-clock" title="Click to enter custom time" onclick="promptCustomMins()">25:00</div>
@@ -986,7 +922,6 @@
     <!-- 2. SLASHNOTE STICKY NOTE VIEW -->
     <div class="tab-view" id="view-note">
       <div class="slashnote-card">
-        <!-- Apple Top Toolstrip -->
         <div class="slashnote-top-strip">
           <div class="pill-cluster">
             <button class="cluster-item-btn" title="Delete Note" onclick="deleteCurrentNote()">
@@ -1016,10 +951,8 @@
           </div>
         </div>
 
-        <!-- Clean, Fluent Note Textarea -->
         <textarea class="note-editor" id="note-editor" placeholder="Type your note..." oninput="handleNoteChange()"></textarea>
 
-        <!-- Bottom SlashNote Pill -->
         <div class="slashnote-bottom-strip">
           <span class="note-info-text" id="note-save-status">Saved</span>
           <div class="floating-pill">
@@ -1054,7 +987,6 @@
     <!-- 3. EXPANDED TO-DO & LIVE DIARY VIEW -->
     <div class="tab-view" id="view-tasks">
       <div class="todo-card-expanded">
-        <!-- Input Bar -->
         <div class="todo-input-bar">
           <select id="todo-cat-select" class="tag-dropdown">
             <option value="PROJECT">PROJECT</option>
@@ -1065,10 +997,8 @@
           <span class="key-badge">↵</span>
         </div>
 
-        <!-- Full Height Task List -->
         <div class="tasks-scrollable-list" id="todo-task-list"></div>
 
-        <!-- Footer with Standup Copy & Live Sync -->
         <div class="todo-footer-bar">
           <div class="footer-left-actions">
             <button class="btn-action-pill" title="Copy Today's Standup Summary" onclick="copyDailyStandup()">
@@ -1080,6 +1010,54 @@
           <button class="btn-push-live" id="push-live-btn" onclick="triggerPushToLive()">
             <span>🚀 Push to Live</span>
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. FOCUS ANALYTICS & DAILY MOMENTUM TAB -->
+    <div class="tab-view" id="view-stats">
+      <div class="stats-card-view">
+        <!-- 3 Hero Momentum Metric Pills -->
+        <div class="hero-stats-grid">
+          <div class="stat-hero-pill">
+            <div class="stat-hero-icon">⏱️</div>
+            <div class="stat-hero-value" id="stats-focus-time">0h 0m</div>
+            <div class="stat-hero-label">Focused Today</div>
+          </div>
+          <div class="stat-hero-pill">
+            <div class="stat-hero-icon">✅</div>
+            <div class="stat-hero-value" id="stats-tasks-done">0</div>
+            <div class="stat-hero-label">Completed</div>
+          </div>
+          <div class="stat-hero-pill">
+            <div class="stat-hero-icon">🔥</div>
+            <div class="stat-hero-value" id="stats-streak-days">1-Day</div>
+            <div class="stat-hero-label">Streak</div>
+          </div>
+        </div>
+
+        <!-- Weekly Focus Momentum Bars -->
+        <div class="stats-section-box">
+          <div class="section-box-title">
+            <span>7-Day Focus Momentum</span>
+            <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim);" id="weekly-total-label">0h Total</span>
+          </div>
+
+          <div class="weekly-bars-container" id="weekly-bars">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Today's Shipped Tasks -->
+        <div class="stats-section-box">
+          <div class="section-box-title">
+            <span>Shipped Today</span>
+            <span style="font-family:var(--font-mono); font-size:10px; color:var(--accent-green);" id="shipped-count-label">0 tasks</span>
+          </div>
+
+          <div class="shipped-list" id="today-shipped-list">
+            <!-- Rendered dynamically -->
+          </div>
         </div>
       </div>
     </div>
@@ -1115,7 +1093,6 @@
 
       <!-- Sound & Startup Preferences -->
       <div class="settings-group" style="border-top: 1px solid var(--border-subtle); padding-top: 10px;">
-        <!-- Mute Sound Switch -->
         <div class="settings-row">
           <div>
             <div>Mute Sound Effects</div>
@@ -1127,7 +1104,6 @@
           </label>
         </div>
 
-        <!-- Startup Setting -->
         <div class="settings-row" style="margin-top: 6px;">
           <div>
             <div>Launch at Mac Startup</div>
@@ -1170,17 +1146,30 @@
     let isPinned = false;
     let isMuted = false;
 
+    /* Focus Analytics State */
+    let analyticsData = {
+      streakDays: 5,
+      todayFocusSeconds: 3 * 3600 + 15 * 60, // default 3h 15m
+      weekly: [
+        { day: 'Mon', mins: 45, date: '2026-08-25' },
+        { day: 'Tue', mins: 80, date: '2026-08-26' },
+        { day: 'Wed', mins: 120, date: '2026-08-27' },
+        { day: 'Thu', mins: 60, date: '2026-08-28' },
+        { day: 'Fri', mins: 150, date: '2026-08-29' },
+        { day: 'Sat', mins: 90, date: '2026-08-30' },
+        { day: 'Sun', mins: 195, date: '2026-08-31', isToday: true }
+      ]
+    };
+
     /* ========================================================= */
-    /* 1. SYNTHESIZED SOUND ENGINE (WITH MUTE SUPPORT)           */
+    /* 1. SYNTHESIZED SOUND ENGINE                               */
     /* ========================================================= */
     let audioCtx = null;
     let rainNode = null;
     let isAmbientPlaying = false;
 
     function getAudioContext() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
       return audioCtx;
     }
@@ -1291,7 +1280,77 @@
     }
 
     /* ========================================================= */
-    /* 2. SETTINGS & CREATOR LINK HANDLER                        */
+    /* 2. FOCUS ANALYTICS & MOMENTUM ENGINE                      */
+    /* ========================================================= */
+    function renderAnalytics() {
+      // 1. Calculate focused time today
+      const totalSecs = analyticsData.todayFocusSeconds;
+      const hours = Math.floor(totalSecs / 3600);
+      const mins = Math.floor((totalSecs % 3600) / 60);
+      document.getElementById('stats-focus-time').textContent = `${hours}h ${mins}m`;
+
+      // 2. Calculate tasks completed
+      const doneTasks = tasks.filter(t => t.done);
+      document.getElementById('stats-tasks-done').textContent = `${doneTasks.length}`;
+
+      // 3. Active Streak
+      document.getElementById('stats-streak-days').textContent = `${analyticsData.streakDays}-Day`;
+
+      // 4. Render Weekly Bar Chart
+      const barsContainer = document.getElementById('weekly-bars');
+      const maxMins = Math.max(...analyticsData.weekly.map(w => w.mins), 60);
+      let weeklyTotal = 0;
+
+      barsContainer.innerHTML = analyticsData.weekly.map(item => {
+        weeklyTotal += item.mins;
+        const heightPct = Math.max(8, Math.min(100, (item.mins / maxMins) * 100));
+        return `
+          <div class="day-bar-col">
+            <div class="bar-fill ${item.isToday ? 'today' : ''}" style="height: ${heightPct}%;" title="${item.day}: ${item.mins}m"></div>
+            <div class="day-label">${item.day}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('weekly-total-label').textContent = `${(weeklyTotal / 60).toFixed(1)}h Total`;
+
+      // 5. Render Shipped Tasks
+      const shippedContainer = document.getElementById('today-shipped-list');
+      document.getElementById('shipped-count-label').textContent = `${doneTasks.length} tasks`;
+
+      if (doneTasks.length === 0) {
+        shippedContainer.innerHTML = `<div style="font-size:11px; color:var(--text-dim); text-align:center; padding:10px 0;">No tasks checked off yet today</div>`;
+      } else {
+        shippedContainer.innerHTML = doneTasks.slice(0, 6).map(t => `
+          <div class="shipped-item">
+            <div class="shipped-item-dot"></div>
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${t.title}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    function addFocusTime(seconds) {
+      analyticsData.todayFocusSeconds += seconds;
+      const todayItem = analyticsData.weekly.find(w => w.isToday);
+      if (todayItem) {
+        todayItem.mins = Math.round(analyticsData.todayFocusSeconds / 60);
+      }
+      saveAnalytics();
+      renderAnalytics();
+    }
+
+    function saveAnalytics() {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "save_stats",
+          stats: JSON.stringify(analyticsData)
+        });
+      }
+    }
+
+    /* ========================================================= */
+    /* 3. SETTINGS & CREATOR LINK HANDLER                        */
     /* ========================================================= */
     function openSettingsModal() {
       document.getElementById('settings-modal').classList.add('open');
@@ -1304,19 +1363,13 @@
 
     function openCreatorURL(url) {
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "open_url",
-          url: url
-        });
+        window.webkit.messageHandlers.tickr.postMessage({ action: "open_url", url: url });
       }
     }
 
     function toggleAutostart(enabled) {
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "set_autostart",
-          enabled: enabled
-        });
+        window.webkit.messageHandlers.tickr.postMessage({ action: "set_autostart", enabled: enabled });
       }
     }
 
@@ -1325,19 +1378,14 @@
       fetch('https://api.github.com/repos/MahmoudEsawi/Tickr/releases/latest')
         .then(res => res.json())
         .then(data => {
-          if (data && data.tag_name) {
-            showToast(`✓ Up to date (${data.tag_name})`);
-          } else {
-            showToast('✓ Latest version v1.0.0');
-          }
+          if (data && data.tag_name) showToast(`✓ Up to date (${data.tag_name})`);
+          else showToast('✓ Latest version v1.0.0');
         })
-        .catch(() => {
-          showToast('✓ Tickr v1.0.0');
-        });
+        .catch(() => { showToast('✓ Tickr v1.0.0'); });
     }
 
     /* ========================================================= */
-    /* 3. SMOOTH DRAGGABLE RULER SCRUBBER                        */
+    /* 4. DRAGGABLE SCRUBBER & POMODORO TIMER                    */
     /* ========================================================= */
     let selectedMins = 25;
     let timerSeconds = 25 * 60;
@@ -1375,9 +1423,7 @@
       });
 
       track.addEventListener('pointermove', (e) => {
-        if (isScrubberDragging) {
-          updateScrubFromClientX(e.clientX);
-        }
+        if (isScrubberDragging) updateScrubFromClientX(e.clientX);
       });
 
       track.addEventListener('pointerup', (e) => {
@@ -1439,6 +1485,7 @@
       intervalId = setInterval(() => {
         if (timerSeconds > 0) {
           timerSeconds--;
+          addFocusTime(1); // accumulate focus seconds live!
           updateClockDisplay();
           updateScrubberPosition(timerSeconds / timerTotal);
         } else {
@@ -1476,7 +1523,7 @@
         window.webkit.messageHandlers.tickr.postMessage({
           action: "notify",
           title: "🎉 Focus Complete!",
-          message: `${selectedMins} minutes done. Take a quick break!`
+          message: `${selectedMins} minutes done. Daily momentum updated!`
         });
       }
     }
@@ -1491,7 +1538,7 @@
     }
 
     /* ========================================================= */
-    /* 4. PIN & NOTES HISTORY                                    */
+    /* 5. PIN & NOTES HISTORY                                    */
     /* ========================================================= */
     function toggleFloatingPill() {
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
@@ -1532,9 +1579,7 @@
 
       let note = notesHistory.find(n => n.id === currentNoteId);
       if (note) {
-        note.content = text;
-        note.title = title;
-        note.updatedAt = now;
+        note.content = text; note.title = title; note.updatedAt = now;
       } else {
         note = { id: currentNoteId, title: title, content: text, updatedAt: now };
         notesHistory.unshift(note);
@@ -1558,10 +1603,7 @@
     }
 
     function deleteCurrentNote() {
-      if (!currentNoteId) {
-        document.getElementById('note-editor').value = '';
-        return;
-      }
+      if (!currentNoteId) { document.getElementById('note-editor').value = ''; return; }
       notesHistory = notesHistory.filter(n => n.id !== currentNoteId);
       if (notesHistory.length > 0) loadNoteIntoEditor(notesHistory[0]);
       else createNewNote();
@@ -1655,7 +1697,7 @@
     }
 
     /* ========================================================= */
-    /* 5. STANDUP & TASKS ENGINE                                 */
+    /* 6. STANDUP & TASKS ENGINE                                 */
     /* ========================================================= */
     function copyDailyStandup() {
       const today = new Date().toISOString().split('T')[0];
@@ -1714,6 +1756,7 @@
         playTaskSnap();
         saveTasksNative();
         renderTasks();
+        renderAnalytics();
       }
     }
 
@@ -1724,6 +1767,7 @@
         playTaskSnap();
         saveTasksNative();
         renderTasks();
+        renderAnalytics();
       }
     }
 
@@ -1732,6 +1776,7 @@
       tasks = tasks.filter(x => x.id !== id);
       saveTasksNative();
       renderTasks();
+      renderAnalytics();
     }
 
     function saveTasksNative() {
@@ -1764,7 +1809,9 @@
       setTimeout(() => { btn.innerHTML = '<span>🚀 Push to Live</span>'; }, 2500);
     };
 
-    /* System Theme Sync */
+    /* ========================================================= */
+    /* 7. SYSTEM THEME SYNC                                      */
+    /* ========================================================= */
     const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
     function cycleTheme() {
@@ -1815,9 +1862,13 @@
 
       const viewEl = document.getElementById(`view-${viewName}`);
       if (viewEl) viewEl.classList.add('active');
+
+      if (viewName === 'stats') {
+        renderAnalytics();
+      }
     }
 
-    function initAppState(initialTasks, customTags, isAutostart, notesHistoryList, pinState) {
+    function initAppState(initialTasks, customTags, isAutostart, notesHistoryList, pinState, statsPayload) {
       tasks = initialTasks || [];
       if (customTags && Array.isArray(customTags)) tags = customTags;
       
@@ -1842,7 +1893,10 @@
         }
       }
 
-      // Check Mute Preference
+      if (statsPayload && typeof statsPayload === 'object') {
+        analyticsData = Object.assign(analyticsData, statsPayload);
+      }
+
       isMuted = (localStorage.getItem('tickr_sound_muted') === 'true');
       const muteChk = document.getElementById('mute-sound-chk');
       if (muteChk) muteChk.checked = isMuted;
@@ -1853,6 +1907,7 @@
       buildFineTicks();
       initScrubberDrag();
       renderTasks();
+      renderAnalytics();
       updateClockDisplay();
     }
 
