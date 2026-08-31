@@ -61,6 +61,9 @@ cat <<EOF > "${APP_BUNDLE}/Contents/Info.plist"
 </plist>
 EOF
 
+echo "🔏 Ad-hoc code signing ${APP_NAME}.app..."
+codesign --force --deep --sign - "$APP_BUNDLE" || true
+
 echo "🗜️ Creating ZIP archive..."
 ditto -c -k --sequesterRsrc --keepParent "$APP_BUNDLE" "$ZIP_FILE"
 

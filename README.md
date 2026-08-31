@@ -61,8 +61,13 @@ Tickr/
 ### Option 1: Direct Download (DMG)
 
 1. Download [**Tickr-v1.0.0.dmg**](https://github.com/MahmoudEsawi/Tickr/releases/latest/download/Tickr-v1.0.0.dmg) or [**Tickr-v1.0.0-macOS.zip**](https://github.com/MahmoudEsawi/Tickr/releases/latest/download/Tickr-v1.0.0-macOS.zip).
-2. Open the disk image and drag **Tickr** into your `Applications` folder.
-3. Launch **Tickr** — it will appear instantly in your top macOS menu bar.
+2. Open the disk image and drag **Tickr** into your `/Applications` folder.
+3. **First-time launch (macOS Gatekeeper)**:
+   * **Right-click (or Control-click)** `Tickr.app` in `/Applications` and select **Open**, then click **Open** in the dialog.
+   * *Alternatively*: Go to **System Settings → Privacy & Security** and click **Open Anyway**, or run in Terminal:
+     ```bash
+     xattr -cr /Applications/Tickr.app
+     ```
 
 ---
 
