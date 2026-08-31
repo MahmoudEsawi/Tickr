@@ -20,9 +20,9 @@ def load_tasks_from_disk():
         except Exception:
             pass
     return [
-        {"id": 1, "title": "Welcome to Tickr for Mac! ⚡", "category": "Ship", "done": False},
-        {"id": 2, "title": "Click any task to check it off with sound ✨", "category": "Focus", "done": False},
-        {"id": 3, "title": "Hit ↵ Enter to quickly add new tasks", "category": "Flow", "done": False}
+        {"id": 1, "title": "Review pull requests & CI workflows", "category": "Code", "done": False},
+        {"id": 2, "title": "Build clean architecture services", "category": "Project", "done": False},
+        {"id": 3, "title": "Deploy production release", "category": "Daily", "done": True}
     ]
 
 def save_tasks_to_disk(tasks):
@@ -35,25 +35,42 @@ def save_tasks_to_disk(tasks):
 class ScriptHandler(Cocoa.NSObject):
     def userContentController_didReceiveScriptMessage_(self, userContentController, message):
         body = message.body()
+        action = None
+        data = None
+
         if isinstance(body, (dict, Cocoa.NSDictionary)):
             action = body.get("action")
-            if action == "save":
-                data = body.get("data")
-                if data is not None:
-                    # Convert objc types if needed
-                    py_data = json.loads(json.dumps(data)) if not isinstance(data, list) else list(data)
-                    save_tasks_to_disk(py_data)
-                    app_delegate = Cocoa.NSApp().delegate()
-                    if app_delegate:
-                        app_delegate.update_badge_count(py_data)
-            elif action == "quit":
-                Cocoa.NSApplication.sharedApplication().terminate_(None)
+            data = body.get("data")
+        elif isinstance(body, str):
+            try:
+                parsed = json.loads(body)
+                action = parsed.get("action")
+                data = parsed.get("data")
+            except Exception:
+                pass
+
+        if action == "save" and data is not None:
+            if isinstance(data, str):
+                try:
+                    tasks_list = json.loads(data)
+                except Exception:
+                    tasks_list = []
+            else:
+                tasks_list = list(data)
+            save_tasks_to_disk(tasks_list)
+            
+            app_delegate = Cocoa.NSApp().delegate()
+            if app_delegate:
+                app_delegate.update_badge_count(tasks_list)
+
+        elif action == "quit":
+            Cocoa.NSApplication.sharedApplication().terminate_(None)
 
 class AppDelegate(Cocoa.NSObject):
     def applicationDidFinishLaunching_(self, notification):
         Cocoa.NSApp().setActivationPolicy_(Cocoa.NSApplicationActivationPolicyAccessory)
 
-        # Status Bar Item
+        # Status Bar Item in Menu Bar
         self.statusItem = Cocoa.NSStatusBar.systemStatusBar().statusItemWithLength_(Cocoa.NSVariableStatusItemLength)
         button = self.statusItem.button()
         button.setTitle_("⚡ Tickr")
@@ -67,10 +84,9 @@ class AppDelegate(Cocoa.NSObject):
 
         config = WebKit.WKWebViewConfiguration.alloc().init()
         config.setUserContentController_(contentController)
-        config.preferences().setValue_forKey_(True, "developerExtrasEnabled")
 
         # Create WKWebView
-        frame = Cocoa.NSMakeRect(0, 0, 360, 480)
+        frame = Cocoa.NSMakeRect(0, 0, 360, 470)
         self.webView = WebKit.WKWebView.alloc().initWithFrame_configuration_(frame, config)
         self.webView.setValue_forKey_(False, "drawsBackground")
 
@@ -82,12 +98,12 @@ class AppDelegate(Cocoa.NSObject):
         tasks = load_tasks_from_disk()
         self.update_badge_count(tasks)
         tasks_json = json.dumps(tasks)
-        js_code = f"setTimeout(function() {{ if(window.initTasks) initTasks({tasks_json}); }}, 300);"
+        js_code = f"setTimeout(function() {{ if(window.initTasks) initTasks({tasks_json}); }}, 350);"
         self.webView.evaluateJavaScript_completionHandler_(js_code, None)
 
         # Popover
         self.popover = Cocoa.NSPopover.alloc().init()
-        self.popover.setContentSize_(Cocoa.NSMakeSize(360, 480))
+        self.popover.setContentSize_(Cocoa.NSMakeSize(360, 470))
         self.popover.setBehavior_(Cocoa.NSPopoverBehaviorTransient)
         self.popover.setAnimates_(True)
 
@@ -109,7 +125,7 @@ class AppDelegate(Cocoa.NSObject):
         if self.popover.isShown():
             self.popover.performClose_(sender)
         else:
-            # Refresh data
+            # Refresh data from disk
             tasks = load_tasks_from_disk()
             tasks_json = json.dumps(tasks)
             self.webView.evaluateJavaScript_completionHandler_(f"if(window.initTasks) initTasks({tasks_json});", None)
