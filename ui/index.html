@@ -124,7 +124,7 @@
       gap: 6px;
     }
 
-    .theme-mode-btn, .header-icon-btn {
+    .theme-mode-btn {
       background: var(--bg-capsule);
       border: none;
       color: var(--text-muted);
@@ -140,7 +140,7 @@
       transition: all 0.15s ease;
     }
 
-    .theme-mode-btn svg, .header-icon-btn svg {
+    .theme-mode-btn svg {
       width: 12px;
       height: 12px;
       stroke: currentColor;
@@ -148,7 +148,7 @@
       stroke-width: 2;
     }
 
-    .theme-mode-btn:hover, .header-icon-btn:hover {
+    .theme-mode-btn:hover {
       color: var(--text-main);
       background: var(--bg-capsule-hover);
     }
@@ -218,17 +218,8 @@
       pointer-events: none;
     }
 
-    .tick {
-      width: 1px;
-      height: 16px;
-      background: var(--ruler-tick);
-    }
-
-    .tick.major {
-      height: 24px;
-      background: var(--ruler-tick-major);
-      width: 1.5px;
-    }
+    .tick { width: 1px; height: 16px; background: var(--ruler-tick); }
+    .tick.major { height: 24px; background: var(--ruler-tick-major); width: 1.5px; }
 
     .scrubber-cursor {
       position: absolute;
@@ -335,6 +326,7 @@
       justify-content: space-between;
       height: 100%;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      position: relative;
     }
 
     .slashnote-top-strip {
@@ -365,6 +357,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 3px;
       transition: all 0.12s ease;
     }
 
@@ -377,6 +370,11 @@
     }
 
     .cluster-item-btn:hover { color: var(--text-main); background: var(--bg-card); }
+    .cluster-item-btn.pinned {
+      color: var(--accent-green);
+      background: rgba(52, 199, 89, 0.12);
+      font-weight: 700;
+    }
 
     .note-editor {
       flex: 1;
@@ -394,8 +392,14 @@
     .slashnote-bottom-strip {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
       padding-top: 6px;
+    }
+
+    .note-info-text {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-dim);
     }
 
     .floating-pill {
@@ -425,6 +429,105 @@
     }
     .floating-action-link:hover { color: var(--text-main); }
     .pill-divider { opacity: 0.3; }
+
+    /* Notes History Drawer / Modal */
+    .history-drawer {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg-card);
+      border-radius: 18px;
+      z-index: 50;
+      display: none;
+      flex-direction: column;
+      padding: 12px 14px;
+      animation: tabFadeIn 0.16s ease;
+    }
+    .history-drawer.open { display: flex; }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 8px;
+    }
+
+    .drawer-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .drawer-search-input {
+      background: var(--bg-capsule);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 5px 8px;
+      font-size: 11.5px;
+      color: var(--text-main);
+      outline: none;
+      margin-bottom: 8px;
+    }
+
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .history-list::-webkit-scrollbar { width: 3px; }
+    .history-list::-webkit-scrollbar-thumb { background: var(--text-dim); border-radius: 3px; }
+
+    .history-item {
+      padding: 8px 10px;
+      background: var(--bg-window);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.12s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .history-item:hover { background: var(--bg-capsule-hover); }
+    .history-item.active-note {
+      border-left: 3px solid var(--accent-green);
+    }
+
+    .history-item-body {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .history-item-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-item-date {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .history-del-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 3px;
+    }
+    .history-del-btn:hover { color: #FF3B30; }
 
     /* ========================================================= */
     /* 3. EXPANDED TO-DO & DIARY VIEW                            */
@@ -718,13 +821,17 @@
         <!-- Apple Top Toolstrip -->
         <div class="slashnote-top-strip">
           <div class="pill-cluster">
-            <button class="cluster-item-btn" title="Clear Note" onclick="clearNote()">
+            <button class="cluster-item-btn" title="Delete Note" onclick="deleteCurrentNote()">
               <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
-            <button class="cluster-item-btn" title="New Note" onclick="clearNote()">
+            <button class="cluster-item-btn" title="New Note" onclick="createNewNote()">
               <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </button>
-            <button class="cluster-item-btn" id="pin-hud-btn" title="Pin / Floating Pill HUD" onclick="toggleFloatingPill()">
+            <button class="cluster-item-btn" title="Notes History" onclick="openHistoryDrawer()">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+              <span>History</span>
+            </button>
+            <button class="cluster-item-btn" id="pin-hud-btn" title="Pin / Floating Window Level" onclick="toggleFloatingPill()">
               <svg viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-2l-2-3V5a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v7l-2 3v2z"/></svg>
             </button>
           </div>
@@ -746,6 +853,7 @@
 
         <!-- Bottom SlashNote Pill -->
         <div class="slashnote-bottom-strip">
+          <span class="note-info-text" id="note-save-status">Saved</span>
           <div class="floating-pill">
             <button class="floating-action-link" onclick="insertNoteSnippet('✨ ')">
               <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -757,6 +865,20 @@
               <span>To-Do</span>
             </button>
           </div>
+        </div>
+
+        <!-- Multi-Note History Drawer -->
+        <div class="history-drawer" id="history-drawer">
+          <div class="drawer-header">
+            <div class="drawer-title">
+              <svg viewBox="0 0 24 24" style="width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2;"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+              <span>Notes History</span>
+            </div>
+            <button class="cluster-item-btn" onclick="closeHistoryDrawer()">✕</button>
+          </div>
+
+          <input type="text" class="drawer-search-input" id="drawer-search" placeholder="Search past notes..." oninput="renderHistoryList()">
+          <div class="history-list" id="history-list-items"></div>
         </div>
       </div>
     </div>
@@ -805,9 +927,12 @@
     let themeMode = 'system';
     let tasks = [];
     let tags = ["PROJECT", "CODE", "HACKATHON", "DAILY", "IDEAS"];
+    let notesHistory = [];
+    let currentNoteId = null;
+    let isPinned = false;
 
     /* ========================================================= */
-    /* 1. SYNTHESIZED MECHANICAL SOUND ENGINE                    */
+    /* 1. SYNTHESIZED SOUND ENGINE                               */
     /* ========================================================= */
     let audioCtx = null;
     let rainNode = null;
@@ -817,13 +942,10 @@
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
       return audioCtx;
     }
 
-    // Mechanical Apple Watch Crown Click
     function playCrownTick() {
       try {
         const ctx = getAudioContext();
@@ -841,7 +963,6 @@
       } catch (e) {}
     }
 
-    // Satisfying Task Completion Snap
     function playTaskSnap() {
       try {
         const ctx = getAudioContext();
@@ -859,7 +980,6 @@
       } catch (e) {}
     }
 
-    // Ambient Rain Generator
     function toggleAmbientNoise() {
       const btn = document.getElementById('ambient-sound-btn');
       if (isAmbientPlaying) {
@@ -911,9 +1031,6 @@
       isAmbientPlaying = false;
     }
 
-    /* ========================================================= */
-    /* 2. TOAST NOTIFICATION HELPER                              */
-    /* ========================================================= */
     function showToast(text) {
       const toast = document.getElementById('toast-msg');
       toast.textContent = text;
@@ -922,119 +1039,186 @@
     }
 
     /* ========================================================= */
-    /* 3. DAILY STANDUP GENERATOR                                */
+    /* 2. PIN TOGGLE HANDLER                                     */
     /* ========================================================= */
-    function copyDailyStandup() {
-      const today = new Date().toISOString().split('T')[0];
-      const completedToday = tasks.filter(t => t.done);
-      const pendingTasks = tasks.filter(t => !t.done);
-
-      let report = `### 🚀 Daily Standup (${today})\n\n**Completed:**\n`;
-      if (completedToday.length > 0) {
-        report += completedToday.map(t => `- [x] ${t.title}`).join('\n');
-      } else {
-        report += `- (No tasks completed yet)`;
+    function toggleFloatingPill() {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({ action: "toggle_pin" });
       }
-
-      report += `\n\n**In Progress:**\n`;
-      if (pendingTasks.length > 0) {
-        report += pendingTasks.slice(0, 5).map(t => `- [ ] ${t.title}`).join('\n');
-      } else {
-        report += `- (All tasks cleared!)`;
-      }
-
-      navigator.clipboard.writeText(report).then(() => {
-        showToast('📋 Standup Copied!');
-        playTaskSnap();
-        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-          window.webkit.messageHandlers.tickr.postMessage({
-            action: "notify",
-            title: "📋 Daily Standup Copied",
-            message: "Formatted markdown summary copied to your clipboard."
-          });
-        }
-      });
     }
 
+    window.onPinStateChanged = function(pinned) {
+      isPinned = pinned;
+      const btn = document.getElementById('pin-hud-btn');
+      if (pinned) {
+        btn.classList.add('pinned');
+        showToast('📌 Pinned on Top');
+      } else {
+        btn.classList.remove('pinned');
+        showToast('Unpinned');
+      }
+      playTaskSnap();
+    };
+
     /* ========================================================= */
-    /* 4. IN-APP UPDATE CHECKER                                  */
+    /* 3. MULTI-NOTE HISTORY ENGINE                              */
     /* ========================================================= */
-    function checkForUpdates() {
-      showToast('Checking updates...');
-      fetch('https://api.github.com/repos/MahmoudEsawi/Tickr/releases/latest')
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.tag_name) {
-            showToast(`✓ Up to date (${data.tag_name})`);
-          } else {
-            showToast('✓ Latest version v1.0.0');
-          }
-        })
-        .catch(() => {
-          showToast('✓ Tickr v1.0.0');
+    let noteSaveTimer = null;
+
+    function handleNoteChange() {
+      document.getElementById('note-save-status').textContent = 'Saving...';
+      clearTimeout(noteSaveTimer);
+      noteSaveTimer = setTimeout(() => {
+        const text = document.getElementById('note-editor').value;
+        saveActiveNote(text);
+        document.getElementById('note-save-status').textContent = 'Saved';
+      }, 400);
+    }
+
+    function saveActiveNote(text) {
+      if (!currentNoteId) {
+        currentNoteId = String(Date.now());
+      }
+      
+      const firstLine = text.trim().split('\n')[0].replace(/^[#\-*\s]+/, '').trim();
+      const title = firstLine || 'Untitled Note';
+      const now = new Date().toISOString();
+
+      let note = notesHistory.find(n => n.id === currentNoteId);
+      if (note) {
+        note.content = text;
+        note.title = title;
+        note.updatedAt = now;
+      } else {
+        note = {
+          id: currentNoteId,
+          title: title,
+          content: text,
+          updatedAt: now
+        };
+        notesHistory.unshift(note);
+      }
+
+      // Keep most recently updated at the top
+      notesHistory.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "save_notes_history",
+          notes: JSON.stringify(notesHistory)
         });
-    }
-
-    /* ========================================================= */
-    /* 5. SYSTEM-SYNCED THEME ENGINE                             */
-    /* ========================================================= */
-    const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    function cycleTheme() {
-      if (themeMode === 'system') setThemeMode('light');
-      else if (themeMode === 'light') setThemeMode('dark');
-      else setThemeMode('system');
-    }
-
-    function setThemeMode(mode) {
-      themeMode = mode;
-      localStorage.setItem('tickr_theme_mode', mode);
-      applyTheme();
-    }
-
-    function applyTheme() {
-      let isDark = (themeMode === 'system') ? systemDarkQuery.matches : (themeMode === 'dark');
-      document.body.classList.toggle('theme-dark', isDark);
-      document.body.classList.toggle('theme-light', !isDark);
-
-      const label = document.getElementById('theme-label');
-      const iconSvg = document.getElementById('theme-icon-svg');
-
-      if (themeMode === 'system') {
-        label.textContent = 'Auto';
-        iconSvg.innerHTML = isDark ? 
-          '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' :
-          '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-      } else if (themeMode === 'light') {
-        label.textContent = 'Light';
-        iconSvg.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-      } else {
-        label.textContent = 'Dark';
-        iconSvg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
       }
     }
 
-    systemDarkQuery.addEventListener('change', () => {
-      if (themeMode === 'system') applyTheme();
-    });
+    function createNewNote() {
+      currentNoteId = String(Date.now());
+      document.getElementById('note-editor').value = '';
+      document.getElementById('note-editor').focus();
+      document.getElementById('note-save-status').textContent = 'New Note';
+      playTaskSnap();
+    }
 
-    /* ========================================================= */
-    /* 6. VIEW SWITCHER                                          */
-    /* ========================================================= */
-    function switchView(viewName, btnEl) {
-      activeView = viewName;
-      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+    function deleteCurrentNote() {
+      if (!currentNoteId) {
+        document.getElementById('note-editor').value = '';
+        return;
+      }
+      notesHistory = notesHistory.filter(n => n.id !== currentNoteId);
+      if (notesHistory.length > 0) {
+        loadNoteIntoEditor(notesHistory[0]);
+      } else {
+        createNewNote();
+      }
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "save_notes_history",
+          notes: JSON.stringify(notesHistory)
+        });
+      }
+      showToast('Note Deleted');
+      playTaskSnap();
+    }
 
-      const btn = btnEl || document.querySelector(`.view-btn[onclick*="${viewName}"]`);
-      if (btn) btn.classList.add('active');
+    function loadNoteIntoEditor(note) {
+      currentNoteId = note.id;
+      document.getElementById('note-editor').value = note.content || '';
+      document.getElementById('note-save-status').textContent = 'Loaded';
+      closeHistoryDrawer();
+    }
 
-      const viewEl = document.getElementById(`view-${viewName}`);
-      if (viewEl) viewEl.classList.add('active');
+    function openHistoryDrawer() {
+      document.getElementById('history-drawer').classList.add('open');
+      renderHistoryList();
+      playTaskSnap();
+    }
+
+    function closeHistoryDrawer() {
+      document.getElementById('history-drawer').classList.remove('open');
+    }
+
+    function renderHistoryList() {
+      const container = document.getElementById('history-list-items');
+      const search = (document.getElementById('drawer-search').value || '').toLowerCase();
+      
+      const filtered = notesHistory.filter(n => 
+        (n.title && n.title.toLowerCase().includes(search)) || 
+        (n.content && n.content.toLowerCase().includes(search))
+      );
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:30px 0; font-size:12px; color:var(--text-dim);">No notes found</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(n => {
+        const dateStr = new Date(n.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const isActive = (n.id === currentNoteId);
+        return `
+          <div class="history-item ${isActive ? 'active-note' : ''}" onclick="loadNoteById('${n.id}')">
+            <div class="history-item-body">
+              <div class="history-item-title">${n.title || 'Untitled Note'}</div>
+              <div class="history-item-date">${dateStr}</div>
+            </div>
+            <button class="history-del-btn" title="Delete" onclick="deleteHistoryNote('${n.id}', event)">✕</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadNoteById(id) {
+      const note = notesHistory.find(n => n.id === id);
+      if (note) loadNoteIntoEditor(note);
+    }
+
+    function deleteHistoryNote(id, e) {
+      e.stopPropagation();
+      notesHistory = notesHistory.filter(n => n.id !== id);
+      if (currentNoteId === id) {
+        if (notesHistory.length > 0) loadNoteIntoEditor(notesHistory[0]);
+        else createNewNote();
+      }
+      renderHistoryList();
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({
+          action: "save_notes_history",
+          notes: JSON.stringify(notesHistory)
+        });
+      }
+    }
+
+    function insertNoteSnippet(snippet) {
+      const area = document.getElementById('note-editor');
+      const start = area.selectionStart;
+      const end = area.selectionEnd;
+      area.value = area.value.substring(0, start) + snippet + area.value.substring(end);
+      area.selectionStart = area.selectionEnd = start + snippet.length;
+      area.focus();
+      playCrownTick();
+      handleNoteChange();
     }
 
     /* ========================================================= */
-    /* 7. ONIGIRI POMODORO ENGINE                                */
+    /* 4. ONIGIRI POMODORO ENGINE                                */
     /* ========================================================= */
     let selectedMins = 25;
     let timerSeconds = 25 * 60;
@@ -1145,50 +1329,110 @@
     }
 
     /* ========================================================= */
-    /* 8. SLASHNOTE STICKY NOTE ENGINE                           */
+    /* 5. STANDUP, UPDATE & DIARY ENGINE                         */
     /* ========================================================= */
-    let noteSaveTimer = null;
+    function copyDailyStandup() {
+      const today = new Date().toISOString().split('T')[0];
+      const completedToday = tasks.filter(t => t.done);
+      const pendingTasks = tasks.filter(t => !t.done);
 
-    function handleNoteChange() {
-      clearTimeout(noteSaveTimer);
-      noteSaveTimer = setTimeout(() => {
-        const text = document.getElementById('note-editor').value;
+      let report = `### 🚀 Daily Standup (${today})\n\n**Completed:**\n`;
+      if (completedToday.length > 0) {
+        report += completedToday.map(t => `- [x] ${t.title}`).join('\n');
+      } else {
+        report += `- (No tasks completed yet)`;
+      }
+
+      report += `\n\n**In Progress:**\n`;
+      if (pendingTasks.length > 0) {
+        report += pendingTasks.slice(0, 5).map(t => `- [ ] ${t.title}`).join('\n');
+      } else {
+        report += `- (All tasks cleared!)`;
+      }
+
+      navigator.clipboard.writeText(report).then(() => {
+        showToast('📋 Standup Copied!');
+        playTaskSnap();
         if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
           window.webkit.messageHandlers.tickr.postMessage({
-            action: "save_note",
-            text: text
+            action: "notify",
+            title: "📋 Daily Standup Copied",
+            message: "Formatted markdown summary copied to your clipboard."
           });
         }
-      }, 350);
+      });
     }
 
-    function insertNoteSnippet(snippet) {
-      const area = document.getElementById('note-editor');
-      const start = area.selectionStart;
-      const end = area.selectionEnd;
-      area.value = area.value.substring(0, start) + snippet + area.value.substring(end);
-      area.selectionStart = area.selectionEnd = start + snippet.length;
-      area.focus();
-      playCrownTick();
-      handleNoteChange();
+    function checkForUpdates() {
+      showToast('Checking updates...');
+      fetch('https://api.github.com/repos/MahmoudEsawi/Tickr/releases/latest')
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.tag_name) {
+            showToast(`✓ Up to date (${data.tag_name})`);
+          } else {
+            showToast('✓ Latest version v1.0.0');
+          }
+        })
+        .catch(() => {
+          showToast('✓ Tickr v1.0.0');
+        });
     }
 
-    function clearNote() {
-      document.getElementById('note-editor').value = '';
-      handleNoteChange();
+    /* System Theme Sync */
+    const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function cycleTheme() {
+      if (themeMode === 'system') setThemeMode('light');
+      else if (themeMode === 'light') setThemeMode('dark');
+      else setThemeMode('system');
     }
 
-    function toggleFloatingPill() {
-      showToast('📌 HUD Pinned');
-      playTaskSnap();
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({ action: "toggle_pin" });
+    function setThemeMode(mode) {
+      themeMode = mode;
+      localStorage.setItem('tickr_theme_mode', mode);
+      applyTheme();
+    }
+
+    function applyTheme() {
+      let isDark = (themeMode === 'system') ? systemDarkQuery.matches : (themeMode === 'dark');
+      document.body.classList.toggle('theme-dark', isDark);
+      document.body.classList.toggle('theme-light', !isDark);
+
+      const label = document.getElementById('theme-label');
+      const iconSvg = document.getElementById('theme-icon-svg');
+
+      if (themeMode === 'system') {
+        label.textContent = 'Auto';
+        iconSvg.innerHTML = isDark ? 
+          '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' :
+          '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+      } else if (themeMode === 'light') {
+        label.textContent = 'Light';
+        iconSvg.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+      } else {
+        label.textContent = 'Dark';
+        iconSvg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
       }
     }
 
-    /* ========================================================= */
-    /* 9. EXPANDED TO-DO & LIVE DIARY                            */
-    /* ========================================================= */
+    systemDarkQuery.addEventListener('change', () => {
+      if (themeMode === 'system') applyTheme();
+    });
+
+    function switchView(viewName, btnEl) {
+      activeView = viewName;
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+
+      const btn = btnEl || document.querySelector(`.view-btn[onclick*="${viewName}"]`);
+      if (btn) btn.classList.add('active');
+
+      const viewEl = document.getElementById(`view-${viewName}`);
+      if (viewEl) viewEl.classList.add('active');
+    }
+
+    /* Tasks Logic */
     function renderTasks() {
       const list = document.getElementById('todo-task-list');
       if (tasks.length === 0) {
@@ -1277,11 +1521,24 @@
       setTimeout(() => { btn.innerHTML = '<span>🚀 Push to Live</span>'; }, 2500);
     };
 
-    function initAppState(initialTasks, customTags, isAutostart, noteContent) {
+    function initAppState(initialTasks, customTags, isAutostart, notesHistoryList, pinState) {
       tasks = initialTasks || [];
       if (customTags && Array.isArray(customTags)) tags = customTags;
-      if (typeof noteContent === 'string') {
-        document.getElementById('note-editor').value = noteContent;
+      
+      if (Array.isArray(notesHistoryList) && notesHistoryList.length > 0) {
+        notesHistory = notesHistoryList;
+        loadNoteIntoEditor(notesHistory[0]);
+      } else {
+        createNewNote();
+      }
+
+      if (typeof pinState === 'boolean') {
+        isPinned = pinState;
+        const pinBtn = document.getElementById('pin-hud-btn');
+        if (pinBtn) {
+          if (isPinned) pinBtn.classList.add('pinned');
+          else pinBtn.classList.remove('pinned');
+        }
       }
 
       const savedMode = localStorage.getItem('tickr_theme_mode') || 'system';

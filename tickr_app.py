@@ -13,7 +13,7 @@ DIARY_PATH = os.path.join(DIARY_DIR, "src/data/diary.json")
 BACKUP_DIR = os.path.expanduser("~/Library/Application Support/Tickr")
 BACKUP_FILE = os.path.join(BACKUP_DIR, "tasks.json")
 TAGS_FILE = os.path.join(BACKUP_DIR, "tags.json")
-NOTE_FILE = os.path.join(BACKUP_DIR, "scratchpad.md")
+NOTES_HISTORY_FILE = os.path.join(BACKUP_DIR, "notes_history.json")
 LAUNCH_AGENT_PATH = os.path.expanduser("~/Library/LaunchAgents/com.mahmoudesawi.tickr.plist")
 ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 ICON_PATH = os.path.join(ASSETS_DIR, "menu_icon.png")
@@ -80,23 +80,23 @@ def save_tags(tags):
     except Exception as e:
         print("Save tags error:", e)
 
-def load_note():
-    if os.path.exists(NOTE_FILE):
+def load_notes_history():
+    if os.path.exists(NOTES_HISTORY_FILE):
         try:
-            with open(NOTE_FILE, "r", encoding="utf-8") as f:
-                return f.read()
+            with open(NOTES_HISTORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
         except Exception:
             pass
-    return ""
+    return []
 
-def save_note(text):
+def save_notes_history(notes):
     try:
         if not os.path.exists(BACKUP_DIR):
             os.makedirs(BACKUP_DIR, exist_ok=True)
-        with open(NOTE_FILE, "w", encoding="utf-8") as f:
-            f.write(text)
+        with open(NOTES_HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(notes, f, indent=2, ensure_ascii=False)
     except Exception as e:
-        print("Save note error:", e)
+        print("Save notes error:", e)
 
 def load_tasks_from_disk():
     if os.path.exists(DIARY_PATH):
@@ -181,17 +181,20 @@ class ScriptHandler(Cocoa.NSObject):
         action = None
         data = None
         tags = None
+        notes = None
 
         if isinstance(body, (dict, Cocoa.NSDictionary)):
             action = body.get("action")
             data = body.get("data")
             tags = body.get("tags")
+            notes = body.get("notes")
         elif isinstance(body, str):
             try:
                 parsed = json.loads(body)
                 action = parsed.get("action")
                 data = parsed.get("data")
                 tags = parsed.get("tags")
+                notes = parsed.get("notes")
             except Exception:
                 pass
 
@@ -207,9 +210,9 @@ class ScriptHandler(Cocoa.NSObject):
             if app_delegate:
                 app_delegate.update_badge_count(tasks_list)
 
-        elif action == "save_note":
-            note_text = body.get("text", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
-            save_note(note_text)
+        elif action == "save_notes_history" and notes is not None:
+            notes_list = json.loads(notes) if isinstance(notes, str) else list(notes)
+            save_notes_history(notes_list)
 
         elif action == "timer_update":
             time_text = body.get("text", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
@@ -253,6 +256,7 @@ class AppDelegate(Cocoa.NSObject):
     def applicationDidFinishLaunching_(self, notification):
         Cocoa.NSApp().setActivationPolicy_(Cocoa.NSApplicationActivationPolicyAccessory)
         self.active_timer_text = ""
+        self.is_pinned = False
 
         # Status Bar Item in Menu Bar
         self.statusItem = Cocoa.NSStatusBar.systemStatusBar().statusItemWithLength_(Cocoa.NSVariableStatusItemLength)
@@ -276,7 +280,7 @@ class AppDelegate(Cocoa.NSObject):
         config = WebKit.WKWebViewConfiguration.alloc().init()
         config.setUserContentController_(contentController)
 
-        frame = Cocoa.NSMakeRect(0, 0, 360, 380)
+        frame = Cocoa.NSMakeRect(0, 0, 360, 420)
         self.webView = WebKit.WKWebView.alloc().initWithFrame_configuration_(frame, config)
         self.webView.setValue_forKey_(False, "drawsBackground")
 
@@ -285,18 +289,18 @@ class AppDelegate(Cocoa.NSObject):
 
         tasks = load_tasks_from_disk()
         tags = load_tags()
+        notes_history = load_notes_history()
         autostart = is_launch_at_login()
-        note = load_note()
         self.update_badge_count(tasks)
         
         tasks_json = json.dumps(tasks)
         tags_json = json.dumps(tags)
-        note_json = json.dumps(note)
-        js_code = f"setTimeout(function() {{ if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {note_json}); }}, 350);"
+        notes_json = json.dumps(notes_history)
+        js_code = f"setTimeout(function() {{ if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {json.dumps(self.is_pinned)}); }}, 350);"
         self.webView.evaluateJavaScript_completionHandler_(js_code, None)
 
         self.popover = Cocoa.NSPopover.alloc().init()
-        self.popover.setContentSize_(Cocoa.NSMakeSize(360, 380))
+        self.popover.setContentSize_(Cocoa.NSMakeSize(360, 420))
         self.popover.setBehavior_(Cocoa.NSPopoverBehaviorTransient)
         self.popover.setAnimates_(True)
 
@@ -307,12 +311,26 @@ class AppDelegate(Cocoa.NSObject):
         self.setup_global_hotkeys()
 
     def toggle_pin(self):
-        if self.popover.behavior() == Cocoa.NSPopoverBehaviorTransient:
+        self.is_pinned = not self.is_pinned
+        win = self.webView.window()
+
+        if self.is_pinned:
+            # Change popover behavior to non-transient so outside clicks do NOT dismiss it
             self.popover.setBehavior_(Cocoa.NSPopoverBehaviorApplicationDefined)
-            send_native_notification("📌 HUD Pinned", "Tickr will remain floating while you work.")
+            if win:
+                win.setLevel_(Cocoa.NSFloatingWindowLevel)
+                win.setHidesOnDeactivate_(False)
+                win.setCollectionBehavior_(Cocoa.NSWindowCollectionBehaviorCanJoinAllSpaces | Cocoa.NSWindowCollectionBehaviorFullScreenAuxiliary)
+            send_native_notification("📌 HUD Pinned", "Tickr is pinned and will stay floating on top.")
         else:
             self.popover.setBehavior_(Cocoa.NSPopoverBehaviorTransient)
-            send_native_notification("HUD Unpinned", "Tickr returns to standard auto-dismiss.")
+            if win:
+                win.setLevel_(Cocoa.NSNormalWindowLevel)
+                win.setHidesOnDeactivate_(True)
+            send_native_notification("HUD Unpinned", "Tickr returned to standard auto-dismiss.")
+
+        if self.webView:
+            self.webView.evaluateJavaScript_completionHandler_(f"if(window.onPinStateChanged) onPinStateChanged({json.dumps(self.is_pinned)});", None)
 
     def setup_global_hotkeys(self):
         def handle_global_event(event):
@@ -357,13 +375,20 @@ class AppDelegate(Cocoa.NSObject):
         else:
             tasks = load_tasks_from_disk()
             tags = load_tags()
+            notes_history = load_notes_history()
             autostart = is_launch_at_login()
-            note = load_note()
             tasks_json = json.dumps(tasks)
             tags_json = json.dumps(tags)
-            note_json = json.dumps(note)
-            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {note_json});", None)
+            notes_json = json.dumps(notes_history)
+            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {json.dumps(self.is_pinned)});", None)
             self.popover.showRelativeToRect_ofView_preferredEdge_(button.bounds(), button, Cocoa.NSMinYEdge)
+            
+            win = self.webView.window()
+            if win and self.is_pinned:
+                win.setLevel_(Cocoa.NSFloatingWindowLevel)
+                win.setHidesOnDeactivate_(False)
+                win.setCollectionBehavior_(Cocoa.NSWindowCollectionBehaviorCanJoinAllSpaces | Cocoa.NSWindowCollectionBehaviorFullScreenAuxiliary)
+            
             Cocoa.NSApp().activateIgnoringOtherApps_(True)
 
 def main():
