@@ -6,6 +6,14 @@ A minimalist macOS menu bar productivity tool combining a precision focus timer,
 
 ---
 
+## Demo
+
+<div align="center">
+  <img src="assets/demo.gif" width="680" alt="Tickr Demo">
+</div>
+
+---
+
 ## Interface
 
 <div align="center">

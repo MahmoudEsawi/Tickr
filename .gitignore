@@ -5,6 +5,7 @@ dist/
 Tickr.app/
 *.dmg
 *.zip
+*.mov
 .build/
 .swiftpm/
 .netrc
