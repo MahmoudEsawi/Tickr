@@ -242,6 +242,10 @@ class ScriptHandler(Cocoa.NSObject):
             except Exception as e:
                 print("Publish error:", e)
 
+        elif action == "toggle_pin":
+            if app_delegate:
+                app_delegate.toggle_pin()
+
         elif action == "quit":
             Cocoa.NSApplication.sharedApplication().terminate_(None)
 
@@ -301,6 +305,14 @@ class AppDelegate(Cocoa.NSObject):
         self.popover.setContentViewController_(viewController)
 
         self.setup_global_hotkeys()
+
+    def toggle_pin(self):
+        if self.popover.behavior() == Cocoa.NSPopoverBehaviorTransient:
+            self.popover.setBehavior_(Cocoa.NSPopoverBehaviorApplicationDefined)
+            send_native_notification("📌 HUD Pinned", "Tickr will remain floating while you work.")
+        else:
+            self.popover.setBehavior_(Cocoa.NSPopoverBehaviorTransient)
+            send_native_notification("HUD Unpinned", "Tickr returns to standard auto-dismiss.")
 
     def setup_global_hotkeys(self):
         def handle_global_event(event):

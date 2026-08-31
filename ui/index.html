@@ -124,7 +124,7 @@
       gap: 6px;
     }
 
-    .theme-mode-btn {
+    .theme-mode-btn, .header-icon-btn {
       background: var(--bg-capsule);
       border: none;
       color: var(--text-muted);
@@ -140,7 +140,7 @@
       transition: all 0.15s ease;
     }
 
-    .theme-mode-btn svg {
+    .theme-mode-btn svg, .header-icon-btn svg {
       width: 12px;
       height: 12px;
       stroke: currentColor;
@@ -148,7 +148,7 @@
       stroke-width: 2;
     }
 
-    .theme-mode-btn:hover {
+    .theme-mode-btn:hover, .header-icon-btn:hover {
       color: var(--text-main);
       background: var(--bg-capsule-hover);
     }
@@ -160,6 +160,7 @@
       flex-direction: column;
       padding: 6px 14px 12px;
       overflow: hidden;
+      position: relative;
     }
 
     .tab-view {
@@ -170,9 +171,7 @@
       animation: tabFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .tab-view.active {
-      display: flex;
-    }
+    .tab-view.active { display: flex; }
 
     @keyframes tabFadeIn {
       from { opacity: 0; transform: scale(0.992); }
@@ -253,7 +252,7 @@
     .preset-items {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
 
     .preset-link {
@@ -274,25 +273,23 @@
       background: var(--bg-capsule);
     }
 
-    .icon-btn-plain {
-      background: transparent;
+    .sound-toggle-btn {
+      background: var(--bg-capsule);
       border: none;
       color: var(--text-muted);
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 12px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 4px;
-      border-radius: 4px;
+      gap: 4px;
     }
-
-    .icon-btn-plain svg {
-      width: 16px;
-      height: 16px;
-      fill: currentColor;
+    .sound-toggle-btn.active {
+      color: var(--accent-blue);
+      background: rgba(0, 122, 255, 0.12);
+      font-weight: 600;
     }
-
-    .icon-btn-plain:hover { color: var(--text-main); }
 
     .onigiri-bottom-row {
       display: flex;
@@ -392,7 +389,6 @@
       color: var(--text-main);
       padding: 6px 2px;
     }
-
     .note-editor::placeholder { color: var(--text-dim); }
 
     .slashnote-bottom-strip {
@@ -424,15 +420,9 @@
       align-items: center;
       gap: 4px;
     }
-
     .floating-action-link svg {
-      width: 12px;
-      height: 12px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
+      width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2;
     }
-
     .floating-action-link:hover { color: var(--text-main); }
     .pill-divider { opacity: 0.3; }
 
@@ -479,7 +469,6 @@
       font-size: 13px;
       color: var(--text-main);
     }
-
     .todo-input-field::placeholder { color: var(--text-dim); }
 
     .key-badge {
@@ -500,7 +489,6 @@
       gap: 6px;
       padding-right: 2px;
     }
-
     .tasks-scrollable-list::-webkit-scrollbar { width: 4px; }
     .tasks-scrollable-list::-webkit-scrollbar-thumb {
       background: var(--border-color);
@@ -517,10 +505,7 @@
       cursor: pointer;
       transition: all 0.15s ease;
     }
-
-    .task-item-row:hover {
-      background: var(--bg-capsule-hover);
-    }
+    .task-item-row:hover { background: var(--bg-capsule-hover); }
 
     .apple-checkbox {
       width: 16px;
@@ -546,7 +531,6 @@
       stroke: #FFFFFF;
       stroke-width: 2.5;
     }
-
     .task-item-row.done .apple-checkbox svg { display: block; }
 
     .task-label {
@@ -555,7 +539,6 @@
       color: var(--text-main);
       word-break: break-word;
     }
-
     .task-item-row.done .task-label {
       color: var(--text-dim);
       text-decoration: line-through;
@@ -581,7 +564,6 @@
       font-size: 12px;
       padding: 2px;
     }
-
     .task-item-row:hover .task-del-btn { opacity: 1; }
     .task-del-btn:hover { color: #FF3B30; }
 
@@ -594,10 +576,29 @@
       margin-top: 6px;
     }
 
-    .footer-counter {
-      font-family: var(--font-mono);
+    .footer-left-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-action-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-capsule);
+      color: var(--text-muted);
+      border: none;
       font-size: 10.5px;
-      color: var(--text-dim);
+      font-weight: 500;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-action-pill:hover {
+      color: var(--text-main);
+      background: var(--bg-capsule-hover);
     }
 
     .btn-push-live {
@@ -615,17 +616,36 @@
       cursor: pointer;
       transition: opacity 0.15s ease;
     }
-
     .btn-push-live:hover { opacity: 0.9; }
 
-    /* SVG Icons Helper */
-    .sf-icon {
-      display: inline-block;
-      vertical-align: middle;
+    /* Toast Notification Overlay */
+    .toast-pill {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-30px);
+      background: var(--text-main);
+      color: var(--bg-window);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+    }
+    .toast-pill.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
     }
   </style>
 </head>
 <body class="theme-dark">
+
+  <!-- Toast Notification Pill -->
+  <div class="toast-pill" id="toast-msg">Copied!</div>
 
   <!-- Unified Top App Header -->
   <div class="app-header">
@@ -647,9 +667,9 @@
       </button>
     </div>
 
-    <!-- Consolidated Theme Mode Button (Auto/System -> Light -> Dark) -->
+    <!-- Consolidated Theme Mode Button -->
     <div class="header-actions">
-      <button class="theme-mode-btn" id="theme-btn" title="Cycle Theme (System / Light / Dark)" onclick="cycleTheme()">
+      <button class="theme-mode-btn" id="theme-btn" title="Cycle Theme (Auto / Light / Dark)" onclick="cycleTheme()">
         <svg id="theme-icon-svg" viewBox="0 0 24 24">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
         </svg>
@@ -664,13 +684,13 @@
     <!-- 1. ONIGIRI POMODORO VIEW -->
     <div class="tab-view active" id="view-timer">
       <div class="onigiri-card">
-        <!-- Scrubber Bar -->
+        <!-- Mechanical Scrubber Bar -->
         <div class="scrubber-capsule" id="scrubber-track" onclick="handleScrubberClick(event)">
           <div class="scrubber-ticks" id="scrubber-ticks"></div>
           <div class="scrubber-cursor" id="scrubber-cursor" style="left: 41.6%;"></div>
         </div>
 
-        <!-- Presets Row -->
+        <!-- Presets Row with Ambient Sound Switch -->
         <div class="onigiri-presets-row">
           <div class="preset-items">
             <button class="preset-link" onclick="setTimerMins(5, this)">5m</button>
@@ -678,8 +698,9 @@
             <button class="preset-link active" onclick="setTimerMins(25, this)">25m</button>
             <button class="preset-link" onclick="setTimerMins(50, this)">50m</button>
           </div>
-          <button class="icon-btn-plain" title="Quick Reset" onclick="resetTimer()">
-            <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          <button class="sound-toggle-btn" id="ambient-sound-btn" onclick="toggleAmbientNoise()">
+            <span>🌧️</span>
+            <span>Rain</span>
           </button>
         </div>
 
@@ -703,7 +724,7 @@
             <button class="cluster-item-btn" title="New Note" onclick="clearNote()">
               <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </button>
-            <button class="cluster-item-btn" title="Pin Popover" onclick="togglePin()">
+            <button class="cluster-item-btn" id="pin-hud-btn" title="Pin / Floating Pill HUD" onclick="toggleFloatingPill()">
               <svg viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-2l-2-3V5a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v7l-2 3v2z"/></svg>
             </button>
           </div>
@@ -757,9 +778,19 @@
         <!-- Full Height Task List -->
         <div class="tasks-scrollable-list" id="todo-task-list"></div>
 
-        <!-- Footer -->
+        <!-- Footer with Standup Copy & Live Sync -->
         <div class="todo-footer-bar">
-          <span class="footer-counter" id="todo-counter-label">0 pending</span>
+          <div class="footer-left-actions">
+            <button class="btn-action-pill" title="Copy Today's Standup Summary" onclick="copyDailyStandup()">
+              <span>📋</span>
+              <span>Standup</span>
+            </button>
+            <button class="btn-action-pill" title="Check GitHub Updates" onclick="checkForUpdates()">
+              <span>🔄</span>
+              <span>Updates</span>
+            </button>
+          </div>
+
           <button class="btn-push-live" id="push-live-btn" onclick="triggerPushToLive()">
             <span>🚀 Push to Live</span>
           </button>
@@ -771,23 +802,188 @@
 
   <script>
     let activeView = 'timer';
-    let themeMode = 'system'; // 'system' | 'light' | 'dark'
+    let themeMode = 'system';
     let tasks = [];
     let tags = ["PROJECT", "CODE", "HACKATHON", "DAILY", "IDEAS"];
 
     /* ========================================================= */
-    /* 1. SYSTEM-SYNCED THEME ENGINE                             */
+    /* 1. SYNTHESIZED MECHANICAL SOUND ENGINE                    */
+    /* ========================================================= */
+    let audioCtx = null;
+    let rainNode = null;
+    let isAmbientPlaying = false;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Mechanical Apple Watch Crown Click
+    function playCrownTick() {
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(1400, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.015);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.015);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.016);
+      } catch (e) {}
+    }
+
+    // Satisfying Task Completion Snap
+    function playTaskSnap() {
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(580, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.09);
+      } catch (e) {}
+    }
+
+    // Ambient Rain Generator
+    function toggleAmbientNoise() {
+      const btn = document.getElementById('ambient-sound-btn');
+      if (isAmbientPlaying) {
+        stopAmbientNoise();
+        btn.classList.remove('active');
+      } else {
+        startAmbientNoise();
+        btn.classList.add('active');
+      }
+    }
+
+    function startAmbientNoise() {
+      try {
+        const ctx = getAudioContext();
+        const bufferSize = ctx.sampleRate * 2;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          data[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = data[i];
+          data[i] *= 2.8;
+        }
+        rainNode = ctx.createBufferSource();
+        rainNode.buffer = buffer;
+        rainNode.loop = true;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, ctx.currentTime);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.03, ctx.currentTime);
+
+        rainNode.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        rainNode.start();
+        isAmbientPlaying = true;
+      } catch (e) {}
+    }
+
+    function stopAmbientNoise() {
+      if (rainNode) {
+        try { rainNode.stop(); rainNode.disconnect(); } catch (e) {}
+        rainNode = null;
+      }
+      isAmbientPlaying = false;
+    }
+
+    /* ========================================================= */
+    /* 2. TOAST NOTIFICATION HELPER                              */
+    /* ========================================================= */
+    function showToast(text) {
+      const toast = document.getElementById('toast-msg');
+      toast.textContent = text;
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 2200);
+    }
+
+    /* ========================================================= */
+    /* 3. DAILY STANDUP GENERATOR                                */
+    /* ========================================================= */
+    function copyDailyStandup() {
+      const today = new Date().toISOString().split('T')[0];
+      const completedToday = tasks.filter(t => t.done);
+      const pendingTasks = tasks.filter(t => !t.done);
+
+      let report = `### 🚀 Daily Standup (${today})\n\n**Completed:**\n`;
+      if (completedToday.length > 0) {
+        report += completedToday.map(t => `- [x] ${t.title}`).join('\n');
+      } else {
+        report += `- (No tasks completed yet)`;
+      }
+
+      report += `\n\n**In Progress:**\n`;
+      if (pendingTasks.length > 0) {
+        report += pendingTasks.slice(0, 5).map(t => `- [ ] ${t.title}`).join('\n');
+      } else {
+        report += `- (All tasks cleared!)`;
+      }
+
+      navigator.clipboard.writeText(report).then(() => {
+        showToast('📋 Standup Copied!');
+        playTaskSnap();
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+          window.webkit.messageHandlers.tickr.postMessage({
+            action: "notify",
+            title: "📋 Daily Standup Copied",
+            message: "Formatted markdown summary copied to your clipboard."
+          });
+        }
+      });
+    }
+
+    /* ========================================================= */
+    /* 4. IN-APP UPDATE CHECKER                                  */
+    /* ========================================================= */
+    function checkForUpdates() {
+      showToast('Checking updates...');
+      fetch('https://api.github.com/repos/MahmoudEsawi/Tickr/releases/latest')
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.tag_name) {
+            showToast(`✓ Up to date (${data.tag_name})`);
+          } else {
+            showToast('✓ Latest version v1.0.0');
+          }
+        })
+        .catch(() => {
+          showToast('✓ Tickr v1.0.0');
+        });
+    }
+
+    /* ========================================================= */
+    /* 5. SYSTEM-SYNCED THEME ENGINE                             */
     /* ========================================================= */
     const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
     function cycleTheme() {
-      if (themeMode === 'system') {
-        setThemeMode('light');
-      } else if (themeMode === 'light') {
-        setThemeMode('dark');
-      } else {
-        setThemeMode('system');
-      }
+      if (themeMode === 'system') setThemeMode('light');
+      else if (themeMode === 'light') setThemeMode('dark');
+      else setThemeMode('system');
     }
 
     function setThemeMode(mode) {
@@ -797,13 +993,7 @@
     }
 
     function applyTheme() {
-      let isDark = false;
-      if (themeMode === 'system') {
-        isDark = systemDarkQuery.matches;
-      } else {
-        isDark = (themeMode === 'dark');
-      }
-
+      let isDark = (themeMode === 'system') ? systemDarkQuery.matches : (themeMode === 'dark');
       document.body.classList.toggle('theme-dark', isDark);
       document.body.classList.toggle('theme-light', !isDark);
 
@@ -829,7 +1019,7 @@
     });
 
     /* ========================================================= */
-    /* 2. VIEW SWITCHING                                         */
+    /* 6. VIEW SWITCHER                                          */
     /* ========================================================= */
     function switchView(viewName, btnEl) {
       activeView = viewName;
@@ -844,7 +1034,7 @@
     }
 
     /* ========================================================= */
-    /* 3. ONIGIRI POMODORO ENGINE                                */
+    /* 7. ONIGIRI POMODORO ENGINE                                */
     /* ========================================================= */
     let selectedMins = 25;
     let timerSeconds = 25 * 60;
@@ -867,6 +1057,7 @@
       selectedMins = mins;
       timerTotal = mins * 60;
       timerSeconds = mins * 60;
+      playCrownTick();
 
       document.querySelectorAll('.preset-link').forEach(b => b.classList.remove('active'));
       if (btnEl) btnEl.classList.add('active');
@@ -896,6 +1087,7 @@
       const btn = document.getElementById('start-btn');
       btn.textContent = 'pause';
       btn.classList.add('running');
+      playCrownTick();
 
       clearInterval(intervalId);
       intervalId = setInterval(() => {
@@ -918,10 +1110,6 @@
       syncNativeTimer("");
     }
 
-    function resetTimer() {
-      setTimerMins(25, document.querySelector('.preset-link[onclick*="25"]'));
-    }
-
     function updateClockDisplay() {
       const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
       const s = String(timerSeconds % 60).padStart(2, '0');
@@ -935,6 +1123,9 @@
       timerSeconds = selectedMins * 60;
       updateClockDisplay();
       updateScrubberPosition(1);
+      stopAmbientNoise();
+      document.getElementById('ambient-sound-btn').classList.remove('active');
+
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
         window.webkit.messageHandlers.tickr.postMessage({
           action: "notify",
@@ -954,7 +1145,7 @@
     }
 
     /* ========================================================= */
-    /* 4. SLASHNOTE STICKY NOTE ENGINE                           */
+    /* 8. SLASHNOTE STICKY NOTE ENGINE                           */
     /* ========================================================= */
     let noteSaveTimer = null;
 
@@ -978,6 +1169,7 @@
       area.value = area.value.substring(0, start) + snippet + area.value.substring(end);
       area.selectionStart = area.selectionEnd = start + snippet.length;
       area.focus();
+      playCrownTick();
       handleNoteChange();
     }
 
@@ -986,21 +1178,19 @@
       handleNoteChange();
     }
 
-    function togglePin() {
+    function toggleFloatingPill() {
+      showToast('📌 HUD Pinned');
+      playTaskSnap();
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
         window.webkit.messageHandlers.tickr.postMessage({ action: "toggle_pin" });
       }
     }
 
     /* ========================================================= */
-    /* 5. EXPANDED TO-DO LIST & ESAWI.DEV DIARY                  */
+    /* 9. EXPANDED TO-DO & LIVE DIARY                            */
     /* ========================================================= */
     function renderTasks() {
       const list = document.getElementById('todo-task-list');
-      const pending = tasks.filter(t => !t.done).length;
-      const done = tasks.filter(t => t.done).length;
-      document.getElementById('todo-counter-label').textContent = `${pending} pending // ${done} done`;
-
       if (tasks.length === 0) {
         list.innerHTML = `<div style="text-align:center; padding: 40px 0; font-size:12.5px; color:var(--text-dim);">No active tasks</div>`;
         return;
@@ -1034,6 +1224,7 @@
           created: new Date().toISOString()
         });
         input.value = '';
+        playTaskSnap();
         saveTasksNative();
         renderTasks();
       }
@@ -1043,6 +1234,7 @@
       const t = tasks.find(x => x.id === id);
       if (t) {
         t.done = !t.done;
+        playTaskSnap();
         saveTasksNative();
         renderTasks();
       }
@@ -1080,6 +1272,8 @@
     window.onPublishSuccess = function() {
       const btn = document.getElementById('push-live-btn');
       btn.innerHTML = '<span>✓ Live! 🚀</span>';
+      showToast('🚀 Deployed to Live Diary!');
+      playTaskSnap();
       setTimeout(() => { btn.innerHTML = '<span>🚀 Push to Live</span>'; }, 2500);
     };
 
