@@ -1,43 +1,33 @@
-# ⚡ Tickr for macOS
+# Tickr
 
-<p align="center">
-  <img src="assets/menu_icon.png" width="72" height="72" alt="Tickr Logo">
-</p>
+A minimalist macOS menu bar productivity tool combining a precision focus timer, markdown scratchpad, and task engine.
 
-<p align="center">
-  <b>A minimalist, native macOS Menu Bar productivity engine combining a mechanical Pomodoro timer, distraction-free markdown scratchpad, and task manager with 1-click CI/CD portfolio deployment.</b>
-</p>
-
-<p align="center">
-  <a href="https://github.com/MahmoudEsawi/Tickr/releases/latest"><img src="https://img.shields.io/github/v/release/MahmoudEsawi/Tickr?color=34C759&label=Release&style=flat-square" alt="Release"></a>
-  <a href="https://github.com/MahmoudEsawi/Tickr/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License"></a>
-  <a href="https://esawi.dev"><img src="https://img.shields.io/badge/Creator-esawi.dev-black.svg?style=flat-square" alt="Creator"></a>
-</p>
+[Release](https://github.com/MahmoudEsawi/Tickr/releases/latest) · [Documentation](DOCUMENTATION.md) · [Website](https://esawi.dev)
 
 ---
 
-## 📸 Interface Preview
+## Interface
 
 <div align="center">
   <table>
     <tr>
       <td width="50%" align="center">
-        <b>⏱️ 1. Onigiri Pomodoro & Scrubber</b><br><br>
-        <img src="assets/screenshot_timer.png" width="340" alt="Timer View">
+        <b>Timer</b><br><br>
+        <img src="assets/screenshot_timer.png" width="340" alt="Timer">
       </td>
       <td width="50%" align="center">
-        <b>📝 2. SlashNote & Multi-Note History</b><br><br>
-        <img src="assets/screenshot_note.png" width="340" alt="Note View">
+        <b>Note</b><br><br>
+        <img src="assets/screenshot_note.png" width="340" alt="Note">
       </td>
     </tr>
     <tr>
       <td width="50%" align="center">
-        <b>☑️ 3. Task Manager & Standup Copy</b><br><br>
-        <img src="assets/screenshot_tasks.png" width="340" alt="Tasks View">
+        <b>Tasks</b><br><br>
+        <img src="assets/screenshot_tasks.png" width="340" alt="Tasks">
       </td>
       <td width="50%" align="center">
-        <b>⚙️ 4. Settings & Sound Controls</b><br><br>
-        <img src="assets/screenshot_settings.png" width="340" alt="Settings View">
+        <b>Settings</b><br><br>
+        <img src="assets/screenshot_settings.png" width="340" alt="Settings">
       </td>
     </tr>
   </table>
@@ -45,63 +35,49 @@
 
 ---
 
-## ✨ Features
+## Highlights
 
-* **⏱️ Mechanical Pomodoro Timer**: Draggable / clickable ruler scrubber with 60-tick precision, duration presets (`5m`, `10m`, `25m`, `50m`), custom minute entry, and live menu bar countdown.
-* **🌧️ Ambient Focus Audio**: Procedurally synthesized background rain generator for deep work sessions.
-* **🔊 Synthesized Haptics**: Mechanical Apple Watch Digital Crown tick sounds and tactile completion snaps built with the Web Audio API.
-* **📝 SlashNote Sticky Notepad**: Minimalist markdown scratchpad with full **Multi-Note History**, instant search, format actions, and auto-save.
-* **📌 Floating HUD Mode (Always on Top)**: Pin Tickr above all active windows while coding in VS Code or designing in Figma.
-* **📋 1-Click Standup Report**: Formats today's accomplishments into clean markdown and copies it straight to your clipboard.
-* **🚀 Git Portfolio Sync**: 1-click push that commits completed tasks directly to your personal website diary via GitHub CI/CD.
-* **💻 Terminal & Raycast CLI**: Companion CLI (`./cli.py add "Task"`) for Terminal and launcher workflows.
-* **🌓 System Appearance Sync**: Follows macOS Light & Dark modes automatically in real time.
+- Precision mechanical ruler scrubber with sound synthesis
+- Ambient focus rain generator
+- Multi-note markdown scratchpad with instant search
+- Floating HUD pin mode
+- 1-Click daily standup exporter
+- Automated git diary deployment
+- Terminal and Raycast CLI companion
+- Native system appearance synchronization
 
 ---
 
-## 🚀 Installation
+## Installation
 
-### Option 1: Direct Download (DMG)
-1. Download **`Tickr-v1.0.0.dmg`** from [**Latest Releases**](https://github.com/MahmoudEsawi/Tickr/releases/latest).
-2. Open the `.dmg` and drag **Tickr.app** into your `/Applications` folder.
-3. Launch Tickr from Spotlight (<kbd>⌘</kbd> + <kbd>Space</kbd> $\rightarrow$ `Tickr`).
-
-### Option 2: Homebrew Cask
+### Homebrew
 ```bash
 brew tap mahmoudesawi/tap
 brew install --cask tickr
 ```
 
+### Direct Download
+Download `Tickr-v1.0.0.dmg` from the [latest release](https://github.com/MahmoudEsawi/Tickr/releases/latest).
+
 ---
 
-## ⌨️ Keyboard Shortcuts
+## Shortcuts
 
 | Shortcut | Action |
 | :--- | :--- |
-| <kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>T</kbd> | Summon / Toggle Tickr HUD from anywhere |
-| <kbd>⌥</kbd> + <kbd>Space</kbd> | Alternative instant HUD summon |
-| <kbd>↵ Enter</kbd> | Add task / set custom minutes |
-| <kbd>Esc</kbd> | Dismiss HUD popover |
+| `⌘` + `⇧` + `T` | Toggle Tickr HUD |
+| `⌥` + `Space` | Alternative HUD toggle |
+| `Enter` | Submit task / set timer duration |
+| `Esc` | Dismiss HUD |
 
 ---
 
-## 📖 In-Depth Documentation
+## Documentation
 
-For architecture specifications, WebKit IPC bridges, build scripts, and developer guides:
-
-👉 **[Read the Full Technical Documentation (DOCUMENTATION.md)](DOCUMENTATION.md)**
+Full technical architecture, WebKit IPC bridges, and CLI workflows are available in [DOCUMENTATION.md](DOCUMENTATION.md).
 
 ---
 
-## 👨‍💻 Author
+## Author
 
-Crafted with care by **Mahmoud Al-Esawi**  
-* Website: [esawi.dev](https://esawi.dev)
-* GitHub: [@MahmoudEsawi](https://github.com/MahmoudEsawi)
-* Open Source Repository: [github.com/MahmoudEsawi/Tickr](https://github.com/MahmoudEsawi/Tickr)
-
----
-
-## 📄 License
-
-Distributed under the **MIT License**.
+Mahmoud Al-Esawi · [esawi.dev](https://esawi.dev) · [GitHub](https://github.com/MahmoudEsawi)
