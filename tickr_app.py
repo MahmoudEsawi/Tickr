@@ -236,10 +236,6 @@ class ScriptHandler(Cocoa.NSObject):
             notes_list = json.loads(notes) if isinstance(notes, str) else list(notes)
             save_notes_history(notes_list)
 
-        elif action == "save_stats" and stats is not None:
-            stats_dict = json.loads(stats) if isinstance(stats, str) else dict(stats)
-            save_stats(stats_dict)
-
         elif action == "timer_update":
             time_text = body.get("text", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
             if app_delegate:
@@ -322,15 +318,13 @@ class AppDelegate(Cocoa.NSObject):
         tasks = load_tasks_from_disk()
         tags = load_tags()
         notes_history = load_notes_history()
-        stats = load_stats()
         autostart = is_launch_at_login()
         self.update_badge_count(tasks)
         
         tasks_json = json.dumps(tasks)
         tags_json = json.dumps(tags)
         notes_json = json.dumps(notes_history)
-        stats_json = json.dumps(stats) if stats else "null"
-        js_code = f"setTimeout(function() {{ if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {json.dumps(self.is_pinned)}, {stats_json}); }}, 350);"
+        js_code = f"setTimeout(function() {{ if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {json.dumps(self.is_pinned)}); }}, 350);"
         self.webView.evaluateJavaScript_completionHandler_(js_code, None)
 
         self.popover = Cocoa.NSPopover.alloc().init()
@@ -409,13 +403,11 @@ class AppDelegate(Cocoa.NSObject):
             tasks = load_tasks_from_disk()
             tags = load_tags()
             notes_history = load_notes_history()
-            stats = load_stats()
             autostart = is_launch_at_login()
             tasks_json = json.dumps(tasks)
             tags_json = json.dumps(tags)
             notes_json = json.dumps(notes_history)
-            stats_json = json.dumps(stats) if stats else "null"
-            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {json.dumps(self.is_pinned)}, {stats_json});", None)
+            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {json.dumps(self.is_pinned)});", None)
             self.popover.showRelativeToRect_ofView_preferredEdge_(button.bounds(), button, Cocoa.NSMinYEdge)
             
             win = self.webView.window()

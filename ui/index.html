@@ -24,8 +24,6 @@
       --ruler-tick-major: rgba(0, 0, 0, 0.45);
       --accent-green: #34C759;
       --accent-blue: #007AFF;
-      --accent-orange: #FF9500;
-      --accent-flame: #FF3B30;
       --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif;
       --font-mono: "SF Mono", Menlo, Monaco, monospace;
     }
@@ -46,8 +44,6 @@
       --ruler-tick-major: rgba(255, 255, 255, 0.45);
       --accent-green: #30D158;
       --accent-blue: #0A84FF;
-      --accent-orange: #FF9F0A;
-      --accent-flame: #FF453A;
     }
 
     * {
@@ -93,27 +89,27 @@
       background: var(--bg-capsule);
       border-radius: 20px;
       padding: 2.5px;
-      gap: 2px;
+      gap: 3px;
     }
 
     .view-btn {
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 500;
-      padding: 4px 8px;
+      padding: 4px 11px;
       border-radius: 16px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .view-btn svg {
-      width: 12px;
-      height: 12px;
+      width: 13px;
+      height: 13px;
       stroke: currentColor;
       fill: none;
       stroke-width: 2;
@@ -130,7 +126,7 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
 
     .theme-mode-btn, .header-icon-btn {
@@ -626,122 +622,7 @@
     .btn-push-live:hover { opacity: 0.9; }
 
     /* ========================================================= */
-    /* 4. FOCUS ANALYTICS & DAILY MOMENTUM TAB                   */
-    /* ========================================================= */
-    .stats-card-view {
-      background: var(--bg-card);
-      border-radius: 18px;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-      overflow-y: auto;
-      gap: 12px;
-    }
-
-    /* 3 Hero Metric Pills */
-    .hero-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .stat-hero-pill {
-      background: var(--bg-window);
-      border-radius: 12px;
-      padding: 10px 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 3px;
-    }
-
-    .stat-hero-icon { font-size: 14px; }
-    .stat-hero-value { font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: -0.02em; }
-    .stat-hero-label { font-size: 9.5px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-
-    /* Weekly Momentum Chart */
-    .stats-section-box {
-      background: var(--bg-window);
-      border-radius: 14px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .section-box-title {
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .weekly-bars-container {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      height: 70px;
-      padding: 6px 4px 0;
-      gap: 6px;
-    }
-
-    .day-bar-col {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      height: 100%;
-      justify-content: flex-end;
-    }
-
-    .bar-fill {
-      width: 14px;
-      background: var(--accent-blue);
-      border-radius: 4px;
-      min-height: 4px;
-      transition: height 0.3s ease;
-      opacity: 0.7;
-    }
-
-    .bar-fill.today {
-      background: var(--accent-green);
-      opacity: 1;
-      box-shadow: 0 0 8px rgba(52, 199, 89, 0.4);
-    }
-
-    .day-label {
-      font-family: var(--font-mono);
-      font-size: 9px;
-      color: var(--text-dim);
-    }
-
-    /* Today's Shipped Milestones */
-    .shipped-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .shipped-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11.5px;
-      color: var(--text-main);
-      padding: 3px 0;
-    }
-    .shipped-item-dot {
-      width: 5px; height: 5px; border-radius: 50%; background: var(--accent-green);
-    }
-
-    /* ========================================================= */
-    /* 5. DEDICATED SETTINGS & CREATOR MODAL                     */
+    /* 4. DEDICATED SETTINGS & CREATOR MODAL                     */
     /* ========================================================= */
     .settings-modal-overlay {
       position: absolute;
@@ -860,11 +741,6 @@
       <button class="view-btn" onclick="switchView('tasks', this)">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><polyline points="9 11 12 14 22 4"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
         <span>Tasks</span>
-      </button>
-      <!-- 4. Stats Tab -->
-      <button class="view-btn" onclick="switchView('stats', this)">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        <span>Stats</span>
       </button>
     </div>
 
@@ -1014,54 +890,6 @@
       </div>
     </div>
 
-    <!-- 4. FOCUS ANALYTICS & DAILY MOMENTUM TAB -->
-    <div class="tab-view" id="view-stats">
-      <div class="stats-card-view">
-        <!-- 3 Hero Momentum Metric Pills -->
-        <div class="hero-stats-grid">
-          <div class="stat-hero-pill">
-            <div class="stat-hero-icon">⏱️</div>
-            <div class="stat-hero-value" id="stats-focus-time">0h 0m</div>
-            <div class="stat-hero-label">Focused Today</div>
-          </div>
-          <div class="stat-hero-pill">
-            <div class="stat-hero-icon">✅</div>
-            <div class="stat-hero-value" id="stats-tasks-done">0</div>
-            <div class="stat-hero-label">Completed</div>
-          </div>
-          <div class="stat-hero-pill">
-            <div class="stat-hero-icon">🔥</div>
-            <div class="stat-hero-value" id="stats-streak-days">1-Day</div>
-            <div class="stat-hero-label">Streak</div>
-          </div>
-        </div>
-
-        <!-- Weekly Focus Momentum Bars -->
-        <div class="stats-section-box">
-          <div class="section-box-title">
-            <span>7-Day Focus Momentum</span>
-            <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim);" id="weekly-total-label">0h Total</span>
-          </div>
-
-          <div class="weekly-bars-container" id="weekly-bars">
-            <!-- Rendered dynamically -->
-          </div>
-        </div>
-
-        <!-- Today's Shipped Tasks -->
-        <div class="stats-section-box">
-          <div class="section-box-title">
-            <span>Shipped Today</span>
-            <span style="font-family:var(--font-mono); font-size:10px; color:var(--accent-green);" id="shipped-count-label">0 tasks</span>
-          </div>
-
-          <div class="shipped-list" id="today-shipped-list">
-            <!-- Rendered dynamically -->
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <!-- Dedicated Settings & Creator Modal -->
@@ -1145,21 +973,6 @@
     let currentNoteId = null;
     let isPinned = false;
     let isMuted = false;
-
-    /* Focus Analytics State */
-    let analyticsData = {
-      streakDays: 5,
-      todayFocusSeconds: 3 * 3600 + 15 * 60, // default 3h 15m
-      weekly: [
-        { day: 'Mon', mins: 45, date: '2026-08-25' },
-        { day: 'Tue', mins: 80, date: '2026-08-26' },
-        { day: 'Wed', mins: 120, date: '2026-08-27' },
-        { day: 'Thu', mins: 60, date: '2026-08-28' },
-        { day: 'Fri', mins: 150, date: '2026-08-29' },
-        { day: 'Sat', mins: 90, date: '2026-08-30' },
-        { day: 'Sun', mins: 195, date: '2026-08-31', isToday: true }
-      ]
-    };
 
     /* ========================================================= */
     /* 1. SYNTHESIZED SOUND ENGINE                               */
@@ -1280,77 +1093,7 @@
     }
 
     /* ========================================================= */
-    /* 2. FOCUS ANALYTICS & MOMENTUM ENGINE                      */
-    /* ========================================================= */
-    function renderAnalytics() {
-      // 1. Calculate focused time today
-      const totalSecs = analyticsData.todayFocusSeconds;
-      const hours = Math.floor(totalSecs / 3600);
-      const mins = Math.floor((totalSecs % 3600) / 60);
-      document.getElementById('stats-focus-time').textContent = `${hours}h ${mins}m`;
-
-      // 2. Calculate tasks completed
-      const doneTasks = tasks.filter(t => t.done);
-      document.getElementById('stats-tasks-done').textContent = `${doneTasks.length}`;
-
-      // 3. Active Streak
-      document.getElementById('stats-streak-days').textContent = `${analyticsData.streakDays}-Day`;
-
-      // 4. Render Weekly Bar Chart
-      const barsContainer = document.getElementById('weekly-bars');
-      const maxMins = Math.max(...analyticsData.weekly.map(w => w.mins), 60);
-      let weeklyTotal = 0;
-
-      barsContainer.innerHTML = analyticsData.weekly.map(item => {
-        weeklyTotal += item.mins;
-        const heightPct = Math.max(8, Math.min(100, (item.mins / maxMins) * 100));
-        return `
-          <div class="day-bar-col">
-            <div class="bar-fill ${item.isToday ? 'today' : ''}" style="height: ${heightPct}%;" title="${item.day}: ${item.mins}m"></div>
-            <div class="day-label">${item.day}</div>
-          </div>
-        `;
-      }).join('');
-
-      document.getElementById('weekly-total-label').textContent = `${(weeklyTotal / 60).toFixed(1)}h Total`;
-
-      // 5. Render Shipped Tasks
-      const shippedContainer = document.getElementById('today-shipped-list');
-      document.getElementById('shipped-count-label').textContent = `${doneTasks.length} tasks`;
-
-      if (doneTasks.length === 0) {
-        shippedContainer.innerHTML = `<div style="font-size:11px; color:var(--text-dim); text-align:center; padding:10px 0;">No tasks checked off yet today</div>`;
-      } else {
-        shippedContainer.innerHTML = doneTasks.slice(0, 6).map(t => `
-          <div class="shipped-item">
-            <div class="shipped-item-dot"></div>
-            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${t.title}</span>
-          </div>
-        `).join('');
-      }
-    }
-
-    function addFocusTime(seconds) {
-      analyticsData.todayFocusSeconds += seconds;
-      const todayItem = analyticsData.weekly.find(w => w.isToday);
-      if (todayItem) {
-        todayItem.mins = Math.round(analyticsData.todayFocusSeconds / 60);
-      }
-      saveAnalytics();
-      renderAnalytics();
-    }
-
-    function saveAnalytics() {
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "save_stats",
-          stats: JSON.stringify(analyticsData)
-        });
-      }
-    }
-
-    /* ========================================================= */
-    /* 3. SETTINGS & CREATOR LINK HANDLER                        */
+    /* 2. SETTINGS & CREATOR LINK HANDLER                        */
     /* ========================================================= */
     function openSettingsModal() {
       document.getElementById('settings-modal').classList.add('open');
@@ -1385,7 +1128,7 @@
     }
 
     /* ========================================================= */
-    /* 4. DRAGGABLE SCRUBBER & POMODORO TIMER                    */
+    /* 3. DRAGGABLE SCRUBBER & POMODORO TIMER                    */
     /* ========================================================= */
     let selectedMins = 25;
     let timerSeconds = 25 * 60;
@@ -1485,7 +1228,6 @@
       intervalId = setInterval(() => {
         if (timerSeconds > 0) {
           timerSeconds--;
-          addFocusTime(1); // accumulate focus seconds live!
           updateClockDisplay();
           updateScrubberPosition(timerSeconds / timerTotal);
         } else {
@@ -1523,7 +1265,7 @@
         window.webkit.messageHandlers.tickr.postMessage({
           action: "notify",
           title: "🎉 Focus Complete!",
-          message: `${selectedMins} minutes done. Daily momentum updated!`
+          message: `${selectedMins} minutes done. Take a quick break!`
         });
       }
     }
@@ -1538,7 +1280,7 @@
     }
 
     /* ========================================================= */
-    /* 5. PIN & NOTES HISTORY                                    */
+    /* 4. PIN & NOTES HISTORY                                    */
     /* ========================================================= */
     function toggleFloatingPill() {
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
@@ -1697,7 +1439,7 @@
     }
 
     /* ========================================================= */
-    /* 6. STANDUP & TASKS ENGINE                                 */
+    /* 5. STANDUP & TASKS ENGINE                                 */
     /* ========================================================= */
     function copyDailyStandup() {
       const today = new Date().toISOString().split('T')[0];
@@ -1756,7 +1498,6 @@
         playTaskSnap();
         saveTasksNative();
         renderTasks();
-        renderAnalytics();
       }
     }
 
@@ -1767,7 +1508,6 @@
         playTaskSnap();
         saveTasksNative();
         renderTasks();
-        renderAnalytics();
       }
     }
 
@@ -1776,7 +1516,6 @@
       tasks = tasks.filter(x => x.id !== id);
       saveTasksNative();
       renderTasks();
-      renderAnalytics();
     }
 
     function saveTasksNative() {
@@ -1810,7 +1549,7 @@
     };
 
     /* ========================================================= */
-    /* 7. SYSTEM THEME SYNC                                      */
+    /* 6. SYSTEM THEME SYNC                                      */
     /* ========================================================= */
     const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
@@ -1862,13 +1601,9 @@
 
       const viewEl = document.getElementById(`view-${viewName}`);
       if (viewEl) viewEl.classList.add('active');
-
-      if (viewName === 'stats') {
-        renderAnalytics();
-      }
     }
 
-    function initAppState(initialTasks, customTags, isAutostart, notesHistoryList, pinState, statsPayload) {
+    function initAppState(initialTasks, customTags, isAutostart, notesHistoryList, pinState) {
       tasks = initialTasks || [];
       if (customTags && Array.isArray(customTags)) tags = customTags;
       
@@ -1893,10 +1628,6 @@
         }
       }
 
-      if (statsPayload && typeof statsPayload === 'object') {
-        analyticsData = Object.assign(analyticsData, statsPayload);
-      }
-
       isMuted = (localStorage.getItem('tickr_sound_muted') === 'true');
       const muteChk = document.getElementById('mute-sound-chk');
       if (muteChk) muteChk.checked = isMuted;
@@ -1907,7 +1638,6 @@
       buildFineTicks();
       initScrubberDrag();
       renderTasks();
-      renderAnalytics();
       updateClockDisplay();
     }
 
