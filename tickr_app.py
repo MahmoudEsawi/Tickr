@@ -3,17 +3,18 @@ import sys
 import os
 import json
 import datetime
+import subprocess
 import Cocoa
 import WebKit
 import objc
 
-DIARY_PATH = os.path.expanduser("~/Projects/esawi.dev/src/data/diary.json")
+DIARY_DIR = os.path.expanduser("~/Projects/esawi.dev")
+DIARY_PATH = os.path.join(DIARY_DIR, "src/data/diary.json")
 BACKUP_DIR = os.path.expanduser("~/Library/Application Support/Tickr")
 BACKUP_FILE = os.path.join(BACKUP_DIR, "tasks.json")
 UI_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "index.html")
 
 def load_tasks_from_disk():
-    # 1. Try loading directly from Developer Diary (diary.json)
     if os.path.exists(DIARY_PATH):
         try:
             with open(DIARY_PATH, "r", encoding="utf-8") as f:
@@ -49,19 +50,7 @@ def load_tasks_from_disk():
         except Exception as e:
             print("Error reading diary.json:", e)
 
-    # 2. Fallback to local storage
-    if os.path.exists(BACKUP_FILE):
-        try:
-            with open(BACKUP_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            pass
-
-    return [
-        {"id": 1, "title": "working on Indexi SaaS platform", "category": "Project", "done": False},
-        {"id": 2, "title": "YOweMe app development & feature updates", "category": "Project", "done": False},
-        {"id": 3, "title": "built and launched esawi.dev portfolio", "category": "Project", "done": True, "date": "2026-06-17"}
-    ]
+    return []
 
 def save_tasks_to_disk(tasks):
     # 1. Save backup to local App Support
@@ -87,11 +76,10 @@ def save_tasks_to_disk(tasks):
                 t["title"] for t in tasks if not t.get("done", False)
             ]
 
-            # Update completed array (preserve dates or set today)
+            # Update completed array
             today_str = datetime.date.today().isoformat()
             completed_items = []
             
-            # Keep existing completed order / append
             for t in tasks:
                 if t.get("done", False):
                     cat = t.get("category", "project").lower()
@@ -102,7 +90,6 @@ def save_tasks_to_disk(tasks):
                         "date": date_val
                     })
 
-            # Store chronologically in diary.json
             diary["log"]["completed"] = list(reversed(completed_items))
 
             with open(DIARY_PATH, "w", encoding="utf-8") as f:
@@ -143,6 +130,25 @@ class ScriptHandler(Cocoa.NSObject):
             app_delegate = Cocoa.NSApp().delegate()
             if app_delegate:
                 app_delegate.update_badge_count(tasks_list)
+
+        elif action == "publish":
+            # Save first
+            if data is not None:
+                tasks_list = json.loads(data) if isinstance(data, str) else list(data)
+                save_tasks_to_disk(tasks_list)
+            
+            # Commit and push to git
+            try:
+                cmd = f"cd {DIARY_DIR} && git add src/data/diary.json && git commit -m 'chore(diary): sync completed tasks from Tickr ⚡' && git push origin main"
+                proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                stdout, stderr = proc.communicate()
+                print("Git publish output:", stdout, stderr)
+                
+                app_delegate = Cocoa.NSApp().delegate()
+                if app_delegate and app_delegate.webView:
+                    app_delegate.webView.evaluateJavaScript_completionHandler_("if(window.onPublishSuccess) onPublishSuccess();", None)
+            except Exception as e:
+                print("Publish error:", e)
 
         elif action == "quit":
             Cocoa.NSApplication.sharedApplication().terminate_(None)
@@ -206,7 +212,6 @@ class AppDelegate(Cocoa.NSObject):
         if self.popover.isShown():
             self.popover.performClose_(sender)
         else:
-            # Reload fresh data directly from diary.json each time popover opens
             tasks = load_tasks_from_disk()
             tasks_json = json.dumps(tasks)
             self.webView.evaluateJavaScript_completionHandler_(f"if(window.initTasks) initTasks({tasks_json});", None)
