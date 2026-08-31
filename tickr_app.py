@@ -12,6 +12,8 @@ DIARY_DIR = os.path.expanduser("~/Projects/esawi.dev")
 DIARY_PATH = os.path.join(DIARY_DIR, "src/data/diary.json")
 BACKUP_DIR = os.path.expanduser("~/Library/Application Support/Tickr")
 BACKUP_FILE = os.path.join(BACKUP_DIR, "tasks.json")
+ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+ICON_PATH = os.path.join(ASSETS_DIR, "menu_icon.png")
 UI_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "index.html")
 
 def load_tasks_from_disk():
@@ -132,12 +134,10 @@ class ScriptHandler(Cocoa.NSObject):
                 app_delegate.update_badge_count(tasks_list)
 
         elif action == "publish":
-            # Save first
             if data is not None:
                 tasks_list = json.loads(data) if isinstance(data, str) else list(data)
                 save_tasks_to_disk(tasks_list)
             
-            # Commit and push to git
             try:
                 cmd = f"cd {DIARY_DIR} && git add src/data/diary.json && git commit -m 'chore(diary): sync completed tasks from Tickr ⚡' && git push origin main"
                 proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -160,7 +160,15 @@ class AppDelegate(Cocoa.NSObject):
         # Status Bar Item in Menu Bar
         self.statusItem = Cocoa.NSStatusBar.systemStatusBar().statusItemWithLength_(Cocoa.NSVariableStatusItemLength)
         button = self.statusItem.button()
-        button.setTitle_("⚡ Tickr")
+
+        # Set your face avatar logo as the Menu Bar icon
+        if os.path.exists(ICON_PATH):
+            icon_img = Cocoa.NSImage.alloc().initWithContentsOfFile_(ICON_PATH)
+            if icon_img:
+                icon_img.setSize_(Cocoa.NSMakeSize(18, 18))
+                button.setImage_(icon_img)
+                button.setImagePosition_(Cocoa.NSImageLeft)
+
         button.setTarget_(self)
         button.setAction_(objc.selector(self.togglePopover_, signature=b"v@:@"))
 
@@ -203,9 +211,9 @@ class AppDelegate(Cocoa.NSObject):
         button = self.statusItem.button()
         if button:
             if active > 0:
-                button.setTitle_(f"⚡ {active}")
+                button.setTitle_(f" {active}")
             else:
-                button.setTitle_("⚡ ✓")
+                button.setTitle_("")
 
     def togglePopover_(self, sender):
         button = self.statusItem.button()
