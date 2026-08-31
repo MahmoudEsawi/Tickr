@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Tickr</title>
+  <style>
+    :root {
+      --bg: rgba(18, 18, 22, 0.88);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-hover: rgba(255, 255, 255, 0.08);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #FFFFFF;
+      --text-muted: rgba(255, 255, 255, 0.45);
+      --accent-ship: #06B6D4;
+      --accent-focus: #A855F7;
+      --accent-flow: #F59E0B;
+      --accent-vibe: #10B981;
+      --accent-life: #F43F5E;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border-radius: 16px;
+      backdrop-filter: blur(40px) saturate(190%);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Top Header */
+    .header {
+      padding: 16px 18px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 100%);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #6366F1 0%, #A855F7 100%);
+      color: #fff;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .momentum-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #FBBF24;
+    }
+
+    /* Filter & Category Pills */
+    .filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .segmented-control {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .seg-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .seg-btn.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .categories-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .categories-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .cat-tag {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .cat-tag:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .cat-tag.active {
+      background: var(--active-bg, rgba(99, 102, 241, 0.2));
+      border-color: var(--active-border, #6366F1);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* Quick Input Box */
+    .input-section {
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .input-container {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 6px 10px;
+      gap: 8px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .input-container:focus-within {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: #6366F1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+
+    .cat-selector {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .task-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .task-input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .enter-badge {
+      font-size: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Tasks List Area */
+    .task-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .task-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .task-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+
+    /* Task Card */
+    .task-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .task-card:hover {
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 7px;
+      border: 1.8px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .task-card:hover .checkbox {
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .task-card.done .checkbox {
+      background: #10B981;
+      border-color: #10B981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+
+    .checkbox svg {
+      display: none;
+      width: 12px;
+      height: 12px;
+      stroke: #fff;
+      stroke-width: 3;
+    }
+
+    .task-card.done .checkbox svg {
+      display: block;
+    }
+
+    .task-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .task-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      line-height: 1.3;
+      transition: all 0.2s ease;
+      word-break: break-word;
+    }
+
+    .task-card.done .task-text {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .task-cat-badge {
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .delete-btn {
+      opacity: 0;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .task-card:hover .delete-btn {
+      opacity: 1;
+    }
+
+    .delete-btn:hover {
+      color: #EF4444;
+      transform: scale(1.15);
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .empty-icon {
+      font-size: 36px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .empty-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .empty-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Footer Toolbar */
+    .footer {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .footer-stats {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+
+    .footer-btn:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <div class="header">
+    <div class="brand-row">
+      <div class="brand-title">
+        <span>⚡ Tickr</span>
+        <span class="brand-badge">Mac</span>
+      </div>
+      <div class="momentum-pill" id="momentum-badge">
+        <span>🔥</span>
+        <span id="momentum-text">0 crushed</span>
+      </div>
+    </div>
+
+    <!-- Filter & Category Row -->
+    <div class="filter-row">
+      <div class="segmented-control">
+        <button class="seg-btn active" onclick="setFilter('all', this)">All</button>
+        <button class="seg-btn" onclick="setFilter('active', this)">Active</button>
+        <button class="seg-btn" onclick="setFilter('done', this)">Done</button>
+      </div>
+
+      <div class="categories-bar">
+        <div class="cat-tag active" onclick="setCategory(null, this)" style="--active-bg: rgba(255,255,255,0.15); --active-border: rgba(255,255,255,0.4);">✨ All</div>
+        <div class="cat-tag" onclick="setCategory('Ship', this)" style="--active-bg: rgba(6,182,212,0.25); --active-border: #06B6D4;">🚀 Ship</div>
+        <div class="cat-tag" onclick="setCategory('Focus', this)" style="--active-bg: rgba(168,85,247,0.25); --active-border: #A855F7;">🧠 Focus</div>
+        <div class="cat-tag" onclick="setCategory('Flow', this)" style="--active-bg: rgba(245,158,11,0.25); --active-border: #F59E0B;">⚡ Flow</div>
+        <div class="cat-tag" onclick="setCategory('Vibe', this)" style="--active-bg: rgba(16,185,129,0.25); --active-border: #10B981;">🌿 Vibe</div>
+        <div class="cat-tag" onclick="setCategory('Life', this)" style="--active-bg: rgba(244,63,94,0.25); --active-border: #F43F5E;">🍕 Life</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Add Input -->
+  <div class="input-section">
+    <div class="input-container">
+      <select id="task-category" class="cat-selector">
+        <option value="Ship">🚀 Ship</option>
+        <option value="Focus">🧠 Focus</option>
+        <option value="Flow">⚡ Flow</option>
+        <option value="Vibe">🌿 Vibe</option>
+        <option value="Life">🍕 Life</option>
+      </select>
+      <input type="text" id="new-task-input" class="task-input" placeholder="Add a quick task..." onkeydown="handleKey(event)" autofocus>
+      <span class="enter-badge">↵ Enter</span>
+    </div>
+  </div>
+
+  <!-- Tasks Container -->
+  <div class="task-list" id="task-container">
+    <!-- Populated by JS -->
+  </div>
+
+  <!-- Bottom Footer -->
+  <div class="footer">
+    <div class="footer-stats" id="footer-stats">3 active tasks</div>
+    <div class="footer-actions">
+      <button class="footer-btn" onclick="clearDone()">🧹 Clear Done</button>
+      <span style="color: rgba(255,255,255,0.2);">•</span>
+      <button class="footer-btn" onclick="quitApp()">🚪 Quit</button>
+    </div>
+  </div>
+
+  <script>
+    let tasks = [];
+    let currentFilter = 'all';
+    let currentCategory = null;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playPopSound(isDone) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = isDone ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(isDone ? 587.33 : 440, audioCtx.currentTime); // D5 or A4
+      if (isDone) osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.13);
+    }
+
+    function initTasks(initialTasks) {
+      tasks = initialTasks || [];
+      render();
+    }
+
+    function saveTasksToNative() {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({ action: "save", data: tasks });
+      }
+    }
+
+    function quitApp() {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({ action: "quit" });
+      }
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter') {
+        const input = document.getElementById('new-task-input');
+        const text = input.value.trim();
+        if (!text) return;
+        const category = document.getElementById('task-category').value;
+        tasks.unshift({
+          id: Date.now(),
+          title: text,
+          category: category,
+          done: false,
+          created: new Date().toISOString()
+        });
+        input.value = '';
+        playPopSound(false);
+        saveTasksToNative();
+        render();
+      }
+    }
+
+    function toggleTask(id) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task.done = !task.done;
+        playPopSound(task.done);
+        saveTasksToNative();
+        render();
+      }
+    }
+
+    function deleteTask(id, event) {
+      event.stopPropagation();
+      tasks = tasks.filter(t => t.id !== id);
+      saveTasksToNative();
+      render();
+    }
+
+    function clearDone() {
+      tasks = tasks.filter(t => !t.done);
+      saveTasksToNative();
+      render();
+    }
+
+    function setFilter(filter, el) {
+      currentFilter = filter;
+      document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      render();
+    }
+
+    function setCategory(cat, el) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-tag').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      render();
+    }
+
+    const catEmojiMap = {
+      'Ship': '🚀',
+      'Focus': '🧠',
+      'Flow': '⚡',
+      'Vibe': '🌿',
+      'Life': '🍕',
+      'General': '✨'
+    };
+
+    function render() {
+      const container = document.getElementById('task-container');
+      const activeCount = tasks.filter(t => !t.done).length;
+      const doneCount = tasks.filter(t => t.done).length;
+
+      document.getElementById('footer-stats').textContent = `${activeCount} active task${activeCount === 1 ? '' : 's'}`;
+      document.getElementById('momentum-text').textContent = `${doneCount} crushed today`;
+
+      const filtered = tasks.filter(task => {
+        if (currentFilter === 'active' && task.done) return false;
+        if (currentFilter === 'done' && !task.done) return false;
+        if (currentCategory && task.category !== currentCategory) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">✨</div>
+            <div class="empty-title">All tasks cleared!</div>
+            <div class="empty-sub">You're in complete flow state. Add a task above to keep building momentum.</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(t => {
+        const emoji = catEmojiMap[t.category] || '✨';
+        return `
+          <div class="task-card ${t.done ? 'done' : ''}" onclick="toggleTask(${t.id})">
+            <div class="checkbox">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="task-details">
+              <div class="task-text">${t.title}</div>
+              <div class="task-meta">
+                <span class="task-cat-badge">${emoji} ${t.category || 'General'}</span>
+              </div>
+            </div>
+            <button class="delete-btn" onclick="deleteTask(${t.id}, event)">✕</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Default starter data if opened standalone
+    if (tasks.length === 0) {
+      initTasks([
+        { id: 1, title: "Welcome to Tickr for Mac! ⚡", category: "Ship", done: false },
+        { id: 2, title: "Click any task to check it off ✨", category: "Focus", done: false },
+        { id: 3, title: "Hit ↵ Enter to quickly add new tasks", category: "Flow", done: true }
+      ]);
+    }
+  </script>
+</body>
+</html>

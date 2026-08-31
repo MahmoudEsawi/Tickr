@@ -1,120 +1,126 @@
 #!/usr/bin/env python3
-import json
-import os
 import sys
-import rumps
+import os
+import json
+import Cocoa
+import WebKit
+import objc
 
 STORAGE_DIR = os.path.expanduser("~/Library/Application Support/Tickr")
 STORAGE_FILE = os.path.join(STORAGE_DIR, "tasks.json")
+UI_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "index.html")
 
-class TickrApp(rumps.App):
-    def __init__(self):
-        super(TickrApp, self).__init__("⚡ Tickr", title="⚡ Tickr")
-        self.tasks = self.load_tasks()
-        self.rebuild_menu()
-
-    def load_tasks(self):
-        if not os.path.exists(STORAGE_DIR):
-            os.makedirs(STORAGE_DIR, exist_ok=True)
-        if os.path.exists(STORAGE_FILE):
-            try:
-                with open(STORAGE_FILE, "r", encoding="utf-8") as f:
-                    return json.load(f)
-            except Exception:
-                pass
-        # Default starter tasks
-        return [
-            {"title": "Welcome to Tickr! ⚡", "done": False, "category": "General"},
-            {"title": "Click a task to check it off", "done": False, "category": "Ideas"},
-            {"title": "Add your first real task", "done": False, "category": "Work"}
-        ]
-
-    def save_tasks(self):
+def load_tasks_from_disk():
+    if not os.path.exists(STORAGE_DIR):
+        os.makedirs(STORAGE_DIR, exist_ok=True)
+    if os.path.exists(STORAGE_FILE):
         try:
-            with open(STORAGE_FILE, "w", encoding="utf-8") as f:
-                json.dump(self.tasks, f, indent=2, ensure_ascii=False)
-        except Exception as e:
-            print("Error saving tasks:", e)
+            with open(STORAGE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return [
+        {"id": 1, "title": "Welcome to Tickr for Mac! ⚡", "category": "Ship", "done": False},
+        {"id": 2, "title": "Click any task to check it off with sound ✨", "category": "Focus", "done": False},
+        {"id": 3, "title": "Hit ↵ Enter to quickly add new tasks", "category": "Flow", "done": False}
+    ]
 
-    def rebuild_menu(self):
-        self.menu.clear()
+def save_tasks_to_disk(tasks):
+    try:
+        with open(STORAGE_FILE, "w", encoding="utf-8") as f:
+            json.dump(tasks, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print("Save error:", e)
 
-        # Header Stats
-        active = sum(1 for t in self.tasks if not t.get("done", False))
-        done = sum(1 for t in self.tasks if t.get("done", False))
-        self.title = f"⚡ Tickr ({active})" if active > 0 else "⚡ Tickr ✓"
+class ScriptHandler(Cocoa.NSObject):
+    def userContentController_didReceiveScriptMessage_(self, userContentController, message):
+        body = message.body()
+        if isinstance(body, (dict, Cocoa.NSDictionary)):
+            action = body.get("action")
+            if action == "save":
+                data = body.get("data")
+                if data is not None:
+                    # Convert objc types if needed
+                    py_data = json.loads(json.dumps(data)) if not isinstance(data, list) else list(data)
+                    save_tasks_to_disk(py_data)
+                    app_delegate = Cocoa.NSApp().delegate()
+                    if app_delegate:
+                        app_delegate.update_badge_count(py_data)
+            elif action == "quit":
+                Cocoa.NSApplication.sharedApplication().terminate_(None)
 
-        # Action Items
-        self.menu.add(rumps.MenuItem(f"📊 Tasks: {active} active, {done} completed", callback=None))
-        self.menu.add(rumps.separator)
-        self.menu.add(rumps.MenuItem("➕ Add New Task...", callback=self.add_task_dialog))
-        self.menu.add(rumps.separator)
+class AppDelegate(Cocoa.NSObject):
+    def applicationDidFinishLaunching_(self, notification):
+        Cocoa.NSApp().setActivationPolicy_(Cocoa.NSApplicationActivationPolicyAccessory)
 
-        # Task Items List
-        if not self.tasks:
-            self.menu.add(rumps.MenuItem("🎉 No pending tasks! (Click + to add)", callback=None))
+        # Status Bar Item
+        self.statusItem = Cocoa.NSStatusBar.systemStatusBar().statusItemWithLength_(Cocoa.NSVariableStatusItemLength)
+        button = self.statusItem.button()
+        button.setTitle_("⚡ Tickr")
+        button.setTarget_(self)
+        button.setAction_(objc.selector(self.togglePopover_, signature=b"v@:@"))
+
+        # WKWebView Configuration
+        contentController = WebKit.WKUserContentController.alloc().init()
+        self.handler = ScriptHandler.alloc().init()
+        contentController.addScriptMessageHandler_name_(self.handler, "tickr")
+
+        config = WebKit.WKWebViewConfiguration.alloc().init()
+        config.setUserContentController_(contentController)
+        config.preferences().setValue_forKey_(True, "developerExtrasEnabled")
+
+        # Create WKWebView
+        frame = Cocoa.NSMakeRect(0, 0, 360, 480)
+        self.webView = WebKit.WKWebView.alloc().initWithFrame_configuration_(frame, config)
+        self.webView.setValue_forKey_(False, "drawsBackground")
+
+        # Load HTML
+        file_url = Cocoa.NSURL.fileURLWithPath_(UI_HTML_PATH)
+        self.webView.loadFileURL_allowingReadAccessToURL_(file_url, file_url.URLByDeletingLastPathComponent())
+
+        # Load initial tasks on finish
+        tasks = load_tasks_from_disk()
+        self.update_badge_count(tasks)
+        tasks_json = json.dumps(tasks)
+        js_code = f"setTimeout(function() {{ if(window.initTasks) initTasks({tasks_json}); }}, 300);"
+        self.webView.evaluateJavaScript_completionHandler_(js_code, None)
+
+        # Popover
+        self.popover = Cocoa.NSPopover.alloc().init()
+        self.popover.setContentSize_(Cocoa.NSMakeSize(360, 480))
+        self.popover.setBehavior_(Cocoa.NSPopoverBehaviorTransient)
+        self.popover.setAnimates_(True)
+
+        viewController = Cocoa.NSViewController.alloc().init()
+        viewController.setView_(self.webView)
+        self.popover.setContentViewController_(viewController)
+
+    def update_badge_count(self, tasks):
+        active = sum(1 for t in tasks if not t.get("done", False))
+        button = self.statusItem.button()
+        if button:
+            if active > 0:
+                button.setTitle_(f"⚡ {active}")
+            else:
+                button.setTitle_("⚡ ✓")
+
+    def togglePopover_(self, sender):
+        button = self.statusItem.button()
+        if self.popover.isShown():
+            self.popover.performClose_(sender)
         else:
-            for idx, task in enumerate(self.tasks):
-                status_icon = "✅" if task.get("done", False) else "⭕"
-                cat = f"[{task.get('category', 'General')}] " if task.get("category") else ""
-                item_title = f"{status_icon} {cat}{task['title']}"
-                
-                menu_item = rumps.MenuItem(item_title, callback=self.make_toggle_callback(idx))
-                self.menu.add(menu_item)
+            # Refresh data
+            tasks = load_tasks_from_disk()
+            tasks_json = json.dumps(tasks)
+            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initTasks) initTasks({tasks_json});", None)
+            self.popover.showRelativeToRect_ofView_preferredEdge_(button.bounds(), button, Cocoa.NSMinYEdge)
+            Cocoa.NSApp().activateIgnoringOtherApps_(True)
 
-        self.menu.add(rumps.separator)
-
-        # Clear / Management options
-        if done > 0:
-            self.menu.add(rumps.MenuItem(f"🧹 Clear Done ({done})", callback=self.clear_completed))
-
-        # Delete submenu
-        if self.tasks:
-            delete_menu = rumps.MenuItem("🗑️ Delete a Task")
-            for idx, task in enumerate(self.tasks):
-                delete_menu.add(rumps.MenuItem(f"Delete: {task['title'][:25]}...", callback=self.make_delete_callback(idx)))
-            self.menu.add(delete_menu)
-
-        self.menu.add(rumps.separator)
-        self.menu.add(rumps.MenuItem("🚪 Quit Tickr", callback=rumps.quit_application))
-
-    def make_toggle_callback(self, index):
-        def callback(sender):
-            if 0 <= index < len(self.tasks):
-                self.tasks[index]["done"] = not self.tasks[index].get("done", False)
-                self.save_tasks()
-                self.rebuild_menu()
-        return callback
-
-    def make_delete_callback(self, index):
-        def callback(sender):
-            if 0 <= index < len(self.tasks):
-                self.tasks.pop(index)
-                self.save_tasks()
-                self.rebuild_menu()
-        return callback
-
-    def add_task_dialog(self, _):
-        window = rumps.Window(
-            message="Type your task description:",
-            title="➕ Add Task to Tickr",
-            default_text="",
-            ok="Add Task",
-            cancel="Cancel",
-            dimensions=(320, 24)
-        )
-        response = window.run()
-        if response.clicked and response.text.strip():
-            self.tasks.insert(0, {"title": response.text.strip(), "done": False, "category": "Work"})
-            self.save_tasks()
-            self.rebuild_menu()
-            rumps.notification("Tickr", "Task Added!", f"Added: {response.text.strip()}")
-
-    def clear_completed(self, _):
-        self.tasks = [t for t in self.tasks if not t.get("done", False)]
-        self.save_tasks()
-        self.rebuild_menu()
+def main():
+    app = Cocoa.NSApplication.sharedApplication()
+    delegate = AppDelegate.alloc().init()
+    app.setDelegate_(delegate)
+    app.run()
 
 if __name__ == "__main__":
-    app = TickrApp()
-    app.run()
+    main()
