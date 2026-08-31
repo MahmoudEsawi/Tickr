@@ -5,32 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Tickr</title>
   <style>
+    /* ========================================================= */
+    /* THEME SYSTEM (LIGHT & DARK/NIGHT MODE)                    */
+    /* ========================================================= */
     :root {
-      --bg: #F9F9FB;
-      --bg-card: #FFFFFF;
+      --bg-window: #ECECEE;
+      --bg-card: #F7F7F8;
+      --bg-capsule: rgba(0, 0, 0, 0.06);
+      --bg-capsule-hover: rgba(0, 0, 0, 0.1);
+      --bg-ruler: #E2E2E6;
       --border-color: rgba(0, 0, 0, 0.08);
-      --border-subtle: rgba(0, 0, 0, 0.04);
       --text-main: #1D1D1F;
-      --text-secondary: #6E6E73;
-      --text-dim: #A1A1A6;
-      --accent: #111111;
-      --active-pill: #E5E5EA;
-      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
-      --font-mono: "SF Mono", Menlo, Monaco, "Courier New", monospace;
+      --text-muted: #86868B;
+      --text-dim: #AEAEB2;
+      --ruler-cursor: #1D1D1F;
+      --ruler-tick: rgba(0, 0, 0, 0.18);
+      --ruler-tick-major: rgba(0, 0, 0, 0.45);
+      --accent-green: #34C759;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif;
+      --font-mono: "SF Mono", Menlo, Monaco, monospace;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #141416;
-        --bg-card: #1D1E22;
-        --border-color: rgba(255, 255, 255, 0.1);
-        --border-subtle: rgba(255, 255, 255, 0.05);
-        --text-main: #F5F5F7;
-        --text-secondary: #98989D;
-        --text-dim: #636366;
-        --accent: #FFFFFF;
-        --active-pill: #2C2C2E;
-      }
+    body.theme-dark {
+      --bg-window: #161618;
+      --bg-card: #202024;
+      --bg-capsule: rgba(255, 255, 255, 0.08);
+      --bg-capsule-hover: rgba(255, 255, 255, 0.14);
+      --bg-ruler: #2C2C30;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #F5F5F7;
+      --text-muted: #98989D;
+      --text-dim: #636366;
+      --ruler-cursor: #FFFFFF;
+      --ruler-tick: rgba(255, 255, 255, 0.15);
+      --ruler-tick-major: rgba(255, 255, 255, 0.45);
+      --accent-green: #30D158;
     }
 
     * {
@@ -43,73 +52,65 @@
     }
 
     body {
-      background: var(--bg);
+      background: var(--bg-window);
       color: var(--text-main);
       width: 100vw;
       height: 100vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      border-radius: 18px;
+      border-radius: 20px;
       border: 1px solid var(--border-color);
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
       position: relative;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
-    /* Top Navigation Tab Bar */
-    .nav-bar {
-      padding: 10px 14px;
+    /* Top Mode Toggle / App Header */
+    .app-header {
+      padding: 8px 14px 4px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border-subtle);
-      background: var(--bg);
     }
 
-    .nav-tabs {
+    .view-switcher {
       display: flex;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 9px;
-      padding: 2.5px;
+      background: var(--bg-capsule);
+      border-radius: 20px;
+      padding: 2px;
       gap: 2px;
     }
 
-    .nav-tab {
+    .view-btn {
       background: transparent;
       border: none;
-      color: var(--text-secondary);
-      font-size: 11.5px;
+      color: var(--text-muted);
+      font-size: 11px;
       font-weight: 500;
-      padding: 4px 11px;
-      border-radius: 7px;
+      padding: 3px 9px;
+      border-radius: 16px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 5px;
-      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      gap: 4px;
+      transition: all 0.15s ease;
     }
 
-    .nav-tab.active {
-      background: var(--active-pill);
+    .view-btn.active {
+      background: var(--bg-card);
       color: var(--text-main);
       font-weight: 600;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-icon {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      width: 26px;
-      height: 26px;
-      border-radius: 7px;
+    .theme-toggle-btn {
+      background: var(--bg-capsule);
+      border: none;
+      color: var(--text-muted);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -117,67 +118,59 @@
       font-size: 11px;
       transition: all 0.15s ease;
     }
-
-    .btn-icon:hover {
+    .theme-toggle-btn:hover {
       color: var(--text-main);
-      border-color: var(--text-dim);
+      background: var(--bg-capsule-hover);
     }
 
-    /* Main Tab Content View Area */
-    .tab-content {
+    /* Views Container */
+    .view-container {
       flex: 1;
       display: none;
       flex-direction: column;
+      padding: 8px 14px 12px;
       overflow: hidden;
       animation: fadeIn 0.15s ease;
     }
-
-    .tab-content.active {
-      display: flex;
-    }
+    .view-container.active { display: flex; }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(2px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: scale(0.99); }
+      to { opacity: 1; transform: scale(1); }
     }
 
     /* ========================================================= */
-    /* 1. ONIGIRI STYLE: MINIMALIST POMODORO TIMER VIEW          */
+    /* 1. ONIGIRI EXACT REPRODUCTION                             */
     /* ========================================================= */
-    .pomo-view {
-      padding: 16px 20px;
+    .onigiri-card {
+      background: var(--bg-card);
+      border-radius: 18px;
+      padding: 14px 16px 12px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       height: 100%;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
-    /* Ruler / Scrubber Bar */
-    .ruler-container {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .ruler-track {
+    /* Scrubber Track */
+    .scrubber-capsule {
+      background: var(--bg-ruler);
+      border-radius: 10px;
+      height: 32px;
       width: 100%;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       position: relative;
       cursor: pointer;
-      padding: 0 4px;
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      overflow: hidden;
     }
 
-    .ruler-ticks {
+    .scrubber-ticks {
       position: absolute;
-      left: 0;
-      right: 0;
+      left: 6px;
+      right: 6px;
       top: 0;
       bottom: 0;
       display: flex;
@@ -188,690 +181,581 @@
 
     .tick {
       width: 1px;
-      height: 8px;
-      background: var(--text-dim);
-      opacity: 0.35;
+      height: 14px;
+      background: var(--ruler-tick);
     }
 
     .tick.major {
-      height: 16px;
-      opacity: 0.7;
-      background: var(--text-secondary);
+      height: 20px;
+      background: var(--ruler-tick-major);
+      width: 1.5px;
     }
 
-    .ruler-cursor {
+    .scrubber-cursor {
       position: absolute;
-      top: 0;
-      bottom: 0;
+      top: 4px;
+      bottom: 4px;
       width: 2.5px;
-      background: var(--text-main);
+      background: var(--ruler-cursor);
       border-radius: 2px;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-      transition: left 0.15s ease;
+      pointer-events: none;
+      transition: left 0.12s linear;
+      box-shadow: 0 0 4px rgba(0,0,0,0.25);
     }
 
-    .pomo-presets {
+    /* Preset duration pills & three dots row */
+    .onigiri-presets-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-top: 10px;
     }
 
-    .preset-btn {
+    .preset-items {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .preset-link {
       background: transparent;
       border: none;
-      color: var(--text-secondary);
       font-size: 12px;
       font-weight: 500;
+      color: var(--text-muted);
       cursor: pointer;
-      padding: 2px 6px;
-      border-radius: 5px;
-      transition: all 0.15s ease;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.15s ease;
     }
 
-    .preset-btn.active {
+    .preset-link.active, .preset-link:hover {
       color: var(--text-main);
-      font-weight: 700;
-      background: var(--active-pill);
+      font-weight: 600;
     }
 
-    /* Giant Time Readout & Bottom Controls */
-    .pomo-bottom {
+    .dots-menu-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 2px 4px;
+      letter-spacing: 1px;
+    }
+    .dots-menu-btn:hover { color: var(--text-main); }
+
+    /* Giant Clock and Lowercase Start Button */
+    .onigiri-bottom-row {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      padding: 10px 4px 6px;
+      padding-top: 8px;
     }
 
-    .pomo-start-btn {
+    .start-text-btn {
       background: transparent;
       border: none;
-      color: var(--text-secondary);
-      font-size: 14px;
-      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-weight: 500;
       cursor: pointer;
       text-transform: lowercase;
       letter-spacing: -0.01em;
+      padding-bottom: 2px;
       transition: color 0.15s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 0;
     }
 
-    .pomo-start-btn:hover {
-      color: var(--text-main);
-    }
+    .start-text-btn:hover { color: var(--text-main); }
+    .start-text-btn.running { color: #FF3B30; }
 
-    .pomo-start-btn.running {
-      color: #EF4444;
-    }
-
-    .pomo-digits {
-      font-size: 48px;
-      font-weight: 300;
-      letter-spacing: -0.04em;
+    .onigiri-clock {
+      font-size: 42px;
+      font-weight: 400;
+      letter-spacing: -0.03em;
       line-height: 1;
       color: var(--text-main);
       font-family: var(--font-sans);
     }
 
     /* ========================================================= */
-    /* 2. SLASHNOTE STYLE: MODERN MINIMAL STICKY NOTE VIEW       */
+    /* 2. SLASHNOTE EXACT REPRODUCTION                           */
     /* ========================================================= */
-    .note-view {
-      padding: 12px 16px;
+    .slashnote-card {
+      background: var(--bg-card);
+      border-radius: 18px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       height: 100%;
-      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      position: relative;
     }
 
-    .note-toolstrip {
+    /* Top Pill Clusters */
+    .slashnote-top-strip {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 8px;
+      margin-bottom: 8px;
     }
 
-    .note-tools-left, .note-tools-right {
+    .pill-capsule {
       display: flex;
       align-items: center;
-      gap: 6px;
+      background: var(--bg-capsule);
+      border-radius: 20px;
+      padding: 2.5px 6px;
+      gap: 5px;
     }
 
-    .note-tool-btn {
+    .capsule-btn {
       background: transparent;
       border: none;
-      color: var(--text-secondary);
-      font-size: 12px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 500;
       cursor: pointer;
-      padding: 3px 6px;
-      border-radius: 5px;
-      transition: all 0.15s ease;
+      padding: 2px 4px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s ease;
     }
 
-    .note-tool-btn:hover {
-      color: var(--text-main);
-      background: var(--bg-card);
-    }
+    .capsule-btn:hover { color: var(--text-main); }
 
-    .note-canvas {
+    /* Note Textarea */
+    .note-editor {
       flex: 1;
-      width: 100%;
       background: transparent;
       border: none;
       outline: none;
       resize: none;
       font-size: 13.5px;
-      line-height: 1.6;
+      line-height: 1.55;
       color: var(--text-main);
-      padding: 4px 0;
+      padding: 4px 2px;
     }
 
-    .note-canvas::placeholder {
+    .note-editor::placeholder {
       color: var(--text-dim);
     }
 
-    .note-bottom-pill {
+    /* SlashNote Bottom Floating Pill */
+    .slashnote-bottom-strip {
       display: flex;
       align-items: center;
       justify-content: flex-end;
       padding-top: 4px;
     }
 
-    .pill-cluster {
+    .action-pill-cluster {
       display: inline-flex;
       align-items: center;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
+      background: var(--bg-capsule);
       border-radius: 20px;
       padding: 3px 10px;
-      font-size: 11px;
-      color: var(--text-secondary);
       gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
     }
 
+    .action-pill-item {
+      background: transparent;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .action-pill-item:hover { color: var(--text-main); }
+    .pill-divider { opacity: 0.3; }
+
     /* ========================================================= */
-    /* 3. TICKR TO-DO & DEVELOPER DIARY VIEW                     */
+    /* 3. INTEGRATED TO-DO / ESAWI.DEV DIARY SYNC                */
     /* ========================================================= */
-    .todo-view {
+    .todo-list-card {
+      background: var(--bg-card);
+      border-radius: 18px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
       height: 100%;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
-    /* Filter & Category Pills */
-    .filter-bar {
-      padding: 8px 14px;
+    .todo-add-box {
       display: flex;
       align-items: center;
-      gap: 5px;
-      overflow-x: auto;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-    .filter-bar::-webkit-scrollbar { display: none; }
-
-    .tag-pill {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      padding: 2.5px 7px;
-      border-radius: 5px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all 0.15s ease;
-      white-space: nowrap;
+      background: var(--bg-capsule);
+      border-radius: 10px;
+      padding: 6px 10px;
+      gap: 6px;
+      margin-bottom: 8px;
     }
 
-    .tag-pill:hover { color: var(--text-main); }
-    .tag-pill.active {
-      background: var(--text-main);
-      color: var(--bg);
-      border-color: var(--text-main);
-      font-weight: 600;
-    }
-
-    /* Task Quick Input */
-    .input-section {
-      padding: 8px 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-bottom: 1px solid var(--border-subtle);
-      background: var(--bg-card);
-    }
-
-    .cat-selector {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      background: var(--bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 3px 6px;
-      border-radius: 5px;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .task-input {
+    .todo-input {
       flex: 1;
       background: transparent;
       border: none;
       outline: none;
-      font-size: 12.5px;
+      font-size: 12px;
       color: var(--text-main);
     }
+    .todo-input::placeholder { color: var(--text-dim); }
 
-    .task-input::placeholder { color: var(--text-dim); }
-
-    .return-badge {
+    .tag-select {
+      background: transparent;
+      border: none;
       font-family: var(--font-mono);
       font-size: 9.5px;
-      color: var(--text-dim);
-      border: 1px solid var(--border-color);
-      padding: 1.5px 4px;
-      border-radius: 3px;
+      color: var(--text-muted);
+      outline: none;
+      cursor: pointer;
     }
 
-    /* Task Rows */
-    .task-container {
+    .tasks-scroll {
       flex: 1;
       overflow-y: auto;
-      padding: 8px 12px;
       display: flex;
       flex-direction: column;
       gap: 5px;
     }
-    .task-container::-webkit-scrollbar { width: 4px; }
-    .task-container::-webkit-scrollbar-thumb {
-      background: var(--border-color);
-      border-radius: 4px;
-    }
+    .tasks-scroll::-webkit-scrollbar { width: 3px; }
+    .tasks-scroll::-webkit-scrollbar-thumb { background: var(--text-dim); border-radius: 3px; }
 
-    .task-row {
+    .task-entry {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
+      gap: 7px;
+      padding: 5px 6px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: background 0.12s ease;
     }
+    .task-entry:hover { background: var(--bg-capsule); }
 
-    .task-row:hover {
-      border-color: var(--border-color);
-      background: var(--bg);
-    }
-
-    .checkbox {
-      width: 15px;
-      height: 15px;
+    .checkbox-box {
+      width: 14px;
+      height: 14px;
       border-radius: 4px;
-      border: 1.5px solid var(--border-color);
+      border: 1.5px solid var(--text-dim);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: all 0.15s ease;
+      transition: all 0.12s ease;
     }
 
-    .task-row.completed .checkbox {
-      background: #10B981;
-      border-color: #10B981;
+    .task-entry.done .checkbox-box {
+      background: var(--accent-green);
+      border-color: var(--accent-green);
     }
 
-    .checkbox svg {
+    .checkbox-box svg {
       display: none;
       width: 9px;
       height: 9px;
-      stroke: #FFFFFF;
+      stroke: #FFF;
       stroke-width: 2.5;
     }
+    .task-entry.done .checkbox-box svg { display: block; }
 
-    .task-row.completed .checkbox svg { display: block; }
-
-    .task-title {
+    .task-text {
       flex: 1;
-      font-size: 12.5px;
+      font-size: 12px;
       color: var(--text-main);
       word-break: break-word;
     }
-
-    .task-row.completed .task-title {
+    .task-entry.done .task-text {
       color: var(--text-dim);
       text-decoration: line-through;
     }
 
-    .task-tag-badge {
+    .task-pill-badge {
       font-family: var(--font-mono);
       font-size: 8.5px;
       color: var(--text-dim);
-      border: 1px solid var(--border-color);
+      background: var(--bg-capsule);
       padding: 1px 4px;
       border-radius: 3px;
       text-transform: uppercase;
     }
 
-    .del-btn {
-      opacity: 0;
-      background: transparent;
-      border: none;
-      color: var(--text-dim);
-      cursor: pointer;
-      font-size: 11px;
-      padding: 2px;
-    }
-
-    .task-row:hover .del-btn { opacity: 1; }
-    .del-btn:hover { color: #EF4444; }
-
-    /* Footer Toolbar */
-    .footer {
-      padding: 8px 14px;
+    .todo-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-top: 1px solid var(--border-subtle);
-      background: var(--bg);
+      padding-top: 8px;
+      border-top: 1px solid var(--border-color);
+      margin-top: 4px;
     }
 
-    .footer-mono {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--text-dim);
-    }
-
-    .footer-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-live-deploy {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+    .btn-sync-live {
       background: var(--text-main);
-      color: var(--bg);
+      color: var(--bg-window);
       border: none;
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 600;
-      padding: 3.5px 8px;
-      border-radius: 5px;
+      padding: 3px 8px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: opacity 0.15s ease;
     }
 
-    .btn-live-deploy:hover { opacity: 0.9; }
-
-    /* Modal Sheet for Tag Manager & Settings */
-    .modal-sheet {
+    /* Mini Menu Modal (Tags & Settings) */
+    .settings-popover {
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: var(--bg);
+      top: 36px;
+      right: 14px;
+      width: 220px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
       display: none;
       flex-direction: column;
-      z-index: 100;
-      padding: 14px;
-      animation: fadeIn 0.15s ease;
+      padding: 10px;
+      z-index: 99;
     }
+    .settings-popover.open { display: flex; }
 
-    .modal-sheet.open { display: flex; }
-
-    .modal-top {
+    .setting-item-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border-subtle);
-      margin-bottom: 10px;
-    }
-
-    .modal-header-title {
-      font-size: 12.5px;
-      font-weight: 600;
-    }
-
-    .settings-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11.5px;
-      padding-bottom: 10px;
-      margin-bottom: 10px;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    /* Toggle Switch */
-    .switch {
-      position: relative; display: inline-block; width: 30px; height: 16px;
-    }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: var(--text-dim); transition: .2s; border-radius: 16px;
-    }
-    .slider:before {
-      position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px;
-      background-color: white; transition: .2s; border-radius: 50%;
-    }
-    input:checked + .slider { background-color: #10B981; }
-    input:checked + .slider:before { transform: translateX(14px); }
-
-    .tag-manage-list {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .tag-manage-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 5px 8px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 5px;
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-    }
-
-    .tag-add-container {
-      display: flex;
-      gap: 6px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border-subtle);
-    }
-
-    .tag-add-input {
-      flex: 1;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
+      font-size: 11px;
+      padding: 4px 0;
       color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      padding: 5px 7px;
-      border-radius: 5px;
-      outline: none;
-      text-transform: uppercase;
-    }
-
-    .tag-add-btn {
-      background: var(--text-main);
-      color: var(--bg);
-      border: none;
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      font-weight: 600;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
     }
   </style>
 </head>
-<body>
+<body class="theme-dark">
 
-  <!-- Top Navigation & Tab Controls -->
-  <div class="nav-bar">
-    <div class="nav-tabs">
-      <button class="nav-tab active" onclick="switchTab('pomo', this)">
+  <!-- Top App Navigation & Mode Switcher -->
+  <div class="app-header">
+    <div class="view-switcher">
+      <button class="view-btn active" onclick="switchView('onigiri', this)">
         <span>⏱️</span>
         <span>Timer</span>
       </button>
-      <button class="nav-tab" onclick="switchTab('todo', this)">
-        <span>☑️</span>
-        <span>To-Do</span>
-      </button>
-      <button class="nav-tab" onclick="switchTab('note', this)">
+      <button class="view-btn" onclick="switchView('slashnote', this)">
         <span>📝</span>
         <span>Note</span>
       </button>
+      <button class="view-btn" onclick="switchView('todo', this)">
+        <span>☑️</span>
+        <span>Tasks</span>
+      </button>
     </div>
 
-    <div class="nav-actions">
-      <button class="btn-icon" title="Settings & Tags" onclick="openSettingsModal()">⚙️</button>
+    <!-- Theme Mode Toggle (Night Mode / Light Mode) -->
+    <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Night/Light Mode" onclick="toggleTheme()">
+      🌙
+    </button>
+  </div>
+
+  <!-- 1. ONIGIRI STYLE VIEW -->
+  <div class="view-container active" id="view-onigiri">
+    <div class="onigiri-card">
+      <!-- Fine Tick Scrubber Capsule -->
+      <div class="scrubber-capsule" id="scrubber-track" onclick="handleScrubberClick(event)">
+        <div class="scrubber-ticks" id="scrubber-ticks">
+          <!-- 60 fine tick marks -->
+        </div>
+        <div class="scrubber-cursor" id="scrubber-cursor" style="left: 41.6%;"></div>
+      </div>
+
+      <!-- Presets & Menu Row -->
+      <div class="onigiri-presets-row">
+        <div class="preset-items">
+          <button class="preset-link" onclick="setTimerDuration(5, this)">5m</button>
+          <button class="preset-link" onclick="setTimerDuration(10, this)">10m</button>
+          <button class="preset-link active" onclick="setTimerDuration(25, this)">25m</button>
+          <button class="preset-link" onclick="setTimerDuration(50, this)">50m</button>
+        </div>
+        <button class="dots-menu-btn" onclick="toggleSettingsMenu()">•••</button>
+      </div>
+
+      <!-- Lowercase 'start' and Large Digital Clock -->
+      <div class="onigiri-bottom-row">
+        <button class="start-text-btn" id="start-btn" onclick="toggleTimer()">start</button>
+        <div class="onigiri-clock" id="timer-clock">25:00</div>
+      </div>
     </div>
   </div>
 
-  <!-- TAB 1: ONIGIRI STYLE MINIMALIST POMODORO TIMER -->
-  <div class="tab-content active" id="tab-pomo">
-    <div class="pomo-view">
-      <!-- Ruler Scrubber Track -->
-      <div class="ruler-container">
-        <div class="ruler-track" id="ruler-track" onclick="handleRulerClick(event)">
-          <div class="ruler-ticks" id="ruler-ticks">
-            <!-- 30 tick marks -->
-          </div>
-          <div class="ruler-cursor" id="ruler-cursor" style="left: 50%;"></div>
+  <!-- 2. SLASHNOTE STYLE VIEW -->
+  <div class="view-container" id="view-slashnote">
+    <div class="slashnote-card">
+      <!-- Top Pill Clusters (Exact SlashNote topbar) -->
+      <div class="slashnote-top-strip">
+        <div class="pill-capsule">
+          <button class="capsule-btn" title="Clear" onclick="clearNote()">✕</button>
+          <button class="capsule-btn" title="New Note" onclick="newNote()">📄</button>
+          <button class="capsule-btn" title="Pin Popover" onclick="togglePin()">📌</button>
         </div>
 
-        <div class="pomo-presets">
-          <button class="preset-btn" onclick="selectDuration(5, this)">5m</button>
-          <button class="preset-btn" onclick="selectDuration(10, this)">10m</button>
-          <button class="preset-btn" onclick="selectDuration(15, this)">15m</button>
-          <button class="preset-btn active" onclick="selectDuration(25, this)">25m</button>
-          <button class="preset-btn" onclick="selectDuration(50, this)">50m</button>
+        <div class="pill-capsule">
+          <button class="capsule-btn" onclick="insertNoteFormat('**bold**')">AA</button>
+          <button class="capsule-btn" onclick="insertNoteFormat('- [ ] ')">⎌</button>
+          <button class="capsule-btn" onclick="insertNoteFormat('• ')">:=</button>
+          <button class="capsule-btn" onclick="insertNoteFormat('### ')">#</button>
         </div>
       </div>
 
-      <!-- Giant Digital Readout & Bottom Start Action -->
-      <div class="pomo-bottom">
-        <button class="pomo-start-btn" id="pomo-toggle-btn" onclick="toggleTimer()">
-          <span id="pomo-btn-label">start</span>
-        </button>
-        <div class="pomo-digits" id="pomo-display">25:00</div>
+      <!-- Clean Distraction-Free Note Canvas -->
+      <textarea class="note-editor" id="note-editor" placeholder="Type your note..." oninput="handleNoteSave()"></textarea>
+
+      <!-- Bottom Floating Action Capsule -->
+      <div class="slashnote-bottom-strip">
+        <div class="action-pill-cluster">
+          <button class="action-pill-item" onclick="insertNoteFormat('*')">🪄 Format</button>
+          <span class="pill-divider">|</span>
+          <button class="action-pill-item" onclick="switchView('todo')">☑️ To-Do</button>
+          <span class="pill-divider">|</span>
+          <button class="action-pill-item" onclick="toggleSettingsMenu()">•••</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- TAB 2: TICKR TO-DO LIST (SYNCED WITH ESAWI.DEV DIARY) -->
-  <div class="tab-content" id="tab-todo">
-    <div class="todo-view">
-      <!-- Category Filter Pills -->
-      <div class="filter-bar" id="tag-filter-bar">
-        <!-- Rendered via JS -->
-      </div>
-
-      <!-- Quick Add Input -->
-      <div class="input-section">
-        <select id="cat-selector" class="cat-selector">
-          <!-- Rendered via JS -->
+  <!-- 3. TO-DO / ESAWI.DEV DIARY VIEW -->
+  <div class="view-container" id="view-todo">
+    <div class="todo-list-card">
+      <div class="todo-add-box">
+        <select id="todo-cat-select" class="tag-select">
+          <option value="PROJECT">PROJECT</option>
+          <option value="CODE">CODE</option>
+          <option value="DAILY">DAILY</option>
         </select>
-        <input type="text" id="task-input-field" class="task-input" placeholder="Add a task..." onkeydown="handleTaskInputKey(event)">
-        <span class="return-badge">↵</span>
+        <input type="text" id="todo-input" class="todo-input" placeholder="Add task..." onkeydown="handleTaskAddKey(event)">
       </div>
 
-      <!-- Task Items List -->
-      <div class="task-container" id="tasks-list">
+      <div class="tasks-scroll" id="todo-tasks-scroll">
         <!-- Rendered via JS -->
       </div>
 
-      <!-- Bottom Status & Push to Live -->
-      <div class="footer">
-        <div class="footer-mono" id="todo-summary">0 pending</div>
-        <div class="footer-actions">
-          <button class="btn-live-deploy" id="live-deploy-btn" onclick="deployToDiaryLive()">
-            <span>🚀 Push to Live</span>
-          </button>
-        </div>
+      <div class="todo-footer">
+        <span style="font-family: var(--font-mono); font-size: 9.5px; color: var(--text-dim);" id="task-status-counter">0 pending</span>
+        <button class="btn-sync-live" id="sync-live-btn" onclick="syncLiveDiary()">🚀 Push to Live</button>
       </div>
     </div>
   </div>
 
-  <!-- TAB 3: SLASHNOTE STYLE MODERN STICKY NOTE -->
-  <div class="tab-content" id="tab-note">
-    <div class="note-view">
-      <div class="note-toolstrip">
-        <div class="note-tools-left">
-          <button class="note-tool-btn" title="Add Bullet" onclick="insertNoteText('- [ ] ')">☑️ List</button>
-          <button class="note-tool-btn" title="Heading" onclick="insertNoteText('### ')"># Title</button>
-        </div>
-        <div class="note-tools-right">
-          <button class="note-tool-btn" title="Clear Note" onclick="clearNote()">Clear</button>
-        </div>
-      </div>
-
-      <textarea class="note-canvas" id="scratchpad-area" placeholder="Type your note..." oninput="handleNoteInput()"></textarea>
-
-      <div class="note-bottom-pill">
-        <div class="pill-cluster">
-          <span>Format</span>
-          <span>•</span>
-          <span>Auto-saved</span>
-        </div>
-      </div>
+  <!-- Quick Settings Menu (•••) -->
+  <div class="settings-popover" id="settings-popover">
+    <div class="setting-item-row">
+      <span>Night Mode</span>
+      <input type="checkbox" id="night-mode-chk" checked onchange="setNightMode(this.checked)">
     </div>
-  </div>
-
-  <!-- Settings & Custom Tag Manager Modal -->
-  <div class="modal-sheet" id="settings-sheet">
-    <div class="modal-top">
-      <span class="modal-header-title">⚙️ Settings & Tags</span>
-      <button class="btn-icon" onclick="closeSettingsModal()">✕</button>
-    </div>
-
-    <div class="settings-item">
-      <div>
-        <div>Launch at Mac Startup</div>
-        <div style="font-size: 10px; color: var(--text-dim);">Auto-run in Menu Bar on boot</div>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="autostart-chk" onchange="handleAutostartChange(this.checked)">
-        <span class="slider"></span>
-      </label>
-    </div>
-
-    <div style="font-size: 11px; font-weight: 600; margin-bottom: 6px;">🏷️ Custom Category Tags</div>
-    <div class="tag-manage-list" id="tag-manage-list">
-      <!-- Rendered via JS -->
-    </div>
-
-    <div class="tag-add-container">
-      <input type="text" id="new-tag-field" class="tag-add-input" placeholder="NEW TAG..." onkeydown="handleNewTagKey(event)">
-      <button class="tag-add-btn" onclick="addNewCustomTag()">+ Add</button>
+    <div class="setting-item-row" style="margin-top: 6px; border-top: 1px solid var(--border-color); padding-top: 6px;">
+      <span>Launch at Startup</span>
+      <input type="checkbox" id="autostart-chk" onchange="toggleAutostart(this.checked)">
     </div>
   </div>
 
   <script>
-    let currentTab = 'pomo';
+    let currentTheme = 'dark';
+    let currentView = 'onigiri';
     let tasks = [];
     let tags = ["PROJECT", "CODE", "HACKATHON", "DAILY", "IDEAS"];
-    let currentCategoryFilter = null;
-    let autostartEnabled = false;
+
+    /* ========================================================= */
+    /* THEME SYSTEM: NIGHT MODE & LIGHT MODE                     */
+    /* ========================================================= */
+    function toggleTheme() {
+      setNightMode(currentTheme !== 'dark');
+    }
+
+    function setNightMode(isDark) {
+      currentTheme = isDark ? 'dark' : 'light';
+      if (isDark) {
+        document.body.classList.remove('theme-light');
+        document.body.classList.add('theme-dark');
+        document.getElementById('theme-toggle-btn').textContent = '🌙';
+        document.getElementById('night-mode-chk').checked = true;
+      } else {
+        document.body.classList.remove('theme-dark');
+        document.body.classList.add('theme-light');
+        document.getElementById('theme-toggle-btn').textContent = '☀️';
+        document.getElementById('night-mode-chk').checked = false;
+      }
+      localStorage.setItem('tickr_theme', currentTheme);
+    }
+
+    /* ========================================================= */
+    /* VIEW SWITCHER                                             */
+    /* ========================================================= */
+    function switchView(viewName, btnEl) {
+      currentView = viewName;
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view-container').forEach(c => c.classList.remove('active'));
+      
+      const targetBtn = btnEl || document.querySelector(`.view-btn[onclick*="${viewName}"]`);
+      if (targetBtn) targetBtn.classList.add('active');
+      
+      document.getElementById(`view-${viewName}`).classList.add('active');
+      document.getElementById('settings-popover').classList.remove('open');
+    }
+
+    function toggleSettingsMenu() {
+      document.getElementById('settings-popover').classList.toggle('open');
+    }
 
     /* ========================================================= */
     /* 1. ONIGIRI POMODORO ENGINE                                */
     /* ========================================================= */
-    let selectedMinutes = 25;
-    let totalSeconds = 25 * 60;
-    let remainingSeconds = 25 * 60;
-    let timerRunning = false;
-    let timerInterval = null;
+    let selectedMins = 25;
+    let timerSeconds = 25 * 60;
+    let timerTotal = 25 * 60;
+    let isRunning = false;
+    let intervalId = null;
 
-    function buildRulerTicks() {
-      const container = document.getElementById('ruler-ticks');
+    function buildFineTicks() {
+      const container = document.getElementById('scrubber-ticks');
       let html = '';
-      for (let i = 0; i <= 30; i++) {
+      for (let i = 0; i <= 60; i++) {
         const isMajor = i % 5 === 0;
         html += `<div class="tick ${isMajor ? 'major' : ''}"></div>`;
       }
       container.innerHTML = html;
     }
 
-    function selectDuration(mins, btnEl) {
-      if (timerRunning) pauseTimer();
-      selectedMinutes = mins;
-      totalSeconds = mins * 60;
-      remainingSeconds = mins * 60;
-      
-      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    function setTimerDuration(mins, btnEl) {
+      if (isRunning) pauseTimer();
+      selectedMins = mins;
+      timerTotal = mins * 60;
+      timerSeconds = mins * 60;
+
+      document.querySelectorAll('.preset-link').forEach(b => b.classList.remove('active'));
       if (btnEl) btnEl.classList.add('active');
-      
-      updateRulerPosition(mins / 60);
-      updateDisplay();
+
+      updateScrubberPosition(mins / 60);
+      updateClockDisplay();
     }
 
-    function handleRulerClick(e) {
+    function handleScrubberClick(e) {
       const rect = e.currentTarget.getBoundingClientRect();
-      const ratio = Math.max(0.05, Math.min(1, (e.clientX - rect.left) / rect.width));
-      const mins = Math.round(ratio * 60);
-      selectDuration(mins, null);
+      const ratio = Math.max(0.02, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const mins = Math.max(1, Math.round(ratio * 60));
+      setTimerDuration(mins, null);
     }
 
-    function updateRulerPosition(ratio) {
-      const cursor = document.getElementById('ruler-cursor');
+    function updateScrubberPosition(ratio) {
+      const cursor = document.getElementById('scrubber-cursor');
       cursor.style.left = `${Math.min(98, Math.max(2, ratio * 100))}%`;
     }
 
     function toggleTimer() {
-      if (timerRunning) {
+      if (isRunning) {
         pauseTimer();
       } else {
         startTimer();
@@ -879,16 +763,17 @@
     }
 
     function startTimer() {
-      timerRunning = true;
-      document.getElementById('pomo-btn-label').textContent = 'pause';
-      document.getElementById('pomo-toggle-btn').classList.add('running');
+      isRunning = true;
+      const btn = document.getElementById('start-btn');
+      btn.textContent = 'pause';
+      btn.classList.add('running');
 
-      clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        if (remainingSeconds > 0) {
-          remainingSeconds--;
-          updateDisplay();
-          updateRulerPosition(remainingSeconds / totalSeconds);
+      clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        if (timerSeconds > 0) {
+          timerSeconds--;
+          updateClockDisplay();
+          updateScrubberPosition(timerSeconds / timerTotal);
         } else {
           finishTimer();
         }
@@ -896,148 +781,126 @@
     }
 
     function pauseTimer() {
-      timerRunning = false;
-      document.getElementById('pomo-btn-label').textContent = 'start';
-      document.getElementById('pomo-toggle-btn').classList.remove('running');
-      clearInterval(timerInterval);
-      syncMenuBarTimer("");
+      isRunning = false;
+      const btn = document.getElementById('start-btn');
+      btn.textContent = 'start';
+      btn.classList.remove('running');
+      clearInterval(intervalId);
+      syncNativeTimer("");
     }
 
-    function updateDisplay() {
-      const m = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
-      const s = String(remainingSeconds % 60).padStart(2, '0');
+    function updateClockDisplay() {
+      const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+      const s = String(timerSeconds % 60).padStart(2, '0');
       const timeStr = `${m}:${s}`;
-      document.getElementById('pomo-display').textContent = timeStr;
-      if (timerRunning) {
-        syncMenuBarTimer(timeStr);
-      }
+      document.getElementById('timer-clock').textContent = timeStr;
+      if (isRunning) syncNativeTimer(timeStr);
     }
 
     function finishTimer() {
       pauseTimer();
-      remainingSeconds = selectedMinutes * 60;
-      updateDisplay();
-      updateRulerPosition(1);
+      timerSeconds = selectedMins * 60;
+      updateClockDisplay();
+      updateScrubberPosition(1);
 
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
         window.webkit.messageHandlers.tickr.postMessage({
           action: "notify",
           title: "🎉 Focus Session Finished!",
-          message: `${selectedMinutes} minutes of focused work completed. Time for a break!`
+          message: `${selectedMins} minutes of focus completed.`
         });
       }
     }
 
-    function syncMenuBarTimer(text) {
+    function syncNativeTimer(timeStr) {
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
         window.webkit.messageHandlers.tickr.postMessage({
           action: "timer_update",
-          text: text
+          text: timeStr
         });
       }
     }
 
     /* ========================================================= */
-    /* 2. SLASHNOTE SCRATCHPAD                                   */
+    /* 2. SLASHNOTE ENGINE                                       */
     /* ========================================================= */
-    let noteSaveTimeout = null;
+    let noteTimer = null;
 
-    function handleNoteInput() {
-      clearTimeout(noteSaveTimeout);
-      noteSaveTimeout = setTimeout(() => {
-        const text = document.getElementById('scratchpad-area').value;
+    function handleNoteSave() {
+      clearTimeout(noteTimer);
+      noteTimer = setTimeout(() => {
+        const text = document.getElementById('note-editor').value;
         if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
           window.webkit.messageHandlers.tickr.postMessage({
             action: "save_note",
             text: text
           });
         }
-      }, 400);
+      }, 350);
     }
 
-    function insertNoteText(snippet) {
-      const area = document.getElementById('scratchpad-area');
+    function insertNoteFormat(snippet) {
+      const area = document.getElementById('note-editor');
       const start = area.selectionStart;
       const end = area.selectionEnd;
       area.value = area.value.substring(0, start) + snippet + area.value.substring(end);
       area.selectionStart = area.selectionEnd = start + snippet.length;
       area.focus();
-      handleNoteInput();
+      handleNoteSave();
     }
 
     function clearNote() {
-      document.getElementById('scratchpad-area').value = '';
-      handleNoteInput();
+      document.getElementById('note-editor').value = '';
+      handleNoteSave();
+    }
+
+    function newNote() {
+      document.getElementById('note-editor').value = '';
+      document.getElementById('note-editor').focus();
+    }
+
+    function togglePin() {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage({ action: "toggle_pin" });
+      }
     }
 
     /* ========================================================= */
     /* 3. TO-DO & DIARY ENGINE                                   */
     /* ========================================================= */
     function renderTasks() {
-      const list = document.getElementById('tasks-list');
-      const pendingCount = tasks.filter(t => !t.done).length;
-      const doneCount = tasks.filter(t => t.done).length;
-      document.getElementById('todo-summary').textContent = `${pendingCount} pending // ${doneCount} done`;
+      const scroll = document.getElementById('todo-tasks-scroll');
+      const pending = tasks.filter(t => !t.done).length;
+      document.getElementById('task-status-counter').textContent = `${pending} pending`;
 
-      const filtered = tasks.filter(t => {
-        if (currentCategoryFilter && t.category.toUpperCase() !== currentCategoryFilter.toUpperCase()) return false;
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        list.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-title">All tasks cleared</div>
-            <div class="empty-desc">// zero active issues</div>
-          </div>
-        `;
+      if (tasks.length === 0) {
+        scroll.innerHTML = `<div style="text-align:center; padding: 25px 0; font-size:12px; color:var(--text-dim);">No active tasks</div>`;
         return;
       }
 
-      list.innerHTML = filtered.map(t => `
-        <div class="task-row ${t.done ? 'completed' : ''}" onclick="toggleTask(${t.id})">
-          <div class="checkbox">
+      scroll.innerHTML = tasks.map(t => `
+        <div class="task-entry ${t.done ? 'done' : ''}" onclick="toggleTask(${t.id})">
+          <div class="checkbox-box">
             <svg viewBox="0 0 24 24" fill="none">
-              <path d="M5 13l4 4L19 7" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 13l4 4L19 7" stroke="#FFF" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <div class="task-title">${t.title}</div>
-          <span class="task-tag-badge">${t.category || 'TASK'}</span>
-          <button class="del-btn" onclick="deleteTask(${t.id}, event)">✕</button>
+          <div class="task-text">${t.title}</div>
+          <span class="task-pill-badge">${t.category || 'TASK'}</span>
         </div>
       `).join('');
     }
 
-    function renderTagSelectors() {
-      const filterBar = document.getElementById('tag-filter-bar');
-      const select = document.getElementById('cat-selector');
-
-      filterBar.innerHTML = `
-        <div class="tag-pill ${currentCategoryFilter === null ? 'active' : ''}" onclick="setCategoryFilter(null, this)">ALL</div>
-        ${tags.map(t => `
-          <div class="tag-pill ${currentCategoryFilter === t ? 'active' : ''}" onclick="setCategoryFilter('${t}', this)">${t}</div>
-        `).join('')}
-      `;
-
-      select.innerHTML = tags.map(t => `<option value="${t}">${t}</option>`).join('');
-    }
-
-    function setCategoryFilter(tag, el) {
-      currentCategoryFilter = tag;
-      renderTagSelectors();
-      renderTasks();
-    }
-
-    function handleTaskInputKey(e) {
+    function handleTaskAddKey(e) {
       if (e.key === 'Enter') {
-        const input = document.getElementById('task-input-field');
-        const val = input.value.trim();
-        if (!val) return;
-        const category = document.getElementById('cat-selector').value;
+        const input = document.getElementById('todo-input');
+        const text = input.value.trim();
+        if (!text) return;
+        const cat = document.getElementById('todo-cat-select').value;
         tasks.unshift({
           id: Date.now(),
-          title: val,
-          category: category,
+          title: text,
+          category: cat,
           done: false,
           created: new Date().toISOString()
         });
@@ -1048,19 +911,12 @@
     }
 
     function toggleTask(id) {
-      const task = tasks.find(t => t.id === id);
-      if (task) {
-        task.done = !task.done;
+      const t = tasks.find(x => x.id === id);
+      if (t) {
+        t.done = !t.done;
         saveTasksNative();
         renderTasks();
       }
-    }
-
-    function deleteTask(id, e) {
-      e.stopPropagation();
-      tasks = tasks.filter(t => t.id !== id);
-      saveTasksNative();
-      renderTasks();
     }
 
     function saveTasksNative() {
@@ -1073,9 +929,9 @@
       }
     }
 
-    function deployToDiaryLive() {
-      const btn = document.getElementById('live-deploy-btn');
-      btn.innerHTML = '<span>⏳ Pushing...</span>';
+    function syncLiveDiary() {
+      const btn = document.getElementById('sync-live-btn');
+      btn.textContent = 'Pushing...';
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
         window.webkit.messageHandlers.tickr.postMessage({
           action: "publish",
@@ -1086,75 +942,16 @@
     }
 
     window.onPublishSuccess = function() {
-      const btn = document.getElementById('live-deploy-btn');
-      btn.innerHTML = '<span>✓ Live! 🚀</span>';
-      setTimeout(() => {
-        btn.innerHTML = '<span>🚀 Push to Live</span>';
-      }, 2500);
+      const btn = document.getElementById('sync-live-btn');
+      btn.textContent = '✓ Live! 🚀';
+      setTimeout(() => { btn.textContent = '🚀 Push to Live'; }, 2500);
     };
 
-    /* ========================================================= */
-    /* 4. SETTINGS & APP INITIALIZATION                          */
-    /* ========================================================= */
-    function switchTab(tabId, el) {
-      currentTab = tabId;
-      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      document.getElementById(`tab-${tabId}`).classList.add('active');
-    }
-
-    function openSettingsModal() {
-      document.getElementById('settings-sheet').classList.add('open');
-      renderTagManager();
-    }
-
-    function closeSettingsModal() {
-      document.getElementById('settings-sheet').classList.remove('open');
-      renderTagSelectors();
-      renderTasks();
-    }
-
-    function renderTagManager() {
-      const container = document.getElementById('tag-manage-list');
-      container.innerHTML = tags.map((t, idx) => `
-        <div class="tag-manage-row">
-          <span>[${t}]</span>
-          ${tags.length > 1 ? `<button class="del-btn" style="opacity:1" onclick="removeTag(${idx})">✕</button>` : ''}
-        </div>
-      `).join('');
-    }
-
-    function handleNewTagKey(e) {
-      if (e.key === 'Enter') addNewCustomTag();
-    }
-
-    function addNewCustomTag() {
-      const input = document.getElementById('new-tag-field');
-      const val = input.value.trim().toUpperCase();
-      if (val && !tags.includes(val)) {
-        tags.push(val);
-        input.value = '';
-        renderTagManager();
-        renderTagSelectors();
-        saveTasksNative();
-      }
-    }
-
-    function removeTag(idx) {
-      if (tags.length > 1) {
-        tags.splice(idx, 1);
-        renderTagManager();
-        renderTagSelectors();
-        saveTasksNative();
-      }
-    }
-
-    function handleAutostartChange(checked) {
+    function toggleAutostart(enabled) {
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
         window.webkit.messageHandlers.tickr.postMessage({
           action: "set_autostart",
-          enabled: checked
+          enabled: enabled
         });
       }
     }
@@ -1166,15 +963,19 @@
         document.getElementById('autostart-chk').checked = isAutostart;
       }
       if (typeof noteContent === 'string') {
-        document.getElementById('scratchpad-area').value = noteContent;
+        document.getElementById('note-editor').value = noteContent;
       }
-      buildRulerTicks();
-      renderTagSelectors();
+
+      // Check saved theme
+      const savedTheme = localStorage.getItem('tickr_theme') || 'dark';
+      setNightMode(savedTheme === 'dark');
+
+      buildFineTicks();
       renderTasks();
-      updateDisplay();
+      updateClockDisplay();
     }
 
-    buildRulerTicks();
+    buildFineTicks();
   </script>
 </body>
 </html>

@@ -272,7 +272,7 @@ class AppDelegate(Cocoa.NSObject):
         config = WebKit.WKWebViewConfiguration.alloc().init()
         config.setUserContentController_(contentController)
 
-        frame = Cocoa.NSMakeRect(0, 0, 360, 420)
+        frame = Cocoa.NSMakeRect(0, 0, 320, 210)
         self.webView = WebKit.WKWebView.alloc().initWithFrame_configuration_(frame, config)
         self.webView.setValue_forKey_(False, "drawsBackground")
 
@@ -292,7 +292,7 @@ class AppDelegate(Cocoa.NSObject):
         self.webView.evaluateJavaScript_completionHandler_(js_code, None)
 
         self.popover = Cocoa.NSPopover.alloc().init()
-        self.popover.setContentSize_(Cocoa.NSMakeSize(360, 420))
+        self.popover.setContentSize_(Cocoa.NSMakeSize(320, 210))
         self.popover.setBehavior_(Cocoa.NSPopoverBehaviorTransient)
         self.popover.setAnimates_(True)
 
