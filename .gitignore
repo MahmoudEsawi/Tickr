@@ -1,11 +1,10 @@
 .DS_Store
-/.build
-/Packages
-xcuserdata/
-DerivedData/
-.swiftpm/configuration/registries.json
-.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+*.pyc
+__pycache__/
 dist/
+Tickr.app/
 *.dmg
 *.zip
+.build/
+.swiftpm/
 .netrc

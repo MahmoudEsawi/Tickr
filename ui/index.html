@@ -974,6 +974,13 @@
     let isPinned = false;
     let isMuted = false;
 
+    /* Safe IPC messaging wrapper */
+    function postNativeMessage(payload) {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage(payload);
+      }
+    }
+
     /* ========================================================= */
     /* 1. SYNTHESIZED SOUND ENGINE                               */
     /* ========================================================= */
@@ -994,7 +1001,7 @@
         stopAmbientNoise();
         document.getElementById('ambient-sound-btn').classList.remove('active');
       }
-      showToast(isMuted ? '🔇 Audio Muted' : '🔊 Audio Enabled');
+      showToast(isMuted ? 'Audio Muted' : 'Audio Enabled');
     }
 
     function playCrownTick() {
@@ -1105,15 +1112,11 @@
     }
 
     function openCreatorURL(url) {
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({ action: "open_url", url: url });
-      }
+      postNativeMessage({ action: "open_url", url: url });
     }
 
     function toggleAutostart(enabled) {
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({ action: "set_autostart", enabled: enabled });
-      }
+      postNativeMessage({ action: "set_autostart", enabled: enabled });
     }
 
     function checkForUpdates() {
@@ -1261,31 +1264,25 @@
       stopAmbientNoise();
       document.getElementById('ambient-sound-btn').classList.remove('active');
 
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "notify",
-          title: "🎉 Focus Complete!",
-          message: `${selectedMins} minutes done. Take a quick break!`
-        });
-      }
+      postNativeMessage({
+        action: "notify",
+        title: "Focus Complete",
+        message: `${selectedMins} minutes done. Take a quick break!`
+      });
     }
 
     function syncNativeTimer(timeStr) {
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "timer_update",
-          text: timeStr
-        });
-      }
+      postNativeMessage({
+        action: "timer_update",
+        text: timeStr
+      });
     }
 
     /* ========================================================= */
     /* 4. PIN & NOTES HISTORY                                    */
     /* ========================================================= */
     function toggleFloatingPill() {
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({ action: "toggle_pin" });
-      }
+      postNativeMessage({ action: "toggle_pin" });
     }
 
     window.onPinStateChanged = function(pinned) {
@@ -1293,7 +1290,7 @@
       const btn = document.getElementById('pin-hud-btn');
       if (pinned) {
         btn.classList.add('pinned');
-        showToast('📌 Pinned on Top');
+        showToast('Pinned on Top');
       } else {
         btn.classList.remove('pinned');
         showToast('Unpinned');
@@ -1328,12 +1325,10 @@
       }
       notesHistory.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "save_notes_history",
-          notes: JSON.stringify(notesHistory)
-        });
-      }
+      postNativeMessage({
+        action: "save_notes_history",
+        notes: JSON.stringify(notesHistory)
+      });
     }
 
     function createNewNote() {
@@ -1350,12 +1345,10 @@
       if (notesHistory.length > 0) loadNoteIntoEditor(notesHistory[0]);
       else createNewNote();
 
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "save_notes_history",
-          notes: JSON.stringify(notesHistory)
-        });
-      }
+      postNativeMessage({
+        action: "save_notes_history",
+        notes: JSON.stringify(notesHistory)
+      });
       showToast('Note Deleted');
       playTaskSnap();
     }
@@ -1419,12 +1412,10 @@
         else createNewNote();
       }
       renderHistoryList();
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "save_notes_history",
-          notes: JSON.stringify(notesHistory)
-        });
-      }
+      postNativeMessage({
+        action: "save_notes_history",
+        notes: JSON.stringify(notesHistory)
+      });
     }
 
     function insertNoteSnippet(snippet) {
@@ -1446,7 +1437,7 @@
       const completedToday = tasks.filter(t => t.done);
       const pendingTasks = tasks.filter(t => !t.done);
 
-      let report = `### 🚀 Daily Standup (${today})\n\n**Completed:**\n`;
+      let report = `### Daily Standup (${today})\n\n**Completed:**\n`;
       if (completedToday.length > 0) report += completedToday.map(t => `- [x] ${t.title}`).join('\n');
       else report += `- (No tasks completed yet)`;
 
@@ -1455,7 +1446,7 @@
       else report += `- (All tasks cleared!)`;
 
       navigator.clipboard.writeText(report).then(() => {
-        showToast('📋 Standup Copied!');
+        showToast('Standup Copied');
         playTaskSnap();
       });
     }
@@ -1519,33 +1510,29 @@
     }
 
     function saveTasksNative() {
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "save",
-          data: JSON.stringify(tasks),
-          tags: JSON.stringify(tags)
-        });
-      }
+      postNativeMessage({
+        action: "save",
+        data: JSON.stringify(tasks),
+        tags: JSON.stringify(tags)
+      });
     }
 
     function triggerPushToLive() {
       const btn = document.getElementById('push-live-btn');
-      btn.innerHTML = '<span>⏳ Pushing...</span>';
-      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
-        window.webkit.messageHandlers.tickr.postMessage({
-          action: "publish",
-          data: JSON.stringify(tasks),
-          tags: JSON.stringify(tags)
-        });
-      }
+      btn.innerHTML = '<span>Pushing...</span>';
+      postNativeMessage({
+        action: "publish",
+        data: JSON.stringify(tasks),
+        tags: JSON.stringify(tags)
+      });
     }
 
     window.onPublishSuccess = function() {
       const btn = document.getElementById('push-live-btn');
-      btn.innerHTML = '<span>✓ Live! 🚀</span>';
-      showToast('🚀 Deployed to Live Diary!');
+      btn.innerHTML = '<span>Live</span>';
+      showToast('Deployed to Live Diary');
       playTaskSnap();
-      setTimeout(() => { btn.innerHTML = '<span>🚀 Push to Live</span>'; }, 2500);
+      setTimeout(() => { btn.innerHTML = '<span>Push to Live</span>'; }, 2500);
     };
 
     /* ========================================================= */

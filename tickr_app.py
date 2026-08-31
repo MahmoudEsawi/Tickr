@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+Tickr macOS Native Menu Bar Daemon
+PyObjC AppKit + WebKit hybrid runtime with IPC message routing.
+"""
 import sys
 import os
 import json
@@ -8,17 +12,19 @@ import Cocoa
 import WebKit
 import objc
 
+# System Paths
 DIARY_DIR = os.path.expanduser("~/Projects/esawi.dev")
 DIARY_PATH = os.path.join(DIARY_DIR, "src/data/diary.json")
 BACKUP_DIR = os.path.expanduser("~/Library/Application Support/Tickr")
 BACKUP_FILE = os.path.join(BACKUP_DIR, "tasks.json")
 TAGS_FILE = os.path.join(BACKUP_DIR, "tags.json")
 NOTES_HISTORY_FILE = os.path.join(BACKUP_DIR, "notes_history.json")
-STATS_FILE = os.path.join(BACKUP_DIR, "stats.json")
 LAUNCH_AGENT_PATH = os.path.expanduser("~/Library/LaunchAgents/com.mahmoudesawi.tickr.plist")
 ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 ICON_PATH = os.path.join(ASSETS_DIR, "menu_icon.png")
 UI_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "index.html")
+
+DEFAULT_TAGS = ["PROJECT", "CODE", "HACKATHON", "DAILY", "IDEAS"]
 
 def send_native_notification(title, message):
     try:
@@ -70,12 +76,11 @@ def load_tags():
                 return json.load(f)
         except Exception:
             pass
-    return ["PROJECT", "CODE", "HACKATHON", "DAILY", "IDEAS"]
+    return DEFAULT_TAGS
 
 def save_tags(tags):
     try:
-        if not os.path.exists(BACKUP_DIR):
-            os.makedirs(BACKUP_DIR, exist_ok=True)
+        os.makedirs(BACKUP_DIR, exist_ok=True)
         with open(TAGS_FILE, "w", encoding="utf-8") as f:
             json.dump(tags, f, indent=2, ensure_ascii=False)
     except Exception as e:
@@ -92,30 +97,11 @@ def load_notes_history():
 
 def save_notes_history(notes):
     try:
-        if not os.path.exists(BACKUP_DIR):
-            os.makedirs(BACKUP_DIR, exist_ok=True)
+        os.makedirs(BACKUP_DIR, exist_ok=True)
         with open(NOTES_HISTORY_FILE, "w", encoding="utf-8") as f:
             json.dump(notes, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print("Save notes error:", e)
-
-def load_stats():
-    if os.path.exists(STATS_FILE):
-        try:
-            with open(STATS_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            pass
-    return None
-
-def save_stats(stats):
-    try:
-        if not os.path.exists(BACKUP_DIR):
-            os.makedirs(BACKUP_DIR, exist_ok=True)
-        with open(STATS_FILE, "w", encoding="utf-8") as f:
-            json.dump(stats, f, indent=2, ensure_ascii=False)
-    except Exception as e:
-        print("Save stats error:", e)
 
 def load_tasks_from_disk():
     if os.path.exists(DIARY_PATH):
@@ -155,8 +141,7 @@ def load_tasks_from_disk():
 
 def save_tasks_to_disk(tasks):
     try:
-        if not os.path.exists(BACKUP_DIR):
-            os.makedirs(BACKUP_DIR, exist_ok=True)
+        os.makedirs(BACKUP_DIR, exist_ok=True)
         with open(BACKUP_FILE, "w", encoding="utf-8") as f:
             json.dump(tasks, f, indent=2, ensure_ascii=False)
     except Exception as e:
@@ -195,90 +180,82 @@ def save_tasks_to_disk(tasks):
             print("Error syncing diary.json:", e)
 
 class ScriptHandler(Cocoa.NSObject):
+    """Handles WebKit JS -> Python IPC actions via clean dispatcher."""
+
     def userContentController_didReceiveScriptMessage_(self, userContentController, message):
         body = message.body()
-        action = None
-        data = None
-        tags = None
-        notes = None
-        stats = None
+        payload = {}
 
         if isinstance(body, (dict, Cocoa.NSDictionary)):
-            action = body.get("action")
-            data = body.get("data")
-            tags = body.get("tags")
-            notes = body.get("notes")
-            stats = body.get("stats")
+            payload = dict(body)
         elif isinstance(body, str):
             try:
-                parsed = json.loads(body)
-                action = parsed.get("action")
-                data = parsed.get("data")
-                tags = parsed.get("tags")
-                notes = parsed.get("notes")
-                stats = parsed.get("stats")
+                payload = json.loads(body)
             except Exception:
                 pass
 
+        action = payload.get("action")
         app_delegate = Cocoa.NSApp().delegate()
 
+        # Handle custom tags update if present
+        tags = payload.get("tags")
         if tags:
             tags_list = json.loads(tags) if isinstance(tags, str) else list(tags)
             save_tags(tags_list)
 
-        if action == "save" and data is not None:
+        # Action Dispatcher Map
+        dispatch_table = {
+            "save": lambda: self._handle_save(payload.get("data"), app_delegate),
+            "save_notes_history": lambda: self._handle_save_notes(payload.get("notes")),
+            "timer_update": lambda: app_delegate.update_timer_display(payload.get("text", "")) if app_delegate else None,
+            "set_autostart": lambda: set_launch_at_login(payload.get("enabled", False)),
+            "notify": lambda: send_native_notification(payload.get("title", "Tickr"), payload.get("message", "")),
+            "open_url": lambda: self._handle_open_url(payload.get("url", "")),
+            "toggle_pin": lambda: app_delegate.toggle_pin() if app_delegate else None,
+            "publish": lambda: self._handle_publish(payload.get("data"), app_delegate),
+            "quit": lambda: Cocoa.NSApplication.sharedApplication().terminate_(None)
+        }
+
+        handler = dispatch_table.get(action)
+        if handler:
+            try:
+                handler()
+            except Exception as e:
+                print(f"Error handling action '{action}':", e)
+
+    def _handle_save(self, data, app_delegate):
+        if data is not None:
             tasks_list = json.loads(data) if isinstance(data, str) else list(data)
             save_tasks_to_disk(tasks_list)
             if app_delegate:
                 app_delegate.update_badge_count(tasks_list)
 
-        elif action == "save_notes_history" and notes is not None:
+    def _handle_save_notes(self, notes):
+        if notes is not None:
             notes_list = json.loads(notes) if isinstance(notes, str) else list(notes)
             save_notes_history(notes_list)
 
-        elif action == "timer_update":
-            time_text = body.get("text", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
-            if app_delegate:
-                app_delegate.update_timer_display(time_text)
+    def _handle_open_url(self, url_str):
+        if url_str:
+            Cocoa.NSWorkspace.sharedWorkspace().openURL_(Cocoa.NSURL.URLWithString_(url_str))
 
-        elif action == "set_autostart":
-            enable = body.get("enabled", False) if isinstance(body, (dict, Cocoa.NSDictionary)) else False
-            set_launch_at_login(enable)
+    def _handle_publish(self, data, app_delegate):
+        if data is not None:
+            tasks_list = json.loads(data) if isinstance(data, str) else list(data)
+            save_tasks_to_disk(tasks_list)
 
-        elif action == "notify":
-            title = body.get("title", "Tickr") if isinstance(body, (dict, Cocoa.NSDictionary)) else "Tickr"
-            msg = body.get("message", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
-            send_native_notification(title, msg)
-
-        elif action == "open_url":
-            url_str = body.get("url", "") if isinstance(body, (dict, Cocoa.NSDictionary)) else ""
-            if url_str:
-                url_obj = Cocoa.NSURL.URLWithString_(url_str)
-                Cocoa.NSWorkspace.sharedWorkspace().openURL_(url_obj)
-
-        elif action == "toggle_pin":
-            if app_delegate:
-                app_delegate.toggle_pin()
-
-        elif action == "publish":
-            if data is not None:
-                tasks_list = json.loads(data) if isinstance(data, str) else list(data)
-                save_tasks_to_disk(tasks_list)
-            
+        if os.path.exists(DIARY_DIR):
             try:
-                cmd = f"cd {DIARY_DIR} && git add src/data/diary.json && git commit -m 'chore(diary): sync completed tasks from Tickr ⚡' && git push origin main"
-                proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                stdout, stderr = proc.communicate()
+                subprocess.run(["git", "add", "src/data/diary.json"], cwd=DIARY_DIR, check=True)
+                subprocess.run(["git", "commit", "-m", "chore(diary): sync completed tasks from Tickr ⚡"], cwd=DIARY_DIR, check=False)
+                subprocess.run(["git", "push", "origin", "main"], cwd=DIARY_DIR, check=True)
                 
-                send_native_notification("🚀 Live Deployed", "Your completed tasks are now live on esawi.dev/diary")
+                send_native_notification("Live Deployed", "Your completed tasks are now live on esawi.dev/diary")
                 
                 if app_delegate and app_delegate.webView:
                     app_delegate.webView.evaluateJavaScript_completionHandler_("if(window.onPublishSuccess) onPublishSuccess();", None)
             except Exception as e:
                 print("Publish error:", e)
-
-        elif action == "quit":
-            Cocoa.NSApplication.sharedApplication().terminate_(None)
 
 class AppDelegate(Cocoa.NSObject):
     def applicationDidFinishLaunching_(self, notification):
