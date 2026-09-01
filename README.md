@@ -2,7 +2,13 @@
 
 A minimalist macOS menu bar productivity tool combining a precision focus timer, markdown scratchpad, and task engine.
 
-[Release](https://github.com/MahmoudEsawi/Tickr/releases/latest) · [Documentation](DOCUMENTATION.md) · [Website](https://esawi.dev)
+[Release](https://github.com/MahmoudEsawi/Tickr/releases/latest) · [Peerlist Launchpad](https://peerlist.io) · [Documentation](DOCUMENTATION.md) · [Website](https://esawi.dev)
+
+---
+
+<div align="center">
+  <img src="assets/peerlist_launch.png" width="680" alt="Tickr Live on Peerlist Launchpad">
+</div>
 
 ---
 
