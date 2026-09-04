@@ -64,9 +64,17 @@ if self.is_pinned:
         )
 ```
 
-### 3. Global Hotkey Event Tap
+### 3. Global Hotkey Event Tap & Native Edit Menu
 Tickr registers both global and local key monitors using `NSEvent.addGlobalMonitorForEventsMatchingMask_handler_`:
 * <kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>T</kbd> / <kbd>⌥</kbd> + <kbd>Space</kbd>: Instant HUD summon.
+* **Native Edit Responder Menu**: Integrates standard Cocoa `NSMenu` with `selectAll:`, `copy:`, `paste:`, `cut:`, `undo:`, `redo:` so all standard macOS keyboard shortcuts work seamlessly across all inputs and scratchpad editors.
+* **Productivity Shortcuts**:
+  * <kbd>⌘</kbd> + <kbd>A</kbd>: Select All
+  * <kbd>⌘</kbd> + <kbd>B</kbd> / <kbd>⌘</kbd> + <kbd>I</kbd> / <kbd>⌘</kbd> + <kbd>K</kbd>: Bold / Italic / Code inline markdown
+  * <kbd>⌘</kbd> + <kbd>E</kbd>: 1-Click Export to Apple Notes
+  * <kbd>⌘</kbd> + <kbd>N</kbd>: New note / add task
+  * <kbd>⌘</kbd> + <kbd>1</kbd>–<kbd>4</kbd>: Quick tab switching (Timer, Note, Tasks, Settings)
+  * <kbd>Tab</kbd>: Clean 2-space indentation in scratchpad
 
 ---
 
@@ -94,6 +102,12 @@ Tickr includes a standalone command-line interface located at [`cli.py`](file://
 
 # List pending & completed tasks
 ./cli.py list
+
+# List past scratchpad notes
+./cli.py notes
+
+# Export note to Apple Notes app
+./cli.py export-note
 
 # Generate markdown daily standup summary
 ./cli.py standup

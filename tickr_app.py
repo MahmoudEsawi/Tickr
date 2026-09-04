@@ -8,6 +8,8 @@ import os
 import json
 import datetime
 import subprocess
+import html
+import re
 import Cocoa
 import WebKit
 import objc
@@ -23,6 +25,7 @@ LAUNCH_AGENT_PATH = os.path.expanduser("~/Library/LaunchAgents/com.mahmoudesawi.
 ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 ICON_PATH = os.path.join(ASSETS_DIR, "menu_icon.png")
 UI_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "index.html")
+STICKY_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "sticky.html")
 
 DEFAULT_TAGS = ["PROJECT", "CODE", "HACKATHON", "DAILY", "IDEAS"]
 
@@ -102,6 +105,102 @@ def save_notes_history(notes):
             json.dump(notes, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print("Save notes error:", e)
+
+def markdown_to_notes_html(text):
+    if not text:
+        return "<div></div>"
+    lines = text.splitlines()
+    html_lines = []
+    in_list = False
+    
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            if in_list:
+                html_lines.append("</ul>")
+                in_list = False
+            html_lines.append("<br>")
+            continue
+            
+        # Checklists
+        if stripped.startswith("- [ ] ") or stripped.startswith("* [ ] "):
+            if in_list:
+                html_lines.append("</ul>")
+                in_list = False
+            item_text = html.escape(stripped[6:])
+            html_lines.append(f"<div>☐ {item_text}</div>")
+            continue
+        elif stripped.startswith("- [x] ") or stripped.startswith("* [x] ") or stripped.startswith("- [X] ") or stripped.startswith("* [X] "):
+            if in_list:
+                html_lines.append("</ul>")
+                in_list = False
+            item_text = html.escape(stripped[6:])
+            html_lines.append(f"<div>☑ <strike>{item_text}</strike></div>")
+            continue
+            
+        # Bullet list
+        if stripped.startswith("- ") or stripped.startswith("* ") or stripped.startswith("• "):
+            if not in_list:
+                html_lines.append("<ul>")
+                in_list = True
+            item_text = html.escape(stripped[2:].strip())
+            item_text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", item_text)
+            item_text = re.sub(r"`(.+?)`", r"<code>\1</code>", item_text)
+            html_lines.append(f"<li>{item_text}</li>")
+            continue
+            
+        if in_list:
+            html_lines.append("</ul>")
+            in_list = False
+            
+        # Headings
+        if stripped.startswith("### "):
+            h_text = html.escape(stripped[4:])
+            html_lines.append(f"<h3>{h_text}</h3>")
+        elif stripped.startswith("## "):
+            h_text = html.escape(stripped[3:])
+            html_lines.append(f"<h2>{h_text}</h2>")
+        elif stripped.startswith("# "):
+            h_text = html.escape(stripped[2:])
+            html_lines.append(f"<h1>{h_text}</h1>")
+        else:
+            line_html = html.escape(line)
+            line_html = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", line_html)
+            line_html = re.sub(r"`(.+?)`", r"<code>\1</code>", line_html)
+            html_lines.append(f"<div>{line_html}</div>")
+            
+    if in_list:
+        html_lines.append("</ul>")
+        
+    return "".join(html_lines)
+
+def export_note_to_apple_notes(content, title=None):
+    try:
+        if not content and not title:
+            return False
+        
+        body_html = markdown_to_notes_html(content)
+        as_body = body_html.replace("\\", "\\\\").replace('"', '\\"')
+        
+        script = f'''
+tell application "Notes"
+    activate
+    tell default account
+        set newNote to make new note with properties {{body:"{as_body}"}}
+        show newNote
+    end tell
+end tell
+'''
+        res = subprocess.run(["osascript", "-"], input=script, text=True, capture_output=True)
+        if res.returncode == 0:
+            send_native_notification("Exported to Notes", "Your note was successfully exported to Apple Notes.")
+            return True
+        else:
+            print("Apple Notes export error:", res.stderr)
+            return False
+    except Exception as e:
+        print("Apple Notes export exception:", e)
+        return False
 
 def load_tasks_from_disk():
     if os.path.exists(DIARY_PATH):
@@ -207,11 +306,17 @@ class ScriptHandler(Cocoa.NSObject):
         dispatch_table = {
             "save": lambda: self._handle_save(payload.get("data"), app_delegate),
             "save_notes_history": lambda: self._handle_save_notes(payload.get("notes")),
+            "export_apple_notes": lambda: self._handle_export_notes(payload.get("content", ""), payload.get("title", ""), app_delegate),
+            "pin_current_note": lambda: app_delegate.open_sticky_note(payload.get("noteId"), payload.get("content", ""), payload.get("title", ""), payload.get("theme", "system")) if app_delegate else None,
+            "close_sticky_note": lambda: app_delegate.close_sticky_note() if app_delegate else None,
+            "update_sticky_content": lambda: self._handle_update_sticky(payload, app_delegate),
+            "start_sticky_drag": lambda: self._handle_start_sticky_drag(app_delegate),
+            "move_sticky_window": lambda: self._handle_move_sticky(payload.get("dx", 0), payload.get("dy", 0), app_delegate),
             "timer_update": lambda: app_delegate.update_timer_display(payload.get("text", "")) if app_delegate else None,
             "set_autostart": lambda: set_launch_at_login(payload.get("enabled", False)),
             "notify": lambda: send_native_notification(payload.get("title", "Tickr"), payload.get("message", "")),
             "open_url": lambda: self._handle_open_url(payload.get("url", "")),
-            "toggle_pin": lambda: app_delegate.toggle_pin() if app_delegate else None,
+            "toggle_pin": lambda: app_delegate.toggle_pin_current_note() if app_delegate else None,
             "publish": lambda: self._handle_publish(payload.get("data"), app_delegate),
             "quit": lambda: Cocoa.NSApplication.sharedApplication().terminate_(None)
         }
@@ -234,6 +339,52 @@ class ScriptHandler(Cocoa.NSObject):
         if notes is not None:
             notes_list = json.loads(notes) if isinstance(notes, str) else list(notes)
             save_notes_history(notes_list)
+
+    def _handle_update_sticky(self, payload, app_delegate):
+        note_id = str(payload.get("noteId", ""))
+        content = payload.get("content", "")
+        title = payload.get("title", "Untitled Note")
+
+        notes = load_notes_history()
+        now = datetime.datetime.now().isoformat()
+        note = next((n for n in notes if str(n.get("id")) == note_id), None)
+        if note:
+            note["content"] = content
+            note["title"] = title
+            note["updatedAt"] = now
+        else:
+            notes.insert(0, {"id": note_id, "title": title, "content": content, "updatedAt": now})
+        save_notes_history(notes)
+
+        # Notify main HUD
+        if app_delegate and app_delegate.webView:
+            js = f"if(window.onExternalNoteUpdated) onExternalNoteUpdated({json.dumps(note_id)}, {json.dumps(title)}, {json.dumps(content)});"
+            app_delegate.webView.evaluateJavaScript_completionHandler_(js, None)
+
+    def _handle_start_sticky_drag(self, app_delegate):
+        if app_delegate and app_delegate.sticky_panel:
+            event = Cocoa.NSApp().currentEvent()
+            if event:
+                try:
+                    app_delegate.sticky_panel.performWindowDragWithEvent_(event)
+                except Exception:
+                    pass
+
+    def _handle_move_sticky(self, dx, dy, app_delegate):
+        if app_delegate and app_delegate.sticky_panel:
+            try:
+                frame = app_delegate.sticky_panel.frame()
+                new_x = frame.origin.x + float(dx)
+                new_y = frame.origin.y - float(dy)
+                app_delegate.sticky_panel.setFrameOrigin_(Cocoa.NSMakePoint(new_x, new_y))
+            except Exception as e:
+                pass
+
+    def _handle_export_notes(self, content, title, app_delegate):
+        success = export_note_to_apple_notes(content, title)
+        if app_delegate and app_delegate.webView:
+            js = f"if(window.onExportNotesResult) onExportNotesResult({json.dumps(success)});"
+            app_delegate.webView.evaluateJavaScript_completionHandler_(js, None)
 
     def _handle_open_url(self, url_str):
         if url_str:
@@ -262,6 +413,12 @@ class AppDelegate(Cocoa.NSObject):
         Cocoa.NSApp().setActivationPolicy_(Cocoa.NSApplicationActivationPolicyAccessory)
         self.active_timer_text = ""
         self.is_pinned = False
+        self.pinned_note_id = None
+        self.sticky_panel = None
+        self.sticky_webView = None
+        self.sticky_positioned = False
+
+        self.setup_main_menu()
 
         # Status Bar Item in Menu Bar
         self.statusItem = Cocoa.NSStatusBar.systemStatusBar().statusItemWithLength_(Cocoa.NSVariableStatusItemLength)
@@ -277,7 +434,7 @@ class AppDelegate(Cocoa.NSObject):
         button.setTarget_(self)
         button.setAction_(objc.selector(self.togglePopover_, signature=b"v@:@"))
 
-        # WKWebView Configuration
+        # WKWebView Configuration for Main HUD
         contentController = WebKit.WKUserContentController.alloc().init()
         self.handler = ScriptHandler.alloc().init()
         contentController.addScriptMessageHandler_name_(self.handler, "tickr")
@@ -309,32 +466,116 @@ class AppDelegate(Cocoa.NSObject):
         self.popover.setBehavior_(Cocoa.NSPopoverBehaviorTransient)
         self.popover.setAnimates_(True)
 
-        viewController = Cocoa.NSViewController.alloc().init()
-        viewController.setView_(self.webView)
-        self.popover.setContentViewController_(viewController)
+        self.popoverViewController = Cocoa.NSViewController.alloc().init()
+        self.popoverViewController.setView_(self.webView)
+        self.popover.setContentViewController_(self.popoverViewController)
 
         self.setup_global_hotkeys()
 
-    def toggle_pin(self):
-        self.is_pinned = not self.is_pinned
-        win = self.webView.window()
+    def setup_main_menu(self):
+        main_menu = Cocoa.NSMenu.alloc().init()
 
-        if self.is_pinned:
-            self.popover.setBehavior_(Cocoa.NSPopoverBehaviorApplicationDefined)
-            if win:
-                win.setLevel_(Cocoa.NSFloatingWindowLevel)
-                win.setHidesOnDeactivate_(False)
-                win.setCollectionBehavior_(Cocoa.NSWindowCollectionBehaviorCanJoinAllSpaces | Cocoa.NSWindowCollectionBehaviorFullScreenAuxiliary)
-            send_native_notification("📌 HUD Pinned", "Tickr is pinned and will stay floating on top.")
-        else:
-            self.popover.setBehavior_(Cocoa.NSPopoverBehaviorTransient)
-            if win:
-                win.setLevel_(Cocoa.NSNormalWindowLevel)
-                win.setHidesOnDeactivate_(True)
-            send_native_notification("HUD Unpinned", "Tickr returned to standard auto-dismiss.")
+        # App Submenu
+        app_menu_item = Cocoa.NSMenuItem.alloc().init()
+        main_menu.addItem_(app_menu_item)
+        app_menu = Cocoa.NSMenu.alloc().init()
+        app_menu.addItemWithTitle_action_keyEquivalent_("About Tickr", "orderFrontStandardAboutPanel:", "")
+        app_menu.addItem_(Cocoa.NSMenuItem.separatorItem())
+        app_menu.addItemWithTitle_action_keyEquivalent_("Hide Tickr", "hide:", "h")
+        app_menu.addItemWithTitle_action_keyEquivalent_("Hide Others", "hideOtherApplications:", "h")
+        app_menu.addItemWithTitle_action_keyEquivalent_("Show All", "unhideAllApplications:", "")
+        app_menu.addItem_(Cocoa.NSMenuItem.separatorItem())
+        app_menu.addItemWithTitle_action_keyEquivalent_("Quit Tickr", "terminate:", "q")
+        app_menu_item.setSubmenu_(app_menu)
+
+        # Standard Edit Submenu: Enables Cmd+A, Cmd+C, Cmd+V, Cmd+X, Cmd+Z, Cmd+Shift+Z
+        edit_menu_item = Cocoa.NSMenuItem.alloc().init()
+        main_menu.addItem_(edit_menu_item)
+        edit_menu = Cocoa.NSMenu.alloc().initWithTitle_("Edit")
+        edit_menu.addItemWithTitle_action_keyEquivalent_("Undo", "undo:", "z")
+        edit_menu.addItemWithTitle_action_keyEquivalent_("Redo", "redo:", "Z")
+        edit_menu.addItem_(Cocoa.NSMenuItem.separatorItem())
+        edit_menu.addItemWithTitle_action_keyEquivalent_("Cut", "cut:", "x")
+        edit_menu.addItemWithTitle_action_keyEquivalent_("Copy", "copy:", "c")
+        edit_menu.addItemWithTitle_action_keyEquivalent_("Paste", "paste:", "v")
+        edit_menu.addItemWithTitle_action_keyEquivalent_("Select All", "selectAll:", "a")
+        edit_menu_item.setSubmenu_(edit_menu)
+
+        Cocoa.NSApp().setMainMenu_(main_menu)
+
+    def setup_sticky_panel(self):
+        if self.sticky_panel is not None:
+            return
+
+        self.sticky_panel = Cocoa.NSPanel.alloc().initWithContentRect_styleMask_backing_defer_(
+            Cocoa.NSMakeRect(100, 100, 310, 330),
+            Cocoa.NSWindowStyleMaskBorderless | Cocoa.NSWindowStyleMaskNonactivatingPanel,
+            Cocoa.NSBackingStoreBuffered,
+            False
+        )
+        self.sticky_panel.setLevel_(Cocoa.NSFloatingWindowLevel)
+        self.sticky_panel.setMovableByWindowBackground_(True)
+        self.sticky_panel.setHasShadow_(True)
+        self.sticky_panel.setOpaque_(False)
+        self.sticky_panel.setBackgroundColor_(Cocoa.NSColor.clearColor())
+        self.sticky_panel.setHidesOnDeactivate_(False)
+        self.sticky_panel.setCollectionBehavior_(
+            Cocoa.NSWindowCollectionBehaviorCanJoinAllSpaces | 
+            Cocoa.NSWindowCollectionBehaviorFullScreenAuxiliary
+        )
+
+        contentController = WebKit.WKUserContentController.alloc().init()
+        contentController.addScriptMessageHandler_name_(self.handler, "tickr")
+
+        config = WebKit.WKWebViewConfiguration.alloc().init()
+        config.setUserContentController_(contentController)
+
+        frame = Cocoa.NSMakeRect(0, 0, 310, 330)
+        self.sticky_webView = WebKit.WKWebView.alloc().initWithFrame_configuration_(frame, config)
+        self.sticky_webView.setValue_forKey_(False, "drawsBackground")
+
+        sticky_url = Cocoa.NSURL.fileURLWithPath_(STICKY_HTML_PATH)
+        self.sticky_webView.loadFileURL_allowingReadAccessToURL_(sticky_url, sticky_url.URLByDeletingLastPathComponent())
+
+        self.sticky_panel.setContentView_(self.sticky_webView)
+
+    def open_sticky_note(self, note_id, content, title, theme="system"):
+        self.setup_sticky_panel()
+        self.pinned_note_id = str(note_id) if note_id else str(int(datetime.datetime.now().timestamp()*1000))
+
+        if not self.sticky_positioned:
+            screen_frame = Cocoa.NSScreen.mainScreen().visibleFrame()
+            x = screen_frame.origin.x + screen_frame.size.width - 340
+            y = screen_frame.origin.y + screen_frame.size.height - 380
+            self.sticky_panel.setFrame_display_(Cocoa.NSMakeRect(x, y, 310, 330), True)
+            self.sticky_positioned = True
+
+        self.sticky_panel.makeKeyAndOrderFront_(None)
+        Cocoa.NSApp().activateIgnoringOtherApps_(True)
+
+        js = f"setTimeout(function() {{ if(window.initStickyNote) initStickyNote({json.dumps(self.pinned_note_id)}, {json.dumps(title)}, {json.dumps(content)}, {json.dumps(theme)}); }}, 200);"
+        self.sticky_webView.evaluateJavaScript_completionHandler_(js, None)
 
         if self.webView:
-            self.webView.evaluateJavaScript_completionHandler_(f"if(window.onPinStateChanged) onPinStateChanged({json.dumps(self.is_pinned)});", None)
+            self.webView.evaluateJavaScript_completionHandler_(f"if(window.onNotePinChanged) onNotePinChanged({json.dumps(self.pinned_note_id)}, true);", None)
+
+        send_native_notification("📌 Note Pinned", "Sticky note floating on desktop. Main Tickr remains active in menu bar!")
+
+    def close_sticky_note(self):
+        if self.sticky_panel:
+            self.sticky_panel.orderOut_(None)
+        old_id = self.pinned_note_id
+        self.pinned_note_id = None
+        if self.webView and old_id:
+            self.webView.evaluateJavaScript_completionHandler_(f"if(window.onNotePinChanged) onNotePinChanged({json.dumps(old_id)}, false);", None)
+        send_native_notification("Note Unpinned", "Sticky note closed.")
+
+    def toggle_pin_current_note(self):
+        if self.pinned_note_id and self.sticky_panel and self.sticky_panel.isVisible():
+            self.close_sticky_note()
+        else:
+            if self.webView:
+                self.webView.evaluateJavaScript_completionHandler_("if(window.triggerPinCurrentNote) triggerPinCurrentNote();", None)
 
     def setup_global_hotkeys(self):
         def handle_global_event(event):
@@ -384,15 +625,9 @@ class AppDelegate(Cocoa.NSObject):
             tasks_json = json.dumps(tasks)
             tags_json = json.dumps(tags)
             notes_json = json.dumps(notes_history)
-            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {json.dumps(self.is_pinned)});", None)
+            pinned_id = json.dumps(self.pinned_note_id)
+            self.webView.evaluateJavaScript_completionHandler_(f"if(window.initAppState) initAppState({tasks_json}, {tags_json}, {json.dumps(autostart)}, {notes_json}, {pinned_id});", None)
             self.popover.showRelativeToRect_ofView_preferredEdge_(button.bounds(), button, Cocoa.NSMinYEdge)
-            
-            win = self.webView.window()
-            if win and self.is_pinned:
-                win.setLevel_(Cocoa.NSFloatingWindowLevel)
-                win.setHidesOnDeactivate_(False)
-                win.setCollectionBehavior_(Cocoa.NSWindowCollectionBehaviorCanJoinAllSpaces | Cocoa.NSWindowCollectionBehaviorFullScreenAuxiliary)
-            
             Cocoa.NSApp().activateIgnoringOtherApps_(True)
 
 def main():

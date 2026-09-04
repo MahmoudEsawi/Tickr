@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Tickr Sticky Note</title>
+  <style>
+    :root {
+      --bg-window: #ECECEF;
+      --bg-card: #FFFFFF;
+      --bg-capsule: rgba(0, 0, 0, 0.05);
+      --bg-capsule-hover: rgba(0, 0, 0, 0.09);
+      --border-color: rgba(0, 0, 0, 0.08);
+      --border-subtle: rgba(0, 0, 0, 0.04);
+      --text-main: #1D1D1F;
+      --text-muted: #86868B;
+      --text-dim: #AEAEB2;
+      --accent-green: #34C759;
+      --accent-blue: #007AFF;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif;
+      --font-mono: "SF Mono", Menlo, Monaco, monospace;
+    }
+
+    body.theme-dark {
+      --bg-window: #161618;
+      --bg-card: #202024;
+      --bg-capsule: rgba(255, 255, 255, 0.08);
+      --bg-capsule-hover: rgba(255, 255, 255, 0.14);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --text-main: #F5F5F7;
+      --text-muted: #98989D;
+      --text-dim: #636366;
+      --accent-green: #30D158;
+      --accent-blue: #0A84FF;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: var(--font-sans);
+    }
+
+    html {
+      background: transparent;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: var(--bg-card);
+      color: var(--text-main);
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--border-subtle);
+      position: relative;
+      padding: 10px 12px;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    /* Top Drag & Control Bar */
+    .sticky-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+      -webkit-app-region: drag;
+      cursor: grab;
+    }
+
+    .sticky-header:active {
+      cursor: grabbing;
+    }
+
+    .sticky-title-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-green);
+    }
+
+    .sticky-actions {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      -webkit-app-region: no-drag;
+    }
+
+    .tool-btn {
+      background: var(--bg-capsule);
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: 5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      transition: all 0.12s ease;
+    }
+
+    .tool-btn:hover {
+      color: var(--text-main);
+      background: var(--bg-capsule-hover);
+    }
+
+    .tool-btn svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .tool-btn.close-btn:hover {
+      color: #FF3B30;
+    }
+
+    .note-editor {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.62;
+      color: var(--text-main);
+      padding: 4px 2px;
+      caret-color: var(--accent-blue);
+      user-select: text !important;
+      -webkit-user-select: text !important;
+    }
+
+    .note-editor::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* Bottom Info & Action Strip */
+    .sticky-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 6px;
+      border-top: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-dim);
+      -webkit-app-region: drag;
+      cursor: grab;
+    }
+
+    .footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      -webkit-app-region: no-drag;
+    }
+
+    /* Toast Notification */
+    .toast-pill {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-30px);
+      background: var(--text-main);
+      color: var(--bg-window);
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 150;
+    }
+    .toast-pill.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  </style>
+</head>
+<body class="theme-dark">
+
+  <div class="toast-pill" id="toast-msg">Saved</div>
+
+  <!-- Draggable Header Bar -->
+  <div class="sticky-header" id="drag-header">
+    <div class="sticky-title-group">
+      <svg viewBox="0 0 24 24" style="width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2;"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-2l-2-3V5a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v7l-2 3v2z"/></svg>
+      <span>Sticky Note</span>
+    </div>
+
+    <div class="sticky-actions">
+      <button class="tool-btn" title="Bold" onclick="wrapText('**', '**')">AA</button>
+      <button class="tool-btn" title="Checkbox Item" onclick="insertSnippet('- [ ] ')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><polyline points="9 11 12 14 20 6"/></svg>
+      </button>
+      <button class="tool-btn" title="Bullet List" onclick="insertSnippet('• ')">
+        <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1.5"/><circle cx="3" cy="12" r="1.5"/><circle cx="3" cy="18" r="1.5"/></svg>
+      </button>
+      <button class="tool-btn" title="Export to Apple Notes" onclick="exportToNotes()">
+        <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      </button>
+      <button class="tool-btn close-btn" title="Unpin & Close Sticky Note" onclick="closeSticky()">✕</button>
+    </div>
+  </div>
+
+  <!-- Note Content -->
+  <textarea class="note-editor" id="note-editor" placeholder="Write your sticky note..." oninput="handleNoteChange()"></textarea>
+
+  <!-- Footer Info -->
+  <div class="sticky-footer">
+    <span id="save-status">Saved</span>
+    <div class="footer-actions">
+      <span>Drag anywhere · ⌘E to export</span>
+    </div>
+  </div>
+
+  <script>
+    let currentNoteId = null;
+    let noteSaveTimer = null;
+    let themeMode = 'system';
+    const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function postNativeMessage(data) {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.tickr) {
+        window.webkit.messageHandlers.tickr.postMessage(data);
+      }
+    }
+
+    function showToast(text) {
+      const el = document.getElementById('toast-msg');
+      el.textContent = text;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 1600);
+    }
+
+    function applyTheme() {
+      const isDark = (themeMode === 'dark') || (themeMode === 'system' && systemDarkQuery.matches);
+      if (isDark) {
+        document.body.classList.add('theme-dark');
+        document.body.classList.remove('theme-light');
+      } else {
+        document.body.classList.add('theme-light');
+        document.body.classList.remove('theme-dark');
+      }
+    }
+
+    function initStickyNote(id, title, content, theme) {
+      currentNoteId = id || String(Date.now());
+      document.getElementById('note-editor').value = content || '';
+      if (theme) {
+        themeMode = theme;
+        applyTheme();
+      }
+      document.getElementById('save-status').textContent = 'Loaded';
+    }
+
+    function handleNoteChange() {
+      document.getElementById('save-status').textContent = 'Saving...';
+      clearTimeout(noteSaveTimer);
+      noteSaveTimer = setTimeout(() => {
+        const text = document.getElementById('note-editor').value;
+        const firstLine = text.trim().split('\n')[0].replace(/^[#\-*\s]+/, '').trim();
+        const title = firstLine || 'Untitled Note';
+        
+        postNativeMessage({
+          action: "update_sticky_content",
+          noteId: currentNoteId,
+          content: text,
+          title: title
+        });
+        document.getElementById('save-status').textContent = 'Saved';
+      }, 350);
+    }
+
+    function wrapText(prefix, suffix) {
+      suffix = suffix || prefix;
+      const area = document.getElementById('note-editor');
+      const start = area.selectionStart;
+      const end = area.selectionEnd;
+      const val = area.value;
+      const selected = val.substring(start, end);
+
+      if (selected.length > 0) {
+        const replacement = prefix + selected + suffix;
+        area.value = val.substring(0, start) + replacement + val.substring(end);
+        area.selectionStart = start + prefix.length;
+        area.selectionEnd = end + prefix.length;
+      } else {
+        area.value = val.substring(0, start) + prefix + suffix + val.substring(end);
+        area.selectionStart = area.selectionEnd = start + prefix.length;
+      }
+      area.focus();
+      handleNoteChange();
+    }
+
+    function insertSnippet(snippet) {
+      const area = document.getElementById('note-editor');
+      const start = area.selectionStart;
+      const end = area.selectionEnd;
+      const selected = area.value.substring(start, end);
+
+      if (snippet === '- [ ] ' || snippet === '• ') {
+        if (selected.length > 0) {
+          const lines = selected.split('\n');
+          const transformed = lines.map(l => snippet + l).join('\n');
+          area.value = area.value.substring(0, start) + transformed + area.value.substring(end);
+          area.selectionStart = start;
+          area.selectionEnd = start + transformed.length;
+          area.focus();
+          handleNoteChange();
+          return;
+        }
+      }
+
+      area.value = area.value.substring(0, start) + snippet + area.value.substring(end);
+      area.selectionStart = area.selectionEnd = start + snippet.length;
+      area.focus();
+      handleNoteChange();
+    }
+
+    function exportToNotes() {
+      const text = document.getElementById('note-editor').value;
+      if (!text.trim()) {
+        showToast('Note is empty');
+        return;
+      }
+      const firstLine = text.trim().split('\n')[0].replace(/^[#\-*\s]+/, '').trim();
+      const title = firstLine || 'Untitled Note';
+
+      postNativeMessage({
+        action: "export_apple_notes",
+        content: text,
+        title: title
+      });
+      showToast('Exported to Notes 📝');
+    }
+
+    function closeSticky() {
+      postNativeMessage({ action: "close_sticky_note" });
+    }
+
+    // Window Drag Tracking
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    document.addEventListener('mousedown', (e) => {
+      if (e.target.closest('button, input, textarea, select, a, .tool-btn')) return;
+      isDragging = true;
+      startX = e.screenX;
+      startY = e.screenY;
+      postNativeMessage({ action: "start_sticky_drag" });
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.screenX - startX;
+      const dy = e.screenY - startY;
+      if (dx !== 0 || dy !== 0) {
+        startX = e.screenX;
+        startY = e.screenY;
+        postNativeMessage({ action: "move_sticky_window", dx: dx, dy: dy });
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      const isCmd = e.metaKey || e.ctrlKey;
+      const activeEl = document.activeElement;
+
+      if (e.key === 'Escape') {
+        closeSticky();
+        e.preventDefault();
+        return;
+      }
+
+      if (e.key === 'Tab' && activeEl && activeEl.id === 'note-editor') {
+        e.preventDefault();
+        const start = activeEl.selectionStart;
+        const end = activeEl.selectionEnd;
+        activeEl.value = activeEl.value.substring(0, start) + '  ' + activeEl.value.substring(end);
+        activeEl.selectionStart = activeEl.selectionEnd = start + 2;
+        handleNoteChange();
+        return;
+      }
+
+      if (isCmd) {
+        const key = e.key.toLowerCase();
+        if (key === 'b') {
+          e.preventDefault();
+          wrapText('**', '**');
+        } else if (key === 'i') {
+          e.preventDefault();
+          wrapText('*', '*');
+        } else if (key === 'k') {
+          e.preventDefault();
+          wrapText('`', '`');
+        } else if (key === 'e') {
+          e.preventDefault();
+          exportToNotes();
+        } else if (key === 'w') {
+          e.preventDefault();
+          closeSticky();
+        }
+      }
+    });
+
+    applyTheme();
+  </script>
+</body>
+</html>

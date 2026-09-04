@@ -14,6 +14,8 @@ BACKUP_FILE = os.path.join(BACKUP_DIR, "tasks.json")
 DIARY_DIR = os.path.expanduser("~/Projects/esawi.dev")
 DIARY_PATH = os.path.join(DIARY_DIR, "src/data/diary.json")
 
+NOTES_HISTORY_FILE = os.path.join(BACKUP_DIR, "notes_history.json")
+
 def load_tasks():
     if os.path.exists(BACKUP_FILE):
         try:
@@ -27,6 +29,42 @@ def save_tasks(tasks):
     os.makedirs(BACKUP_DIR, exist_ok=True)
     with open(BACKUP_FILE, "w", encoding="utf-8") as f:
         json.dump(tasks, f, indent=2, ensure_ascii=False)
+
+def load_notes():
+    if os.path.exists(NOTES_HISTORY_FILE):
+        try:
+            with open(NOTES_HISTORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
+
+def list_notes():
+    notes = load_notes()
+    print(f"\n📝 Tickr Notes ({len(notes)} total)")
+    print("-" * 50)
+    for idx, n in enumerate(notes, 1):
+        updated = n.get("updatedAt", "")[:16].replace("T", " ")
+        print(f"  {idx}. {n.get('title', 'Untitled')} ({updated})")
+    if not notes:
+        print("  (No notes found)")
+    print()
+
+def export_note_cli(index=1):
+    notes = load_notes()
+    if not notes:
+        print("No notes available to export.")
+        return
+    if index < 1 or index > len(notes):
+        print(f"Invalid note index: {index}. Choose between 1 and {len(notes)}.")
+        return
+    note = notes[index - 1]
+    from tickr_app import export_note_to_apple_notes
+    ok = export_note_to_apple_notes(note.get("content", ""), note.get("title", ""))
+    if ok:
+        print(f"✓ Successfully exported '{note.get('title', 'Untitled')}' to Apple Notes!")
+    else:
+        print("Failed to export note.")
 
 def add_task(title, category="PROJECT"):
     tasks = load_tasks()
@@ -90,6 +128,13 @@ def main():
     # Standup command
     subparsers.add_parser("standup", help="Generate formatted markdown standup report")
 
+    # Notes list command
+    subparsers.add_parser("notes", help="List past markdown scratchpad notes")
+
+    # Export note command
+    export_parser = subparsers.add_parser("export-note", help="Export a note to Apple Notes app")
+    export_parser.add_argument("index", type=int, nargs="?", default=1, help="Index of the note to export (default: 1 for latest)")
+
     args = parser.parse_args()
 
     if args.command == "add":
@@ -98,6 +143,10 @@ def main():
         list_tasks()
     elif args.command == "standup":
         print_standup()
+    elif args.command == "notes":
+        list_notes()
+    elif args.command == "export-note":
+        export_note_cli(args.index)
 
 if __name__ == "__main__":
     main()

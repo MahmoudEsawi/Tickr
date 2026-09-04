@@ -54,6 +54,7 @@ A minimalist macOS menu bar productivity tool combining a precision focus timer,
 - Precision mechanical ruler scrubber with sound synthesis
 - Ambient focus rain generator
 - Multi-note markdown scratchpad with instant search
+- 1-Click export to Apple Notes with formatted typography
 - Floating HUD pin mode
 - 1-Click daily standup exporter
 - Automated git diary deployment
@@ -79,10 +80,17 @@ Download `Tickr-v1.0.0.dmg` from the [latest release](https://github.com/Mahmoud
 
 | Shortcut | Action |
 | :--- | :--- |
-| `⌘` + `⇧` + `T` | Toggle Tickr HUD |
-| `⌥` + `Space` | Alternative HUD toggle |
+| `⌘` + `⇧` + `T` / `⌥` + `Space` | Toggle Tickr HUD |
+| `⌘` + `A` | Select All (inputs, scratchpad) |
+| `⌘` + `C` / `⌘` + `V` / `⌘` + `X` | Copy / Paste / Cut |
+| `⌘` + `Z` / `⌘` + `⇧` + `Z` | Undo / Redo |
+| `⌘` + `B` / `⌘` + `I` / `⌘` + `K` | Bold / Italic / Code inline in Note |
+| `⌘` + `E` | Export active note to Apple Notes |
+| `⌘` + `N` | New note / new task |
+| `⌘` + `1` / `2` / `3` / `4` | Switch Tab (Timer, Note, Tasks, Settings) |
+| `Tab` | Indent text in Note Editor (2 spaces) |
 | `Enter` | Submit task / set timer duration |
-| `Esc` | Dismiss HUD |
+| `Esc` | Close drawer / dismiss HUD |
 
 ---
 
